@@ -14,7 +14,7 @@ class HomePage extends ConsumerWidget {
     final initSound = ref.watch(backgroundAudioControllerProvider);
 
     return Scaffold(
-      body: Center(
+      body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

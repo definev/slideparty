@@ -155,6 +155,7 @@ class _AppState extends State<App> {
     return MaterialApp.router(
       routeInformationParser: App.router.routeInformationParser,
       routerDelegate: App.router.routerDelegate,
+      debugShowCheckedModeBanner: false,
       theme: FlexColorScheme.dark(
         fontFamily: 'kenvector_future',
         scheme: FlexScheme.redWine,
