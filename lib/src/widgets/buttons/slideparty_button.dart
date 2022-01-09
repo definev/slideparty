@@ -45,6 +45,7 @@ class SlidepartyButton extends HookConsumerWidget {
       child: GestureDetector(
         onTapDown: (_) => buttonState.value = _ButtonState.pressed,
         onTapUp: (_) => buttonState.value = _ButtonState.idle,
+        onTapCancel: () => buttonState.value = _ButtonState.idle,
         onTap: () {
           audioController.clickSound();
           onPressed();
