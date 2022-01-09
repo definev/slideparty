@@ -41,6 +41,7 @@ dependencies:
   flex_color_scheme: ^4.1.1
   just_audio: ^0.9.18
   equatable: ^2.0.3
+  universal_platform: ^1.0.0+1
 
 dev_dependencies:
   flutter_test:

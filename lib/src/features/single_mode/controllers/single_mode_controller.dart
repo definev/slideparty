@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
@@ -36,6 +38,7 @@ class SingleModePlayboardController
 
   @override
   Playboard? moveByGesture(PlayboardDirection direction) {
+    log('moveByGesture: $direction');
     final newBoard = defaultMoveByGesture(this, direction, state.playboard);
     if (newBoard != null) {
       _read(buttonAudioControllerProvider).clickSound();
