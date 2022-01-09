@@ -11,7 +11,9 @@ class BackgroundAudioController extends StateNotifier<bool> {
 
   Future<void> _play() async {
     try {
-      await _player.setAsset('assets/sounds/background.wav');
+      // await _player.setAsset('assets/sounds/background.wav');
+      await _player.setUrl(
+          'https://drive.google.com/uc?export=download&confirm=no_antivirus&id=1W8RkZruX7KGSq5CJ5vtzkfMQC1pDmWrz');
       _player.play();
       _player.setLoopMode(LoopMode.one);
       state = true;

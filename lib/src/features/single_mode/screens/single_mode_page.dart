@@ -3,10 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
-import 'package:slideparty/src/features/playboard/models/playboard_control_keyboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
-import 'package:slideparty/src/widgets/widgets.dart';
 
 class SingleModePage extends ConsumerWidget {
   const SingleModePage({Key? key}) : super(key: key);
@@ -36,8 +34,7 @@ class SingleModePage extends ConsumerWidget {
                       autofocus: true,
                       onKey: (event) {
                         if (event is RawKeyDownEvent) {
-                          controller.control(
-                              event.logicalKey, defaultArrowControl);
+                          controller.moveByKeyboard(event.logicalKey);
                         }
                       },
                       child: PlayboardView(onPressed: controller.move),

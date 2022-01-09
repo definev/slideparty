@@ -1,13 +1,12 @@
 import 'package:flutter/services.dart';
-import 'package:slideparty/src/features/playboard/models/playboard.dart';
 
-class PlayboardControlKeyboard {
+class PlayboardKeyboardControl {
   final LogicalKeyboardKey up;
   final LogicalKeyboardKey down;
   final LogicalKeyboardKey left;
   final LogicalKeyboardKey right;
 
-  const PlayboardControlKeyboard({
+  const PlayboardKeyboardControl({
     required this.up,
     required this.left,
     required this.down,
@@ -20,23 +19,16 @@ class PlayboardControlKeyboard {
               down != right &&
               left != right,
         );
-
-  Playboard? moveHole(LogicalKeyboardKey pressedKey, Playboard board) {
-    if (pressedKey == up) return board.moveHole(PlayboardDirection.up);
-    if (pressedKey == down) return board.moveHole(PlayboardDirection.down);
-    if (pressedKey == left) return board.moveHole(PlayboardDirection.left);
-    if (pressedKey == right) return board.moveHole(PlayboardDirection.right);
-  }
 }
 
-final defaultWASDControl = PlayboardControlKeyboard(
+final defaultWASDControl = PlayboardKeyboardControl(
   up: LogicalKeyboardKey.keyW,
   left: LogicalKeyboardKey.keyA,
   down: LogicalKeyboardKey.keyS,
   right: LogicalKeyboardKey.keyD,
 );
 
-final defaultArrowControl = PlayboardControlKeyboard(
+final defaultArrowControl = PlayboardKeyboardControl(
   up: LogicalKeyboardKey.arrowUp,
   left: LogicalKeyboardKey.arrowLeft,
   down: LogicalKeyboardKey.arrowDown,
