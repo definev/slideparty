@@ -1,11 +1,39 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
+import 'package:slideparty/src/utils/slideparty_colors.dart';
 
 enum ButtonColor { blue, green, red, yellow }
 enum ButtonSize { large, square }
 enum _ButtonState { hover, idle, pressed }
+
+extension BackgroundColor on ButtonColor {
+  Color backgroundColor(BuildContext context) {
+    switch (this) {
+      case ButtonColor.blue:
+        return Theme.of(context).brightness == Brightness.dark
+            ? SlidepartyColors.dark.blueBg
+            : SlidepartyColors.light.blueBg;
+      case ButtonColor.green:
+        return Theme.of(context).brightness == Brightness.dark
+            ? SlidepartyColors.dark.greenBg
+            : SlidepartyColors.light.greenBg;
+
+      case ButtonColor.red:
+        return Theme.of(context).brightness == Brightness.dark
+            ? SlidepartyColors.dark.redBg
+            : SlidepartyColors.light.redBg;
+
+      case ButtonColor.yellow:
+        return Theme.of(context).brightness == Brightness.dark
+            ? SlidepartyColors.dark.yellowBg
+            : SlidepartyColors.light.yellowBg;
+    }
+  }
+}
 
 class SlidepartyButton extends HookConsumerWidget {
   const SlidepartyButton({
@@ -37,6 +65,10 @@ class SlidepartyButton extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final buttonState = useState(_ButtonState.idle);
+    final timer = Timer.periodic(
+      const Duration(milliseconds: 700),
+      (timer) {},
+    );
     final audioController = ref.read(buttonAudioControllerProvider);
 
     return MouseRegion(
