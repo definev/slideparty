@@ -1,7 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:slideparty/src/features/playboard/controllers/playboard_state.dart';
+import 'package:slideparty/src/features/playboard/models/playboard_state.dart';
 
-export 'playboard_state.dart';
+export '../models/playboard_state.dart';
 
 typedef PlayboardController<T extends PlayboardState> = StateNotifier<T>;
 

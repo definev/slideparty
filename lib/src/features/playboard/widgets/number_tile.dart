@@ -14,7 +14,7 @@ class NumberTile extends StatefulWidget {
   }) : super(key: key);
 
   final int index;
-  final ButtonColor color;
+  final ButtonColors color;
   final double playboardSize;
   final int boardSize;
   final Function(int index) onPressed;

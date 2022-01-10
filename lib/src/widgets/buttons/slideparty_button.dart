@@ -1,39 +1,11 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
-import 'package:slideparty/src/utils/slideparty_colors.dart';
+import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
+import 'models/slideparty_button_params.dart';
 
-enum ButtonColor { blue, green, red, yellow }
-enum ButtonSize { large, square }
 enum _ButtonState { hover, idle, pressed }
-
-extension BackgroundColor on ButtonColor {
-  Color backgroundColor(BuildContext context) {
-    switch (this) {
-      case ButtonColor.blue:
-        return Theme.of(context).brightness == Brightness.dark
-            ? SlidepartyColors.dark.blueBg
-            : SlidepartyColors.light.blueBg;
-      case ButtonColor.green:
-        return Theme.of(context).brightness == Brightness.dark
-            ? SlidepartyColors.dark.greenBg
-            : SlidepartyColors.light.greenBg;
-
-      case ButtonColor.red:
-        return Theme.of(context).brightness == Brightness.dark
-            ? SlidepartyColors.dark.redBg
-            : SlidepartyColors.light.redBg;
-
-      case ButtonColor.yellow:
-        return Theme.of(context).brightness == Brightness.dark
-            ? SlidepartyColors.dark.yellowBg
-            : SlidepartyColors.light.yellowBg;
-    }
-  }
-}
 
 class SlidepartyButton extends HookConsumerWidget {
   const SlidepartyButton({
@@ -46,29 +18,22 @@ class SlidepartyButton extends HookConsumerWidget {
     required this.child,
   }) : super(key: key);
 
-  final ButtonColor color;
+  final ButtonColors color;
   final ButtonSize size;
   final double fontSize;
   final VoidCallback onPressed;
   final Widget child;
   final double scale;
 
-  String _imagePath(_ButtonState state) {
-    String path = 'assets/buttons/';
-    path += color.name;
-    path += '_${state.name}';
-    path += '_${size.name}';
-    path += '_button.png';
-    return path;
+  Color? _surfaceColor(ButtonColors color, _ButtonState state) {
+    return state == _ButtonState.hover
+        ? color.primaryColor
+        : Color.lerp(Colors.white, color.primaryColor, 0.02);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final buttonState = useState(_ButtonState.idle);
-    final timer = Timer.periodic(
-      const Duration(milliseconds: 700),
-      (timer) {},
-    );
     final audioController = ref.read(buttonAudioControllerProvider);
 
     return MouseRegion(
@@ -85,22 +50,20 @@ class SlidepartyButton extends HookConsumerWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(_imagePath(buttonState.value)),
+              image: AssetImage(
+                buttonImagePath(color, buttonState.value, size),
+              ),
               scale: 1 / scale,
             ),
           ),
           child: IconTheme(
             data: IconThemeData(
-              color: buttonState.value == _ButtonState.hover
-                  ? Colors.black
-                  : Colors.white,
+              color: _surfaceColor(color, buttonState.value),
             ),
             child: DefaultTextStyle(
               style: Theme.of(context).textTheme.bodyText2!.copyWith(
                     fontSize: fontSize,
-                    color: buttonState.value == _ButtonState.hover
-                        ? Colors.black
-                        : Colors.white,
+                    color: _surfaceColor(color, buttonState.value),
                   ),
               child: SizedBox(
                 height: 49 * scale,
@@ -113,4 +76,14 @@ class SlidepartyButton extends HookConsumerWidget {
       ),
     );
   }
+}
+
+String buttonImagePath(
+    ButtonColors color, _ButtonState state, ButtonSize size) {
+  String path = 'assets/buttons/';
+  path += color.name;
+  path += '_${state.name}';
+  path += '_${size.name}';
+  path += '_button.png';
+  return path;
 }
