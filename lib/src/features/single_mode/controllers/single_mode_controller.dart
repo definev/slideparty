@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
+import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'package:slideparty/src/features/playboard/helpers/helpers.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
@@ -12,7 +13,11 @@ import 'package:slideparty/src/widgets/widgets.dart';
 
 final singleModeControllerProvider =
     StateNotifierProvider.autoDispose<PlayboardController, PlayboardState>(
-  (ref) => SingleModePlayboardController(ref.read, ButtonColor.red),
+  (ref) {
+    final color = ref
+        .watch(playboardInfoControllerProvider.select((value) => value.color));
+    return SingleModePlayboardController(ref.read, color);
+  },
 );
 
 class SingleModePlayboardController
@@ -27,7 +32,7 @@ class SingleModePlayboardController
         );
 
   final Reader _read;
-  final ButtonColor color;
+  final ButtonColors color;
 
   void move(int index) {
     final playboard = state.playboard.move(index);

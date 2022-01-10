@@ -3,16 +3,16 @@ import 'package:slideparty/src/widgets/widgets.dart';
 
 abstract class PlayboardConfig extends Equatable {
   const PlayboardConfig();
-  ButtonColor get bgColor;
+  ButtonColors get bgColor;
 }
 
 class NumberPlayboardConfig extends PlayboardConfig {
   const NumberPlayboardConfig(this.color);
 
-  final ButtonColor color;
+  final ButtonColors color;
 
   @override
-  ButtonColor get bgColor => color;
+  ButtonColors get bgColor => color;
 
   @override
   List<Object?> get props => [color];

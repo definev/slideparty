@@ -1,12 +1,16 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
 import 'package:slideparty/src/features/home/home.dart';
 import 'package:slideparty/src/features/multiple_mode/multiple_mode.dart';
 import 'package:slideparty/src/features/online_mode/online_mode.dart';
 import 'package:slideparty/src/features/single_mode/single_mode.dart';
 
-class App extends StatefulWidget {
+import 'src/features/playboard/controllers/playboard_info_controller.dart';
+
+class App extends ConsumerStatefulWidget {
   const App({Key? key}) : super(key: key);
 
   static final router = GoRouter(
@@ -44,7 +48,7 @@ class App extends StatefulWidget {
   _AppState createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
@@ -152,26 +156,25 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    final playboardDefaultColor = ref
+        .watch(playboardInfoControllerProvider.select((value) => value.color));
+    final isDarkTheme = ref.watch(
+        appSettingControllerProvider.select((value) => value.isDarkTheme));
+
     return MaterialApp.router(
       routeInformationParser: App.router.routeInformationParser,
       routerDelegate: App.router.routerDelegate,
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
+      themeMode: isDarkTheme ? ThemeMode.dark : ThemeMode.light,
       theme: FlexColorScheme.light(
         fontFamily: 'kenvector_future',
-        primary: const Color(0xFF25ADE6),
-        // primary: const Color(0xFF75CF4E),
-        // primary: const Color(0xFFFFCD06),
-        // primary: const Color(0xFFED701E),
+        primary: playboardDefaultColor.primaryColor,
         blendLevel: 20,
         surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
       ).toTheme,
       darkTheme: FlexColorScheme.dark(
         fontFamily: 'kenvector_future',
-        primary: const Color(0xFF25ADE6),
-        // primary: const Color(0xFF75CF4E),
-        // primary: const Color(0xFFFFCD06),
-        // primary: const Color(0xFFED701E),
+        primary: playboardDefaultColor.primaryColor,
         blendLevel: 20,
         surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
       ).toTheme,
