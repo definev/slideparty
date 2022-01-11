@@ -85,15 +85,12 @@ class HomePage extends HookConsumerWidget {
                     children: [
                       PortalEntry(
                         visible: isColorPickerExpand.value,
-                        childAnchor: Alignment.bottomCenter,
-                        portalAnchor: Alignment.topCenter,
+                        childAnchor: Alignment.bottomRight,
+                        portalAnchor: Alignment.bottomLeft,
                         portal: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const SizedBox(height: 8),
-                            ...ButtonColors.values
-                                .sublist(0, ButtonColors.values.length - 1)
-                                .map(
+                            ...ButtonColors.values.map(
                               (color) {
                                 return TweenAnimationBuilder<double>(
                                   tween: Tween<double>(
@@ -104,27 +101,30 @@ class HomePage extends HookConsumerWidget {
                                   duration: Duration(
                                     milliseconds: 200 +
                                         200 *
-                                            (isPreCloseColorPicker.value
+                                            (isPreCloseColorPicker.value ==
+                                                    false
                                                 ? (ButtonColors.values.length -
                                                     color.index -
                                                     1)
                                                 : color.index),
                                   ),
-                                  curve: isPreCloseColorPicker.value
-                                      ? Curves.easeOutCubic
-                                      : Curves.easeInCubic,
+                                  curve: Curves.decelerate,
                                   builder: (context, value, child) => Opacity(
                                     opacity: delayedProgress(
                                       ButtonColors.values.length,
                                       value,
-                                      ButtonColors.values.length -
-                                          color.index -
-                                          1,
+                                      ButtonColors.values.length - color.index,
                                     ),
                                     child: child!,
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    padding: EdgeInsets.only(
+                                      bottom: color.index ==
+                                              ButtonColors.values.length - 1
+                                          ? 0.0
+                                          : 8.0,
+                                      left: (190 - 49 * 3) / 2,
+                                    ),
                                     child: IgnorePointer(
                                       ignoring: isPreCloseColorPicker.value,
                                       child: SlidepartyButton(
@@ -162,12 +162,9 @@ class HomePage extends HookConsumerWidget {
                               );
                             }
                           },
-                          child: isColorPickerExpand.value
-                              ? const RotatedBox(
-                                  quarterTurns: 2,
-                                  child: Icon(Icons.arrow_drop_down_circle),
-                                )
-                              : const Icon(Icons.arrow_drop_down_circle),
+                          child: isColorPickerExpand.value == false
+                              ? const Icon(Icons.arrow_circle_up_outlined)
+                              : const Icon(Icons.arrow_circle_down_outlined),
                         ),
                       ),
                       SizedBox(
