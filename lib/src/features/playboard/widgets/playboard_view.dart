@@ -49,8 +49,8 @@ class PlayboardView extends StatelessWidget {
         );
 
         return TweenAnimationBuilder<Size?>(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.decelerate,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutBack,
           tween: SizeTween(
             begin: const Size(2, 2),
             end: loc.toSize,
