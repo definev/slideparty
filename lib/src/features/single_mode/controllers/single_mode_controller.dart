@@ -1,11 +1,13 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'package:slideparty/src/features/playboard/helpers/helpers.dart';
+import 'package:slideparty/src/features/playboard/models/loc.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
@@ -22,11 +24,14 @@ final singleModeControllerProvider =
 
 class SingleModePlayboardController
     extends PlayboardController<SinglePlayboardState>
-    with PlayboardGestureControlHelper, PlayboardKeyboardControlHelper {
+    with
+        PlayboardGestureControlHelper,
+        PlayboardKeyboardControlHelper,
+        AutoSolveHelper {
   SingleModePlayboardController(this._read, this.color)
       : super(
           SinglePlayboardState(
-            playboard: Playboard.random(4),
+            playboard: Playboard.random(3),
             config: NumberPlayboardConfig(color),
           ),
         );
@@ -72,6 +77,31 @@ class SingleModePlayboardController
     }
 
     return newBoard;
+  }
+
+  // *Auto solve helper*
+  void autoSolve(BuildContext context) {
+    if (isSolving) return;
+    debugPrint('AUTO SOLVE START');
+    List<Loc>? steps = solve(state.playboard);
+    debugPrint('AUTO SOLVE STOP');
+    debugPrint('$steps');
+    if (steps == null || steps.isEmpty) return;
+    final size = state.playboard.size;
+    int index = 0;
+    void onSolving() {
+      Future.delayed(
+        const Duration(milliseconds: 500),
+        () {
+          if (index >= steps.length) return;
+          final step = steps[index];
+          move(step.index(size));
+          onSolving();
+        },
+      );
+    }
+
+    onSolving();
   }
 }
 

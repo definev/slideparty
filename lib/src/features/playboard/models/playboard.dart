@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:slideparty/src/utils/breakpoint.dart';
 
 import 'loc.dart';
@@ -12,7 +13,7 @@ class Playboard {
     required this.size,
     required this.currentBoard,
   }) {
-    _solvedBoard = List.generate(size * size, (index) => index);
+    solvedBoard = List.generate(size * size, (index) => index);
   }
 
   static const bp = Breakpoint(small: 300, normal: 400, large: 500);
@@ -22,11 +23,11 @@ class Playboard {
     if (size.isOdd) {
       return inversion.isEven;
     } else {
-      final holeLoc = Loc.fromIndex(size, board.indexOf(size * size - 1));
+      final holeLoc = Loc.fromIndex(size, board.indexOf(board.hole));
       if (inversion.isOdd) {
-        return holeLoc.isEvenFarFromBottom(size);
+        return holeLoc.isInEvenRow(size);
       } else {
-        return !holeLoc.isEvenFarFromBottom(size);
+        return !holeLoc.isInEvenRow(size);
       }
     }
   }
@@ -41,22 +42,22 @@ class Playboard {
     return Playboard(size: size, currentBoard: currentBoard);
   }
 
-  late final List<int> _solvedBoard;
+  @visibleForTesting
+  factory Playboard.fromMatrix(List<List<int>> matrix) {
+    return Playboard(
+      size: matrix.length,
+      currentBoard: matrix.expand((row) => row).toList(),
+    );
+  }
+
+  late final List<int> solvedBoard;
   final int size;
   final List<int> currentBoard;
 
   int get hole => size * size - 1;
 
   void logPlayboard() {
-    StringBuffer buffer = StringBuffer();
-    for (int i = 0; i < currentBoard.length; i++) {
-      String char = currentBoard[i] == hole ? 'X' : '${currentBoard[i] + 1}';
-      buffer.write('${i % size == 0 ? '\n' : ''}$char ');
-    }
-    for (int i = 0; i < _solvedBoard.length; i++) {
-      String char = _solvedBoard[i] == hole ? 'X' : '${_solvedBoard[i] + 1}';
-      buffer.write('${i % size == 0 ? '\n' : ''}$char ');
-    }
+    currentBoard.printBoard();
   }
 
   Loc currentLoc(int number) {
@@ -64,40 +65,44 @@ class Playboard {
     return Loc.fromIndex(size, index);
   }
 
-  // Auto solve the puzzle with A* algorithm
-  List<Loc>? autoSolve(List<int> finalBoard) {
-    if (isSolvable(size, currentBoard)) return null;
+  _PlayboardNode? _solve(
+    List<int> currentBoard,
+    List<int> finalBoard,
+    Loc holeLoc,
+  ) {
+    PriorityQueue<_PlayboardNode> queue = PriorityQueue<_PlayboardNode>();
+    _PlayboardNode root = _PlayboardNode(
+      holeLoc: holeLoc,
+      board: currentBoard,
+      finalBoard: finalBoard,
+      depth: 0,
+    );
+    queue.add(root);
 
-    _PlayboardNode? _solve(
-      List<int> currentBoard,
-      List<int> finalBoard,
-      Loc holeLoc,
-    ) {
-      PriorityQueue<_PlayboardNode> queue = PriorityQueue<_PlayboardNode>();
-      _PlayboardNode root = _PlayboardNode(
-        holeLoc: holeLoc,
-        board: currentBoard,
-        finalBoard: finalBoard,
-        depth: 0,
-      );
-      queue.add(root);
+    while (queue.isNotEmpty) {
+      _PlayboardNode node = queue.first;
+      queue.removeFirst();
+      if (node.cost == 0) return node;
 
-      while (queue.isNotEmpty) {
-        _PlayboardNode node = queue.first;
-        queue.removeFirst();
-        if (node.cost == 0) return node;
-
-        for (int i = 0; i < 4; i++) {
-          final direction = PlayboardDirection.values[i];
-          final newNode = node.move(direction);
-          if (newNode != null) queue.add(newNode);
-        }
+      for (int i = 0; i < 4; i++) {
+        final direction = PlayboardDirection.values[i];
+        final newNode = node.move(direction);
+        if (newNode != null) queue.add(newNode);
       }
-
-      return null;
     }
 
-    final _playboardNode = _solve(currentBoard, finalBoard, currentLoc(hole));
+    return null;
+  }
+
+  // Auto solve the puzzle with A* algorithm
+  List<Loc>? autoSolve([List<int>? finalBoard]) {
+    if (!isSolvable(size, currentBoard)) return null;
+
+    final _playboardNode = _solve(
+      currentBoard,
+      finalBoard ?? solvedBoard,
+      currentLoc(hole),
+    );
 
     if (_playboardNode == null) return null;
     return _playboardNode.locs;
@@ -146,8 +151,8 @@ class Playboard {
   }
 
   bool get isWin {
-    for (int i = 0; i < _solvedBoard.length; i++) {
-      if (currentBoard[i] != _solvedBoard[i]) {
+    for (int i = 0; i < solvedBoard.length; i++) {
+      if (currentBoard[i] != solvedBoard[i]) {
         return false;
       }
     }
@@ -155,31 +160,42 @@ class Playboard {
   }
 }
 
-extension _SolvingPuzzleExt on List<int> {
+extension SolvingPuzzleExt on List<int> {
   int get size => sqrt(length).floor();
 
+  int get hole => length - 1;
+
   int get inversion {
-    int first = this[0];
-    int res = skip(0).fold(
-      0,
-      (inversion, second) {
-        bool larger = first > second;
-        first = second;
-        if (larger) {
-          return inversion + 1;
+    final board = [...this]..remove(hole);
+    int res = 0;
+
+    for (int i = 0; i < board.length; i++) {
+      for (int j = i + 1; j < board.length; j++) {
+        if (board[i] > board[j]) {
+          res++;
         }
-        return inversion;
-      },
-    );
+      }
+    }
+
     return res;
   }
 
-  void swap(int size, Loc holeLoc, Loc numberLoc) {
+  void swap(Loc holeLoc, Loc numberLoc) {
     final holeIndex = holeLoc.index(size);
     final numberIndex = numberLoc.index(size);
     final temp = this[holeIndex];
     this[holeIndex] = this[numberIndex];
     this[numberIndex] = temp;
+  }
+
+  void printBoard() {
+    StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < length; i++) {
+      String char = this[i] == hole ? 'X' : '${this[i] + 1}';
+      buffer.write('${i % size == 0 ? '\n' : ''}$char ');
+    }
+
+    debugPrint(buffer.toString());
   }
 }
 
@@ -217,15 +233,11 @@ class _PlayboardNode implements Comparable<_PlayboardNode> {
       }
     }();
     if (newHoleLoc == null) return null;
-    final newBoard = [...board]..swap(
-        board.size,
-        holeLoc,
-        newHoleLoc,
-      );
+    final newBoard = [...board]..swap(holeLoc, newHoleLoc);
     return _PlayboardNode(
-      parent: parent,
+      parent: this,
       holeLoc: newHoleLoc,
-      direction: PlayboardDirection.left,
+      direction: direction,
       board: newBoard,
       finalBoard: finalBoard,
       depth: depth + 1,
@@ -246,7 +258,7 @@ class _PlayboardNode implements Comparable<_PlayboardNode> {
     final List<Loc> locs = [];
     _PlayboardNode? node = this;
     while (node != null) {
-      locs.add(node.holeLoc);
+      if (node.parent != null) locs.add(node.holeLoc);
       node = node.parent;
     }
     return locs.reversed.toList();

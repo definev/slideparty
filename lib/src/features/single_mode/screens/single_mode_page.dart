@@ -27,29 +27,39 @@ class SingleModePage extends StatelessWidget {
         children: [
           Expanded(
             child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: min(500, screenSize.shortestSide),
-                  maxWidth: min(500, screenSize.shortestSide),
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final frameSize = constraints.biggest;
-                    final size = frameSize.shortestSide;
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: min(500, screenSize.shortestSide),
+                      maxWidth: min(500, screenSize.shortestSide),
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final frameSize = constraints.biggest;
+                        final size = frameSize.shortestSide;
 
-                    return SizedBox(
-                      height: size,
-                      width: size,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: PlayboardView(
-                          size: size - 32,
-                          onPressed: controller.move,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        return SizedBox(
+                          height: size,
+                          width: size,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: PlayboardView(
+                              size: size - 32,
+                              onPressed: controller.move,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  SlidepartyButton(
+                    color: ButtonColors.green,
+                    onPressed: () => controller.autoSolve(context),
+                    child: const Text('AUTO SOLVE'),
+                  ),
+                ],
               ),
             ),
           ),

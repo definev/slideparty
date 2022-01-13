@@ -1,6 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:slideparty/src/features/playboard/models/playboard.dart';
 
+/// [Loc] represents a coordinate in the puzzle map.
+/// - **dx** is the horizontal distance from the left edge of the puzzle map.
+/// - **dy** is the vertical distance from the top edge of the puzzle map.
 class Loc extends Equatable {
   final int dx;
   final int dy;
@@ -12,9 +16,23 @@ class Loc extends Equatable {
 
   Size get toSize => Size(dx.toDouble(), dy.toDouble());
 
-  bool isEvenFarFromBottom(int size) => (size - dy).isEven;
+  bool isInEvenRow(int size) => (size - dy).isEven;
 
   int index(int size) => dy * size + dx;
+
+  Loc? move(int size, PlayboardDirection? direction) {
+    if (direction == null) return null;
+    switch (direction) {
+      case PlayboardDirection.up:
+        return up(size);
+      case PlayboardDirection.down:
+        return down(size);
+      case PlayboardDirection.left:
+        return left(size);
+      case PlayboardDirection.right:
+        return right(size);
+    }
+  }
 
   Loc? up(int size) {
     if (dy > 0 && dy < size) return Loc(dx, dy - 1);

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/widgets/number_tile.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
 
-class PlayboardView extends StatelessWidget {
+class PlayboardView extends HookConsumerWidget {
   const PlayboardView({
     Key? key,
     required this.size,
@@ -17,21 +17,28 @@ class PlayboardView extends StatelessWidget {
   final Function(int index) onPressed;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final boardSize = ref.watch(playboardControllerProvider.select((value) {
+      if (value is SinglePlayboardState) {
+        return value.playboard.size;
+      }
+      throw UnimplementedError('Unsupported state');
+    }));
+
     return SizedBox(
       height: size,
       width: size,
       child: Stack(
         children: List.generate(
-          16,
-          (index) => _numberTile(index, size),
+          boardSize * boardSize,
+          (index) => _numberTile(index, size, boardSize),
         ),
       ),
     );
   }
 
-  Widget _numberTile(int index, double size) {
-    if (index == 15) return const SizedBox();
+  Widget _numberTile(int index, double size, int boardSize) {
+    if (index == boardSize * boardSize - 1) return const SizedBox();
     return Consumer(
       builder: (context, ref, child) {
         final loc = ref.watch(
@@ -52,24 +59,29 @@ class PlayboardView extends StatelessWidget {
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeOutBack,
           tween: SizeTween(
-            begin: const Size(2, 2),
+            begin: Size(boardSize / 2, boardSize / 2),
             end: loc.toSize,
           ),
           builder: (context, value, child) => Positioned(
-            top: (value?.height ?? loc.dy) * size / 4,
-            left: (value?.width ?? loc.dx) * size / 4,
-            child: _getTileWithConfig(size, index, config),
+            top: (value?.height ?? loc.dy) * size / boardSize,
+            left: (value?.width ?? loc.dx) * size / boardSize,
+            child: _getTileWithConfig(size, index, config, boardSize),
           ),
         );
       },
     );
   }
 
-  Widget _getTileWithConfig(double size, int index, PlayboardConfig config) {
+  Widget _getTileWithConfig(
+    double size,
+    int index,
+    PlayboardConfig config,
+    int boardSize,
+  ) {
     if (config is NumberPlayboardConfig) {
       return NumberTile(
         index: index,
-        boardSize: 4,
+        boardSize: boardSize,
         playboardSize: size,
         color: config.color,
         onPressed: onPressed,
