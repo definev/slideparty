@@ -7,7 +7,7 @@ import 'package:slideparty/src/features/audio/background_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
 
-class ThemeSettingBar extends ConsumerWidget {
+class ThemeSettingBar extends HookConsumerWidget {
   const ThemeSettingBar({Key? key}) : super(key: key);
 
   double delayedProgress(int length, double animationValue, int i) =>
