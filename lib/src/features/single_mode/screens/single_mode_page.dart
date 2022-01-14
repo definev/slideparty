@@ -26,8 +26,8 @@ class SingleModePage extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: min(525, screenSize.shortestSide),
-            maxWidth: min(525, screenSize.shortestSide),
+            maxHeight: min(425, screenSize.shortestSide),
+            maxWidth: min(425, screenSize.shortestSide),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {

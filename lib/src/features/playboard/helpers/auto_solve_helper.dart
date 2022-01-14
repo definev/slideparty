@@ -4,8 +4,10 @@ mixin AutoSolveHelper {
   bool _isSolving = false;
   bool get isSolving => _isSolving;
 
-  List<PlayboardDirection>? solve(Playboard initialBoard,
-      [List<int>? finalBoard]) {
+  Future<List<PlayboardDirection>?> solve(
+    Playboard initialBoard, [
+    List<int>? finalBoard,
+  ]) async {
     try {
       if (_isSolving) return null;
       _isSolving = true;

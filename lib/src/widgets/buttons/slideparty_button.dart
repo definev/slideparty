@@ -53,7 +53,12 @@ class SlidepartyButton extends HookConsumerWidget {
               image: AssetImage(
                 buttonImagePath(color, buttonState.value, size),
               ),
-              scale: 1 / scale,
+              centerSlice: Rect.fromCircle(
+                center: const Offset(49 / 2, 49 / 2),
+                radius: 49 / 3,
+              ),
+              fit: BoxFit.fill,
+              // scale: 1 / scale,
             ),
           ),
           child: IconTheme(
@@ -62,7 +67,7 @@ class SlidepartyButton extends HookConsumerWidget {
             ),
             child: DefaultTextStyle(
               style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                    fontSize: fontSize,
+                    fontSize: fontSize * scale,
                     color: _surfaceColor(color, buttonState.value),
                   ),
               child: SizedBox(

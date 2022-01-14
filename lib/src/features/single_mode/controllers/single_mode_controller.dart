@@ -81,7 +81,7 @@ class SingleModePlayboardController
   // *Auto solve helper*
   void autoSolve(BuildContext context) async {
     if (isSolving) return;
-    final steps = solve(state.playboard);
+    final steps = await solve(state.playboard);
     if (steps == null || steps.isEmpty) return;
     final buttonAudioController = _read(buttonAudioControllerProvider);
 

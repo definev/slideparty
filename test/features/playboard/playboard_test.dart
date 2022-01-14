@@ -3,7 +3,7 @@ import 'package:slideparty/src/features/playboard/models/playboard.dart';
 
 void main() {
   group('Playboard auto solving', () {
-    test('Already solved state', () {
+    test('Already solved state', () async {
       Playboard board = Playboard.fromMatrix(
         [
           [0, 1, 2, 3],
@@ -13,10 +13,10 @@ void main() {
         ],
       );
 
-      final directions = board.autoSolve();
+      final directions = await board.autoSolve();
       expect(directions, <PlayboardDirection>[]);
     });
-    test('Cannot solved state', () {
+    test('Cannot solved state', () async {
       Playboard board = Playboard.fromMatrix(
         [
           [0, 1, 2, 3],
@@ -26,11 +26,11 @@ void main() {
         ],
       );
 
-      final directions = board.autoSolve();
+      final directions = await board.autoSolve();
       expect(directions, null);
     });
     group('Solving state', () {
-      test('One move to finish state', () {
+      test('One move to finish state', () async {
         Playboard board = Playboard.fromMatrix(
           [
             [0, 1, 2, 3],
@@ -40,11 +40,11 @@ void main() {
           ],
         );
 
-        final directions = board.autoSolve();
+        final directions = await board.autoSolve();
         expect(directions, const [PlayboardDirection.right]);
       });
 
-      test('More move to finish state', () {
+      test('More move to finish state', () async {
         Playboard board = Playboard.fromMatrix(
           [
             [0, 7, 1],
@@ -53,7 +53,7 @@ void main() {
           ],
         );
 
-        final directions = board.autoSolve();
+        final directions = await board.autoSolve();
         expect(directions?.length, greaterThan(1));
       });
     });

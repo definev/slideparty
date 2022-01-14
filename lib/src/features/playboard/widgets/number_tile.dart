@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 
 class NumberTile extends StatefulWidget {
@@ -24,22 +23,16 @@ class NumberTile extends StatefulWidget {
 }
 
 class _NumberTileState extends State<NumberTile> {
-  double get _rSpacing => Playboard.bp.responsiveValue(
-        Size(widget.playboardSize, widget.playboardSize),
-        watch: 4.0,
-        mobile: 6.0,
-        defaultValue: 8.0,
-      );
-  double get _tileSize =>
-      widget.playboardSize / widget.boardSize - _rSpacing * 2;
+  double get _rSpacing => 2.5 * _tileSize / 49;
+  double get _tileSize => widget.playboardSize / widget.boardSize;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => widget.onPressed(widget.index),
       child: SizedBox(
-        height: _tileSize + _rSpacing * 2,
-        width: _tileSize + _rSpacing * 2,
+        height: _tileSize,
+        width: _tileSize,
         child: Padding(
           padding: EdgeInsets.all(_rSpacing),
           child: SlidepartyButton(
@@ -47,14 +40,6 @@ class _NumberTileState extends State<NumberTile> {
             size: ButtonSize.square,
             scale: _tileSize / 49,
             onPressed: () => widget.onPressed(widget.index),
-            fontSize: Playboard.bp.responsiveValue(
-              Size(widget.playboardSize, widget.playboardSize),
-              watch: 14,
-              mobile: 18,
-              tablet: 24,
-              desktop: 32,
-              defaultValue: 18,
-            ),
             child: Text('${widget.index + 1}'),
           ),
         ),

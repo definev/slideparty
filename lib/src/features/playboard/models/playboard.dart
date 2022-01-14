@@ -65,60 +65,18 @@ class Playboard {
     return Loc.fromIndex(size, index);
   }
 
-  _PlayboardNode? _solve(
-    List<int> currentBoard,
-    List<int> finalBoard,
-    Loc holeLoc,
-  ) {
-    PriorityQueue<_PlayboardNode> queue = PriorityQueue<_PlayboardNode>();
-    _PlayboardNode root = _PlayboardNode(
-      holeLoc: holeLoc,
-      board: currentBoard,
-      finalBoard: finalBoard,
-      depth: 0,
-    );
-    queue.add(root);
-
-    while (queue.isNotEmpty) {
-      _PlayboardNode node = queue.first;
-      queue.removeFirst();
-      if (node.cost == 0) return node;
-
-      for (int i = 0; i < 4; i++) {
-        final direction = PlayboardDirection.values[i];
-        switch (node.direction) {
-          case PlayboardDirection.up:
-            if (direction == PlayboardDirection.down) continue;
-            break;
-          case PlayboardDirection.down:
-            if (direction == PlayboardDirection.up) continue;
-            break;
-          case PlayboardDirection.left:
-            if (direction == PlayboardDirection.right) continue;
-            break;
-          case PlayboardDirection.right:
-            if (direction == PlayboardDirection.left) continue;
-            break;
-          default:
-            break;
-        }
-        final newNode = node.move(direction);
-        if (newNode != null) queue.add(newNode);
-      }
-    }
-
-    return null;
-  }
-
   // Auto solve the puzzle with A* algorithm
-  List<PlayboardDirection>? autoSolve([List<int>? finalBoard]) {
+  Future<List<PlayboardDirection>?> autoSolve([List<int>? finalBoard]) async {
     if (!isSolvable(size, currentBoard)) return null;
 
-    final _playboardNode = _solve(
+    Stopwatch stopwatch = Stopwatch()..start();
+    final _playboardNode = _solve(PlayboardSolverParams(
       currentBoard,
       finalBoard ?? solvedBoard,
       currentLoc(hole),
-    );
+    ));
+    stopwatch.stop();
+    debugPrint('Solve time: ${stopwatch.elapsedMicroseconds} ms');
 
     if (_playboardNode == null) return null;
     return _playboardNode.directions;
@@ -180,6 +138,55 @@ class Playboard {
     }
     return true;
   }
+}
+
+class PlayboardSolverParams {
+  const PlayboardSolverParams(this.currentBoard, this.finalBoard, this.holeLoc);
+
+  final List<int> currentBoard;
+  final List<int> finalBoard;
+  final Loc holeLoc;
+}
+
+_PlayboardNode? _solve(PlayboardSolverParams params) {
+  PriorityQueue<_PlayboardNode> queue = PriorityQueue<_PlayboardNode>();
+  _PlayboardNode root = _PlayboardNode(
+    holeLoc: params.holeLoc,
+    board: params.currentBoard,
+    finalBoard: params.finalBoard,
+    depth: 0,
+  );
+  queue.add(root);
+
+  while (queue.isNotEmpty) {
+    _PlayboardNode node = queue.first;
+    queue.removeFirst();
+    if (node.cost == 0) return node;
+
+    for (int i = 0; i < 4; i++) {
+      final direction = PlayboardDirection.values[i];
+      switch (node.direction) {
+        case PlayboardDirection.up:
+          if (direction == PlayboardDirection.down) continue;
+          break;
+        case PlayboardDirection.down:
+          if (direction == PlayboardDirection.up) continue;
+          break;
+        case PlayboardDirection.left:
+          if (direction == PlayboardDirection.right) continue;
+          break;
+        case PlayboardDirection.right:
+          if (direction == PlayboardDirection.left) continue;
+          break;
+        default:
+          break;
+      }
+      final newNode = node.move(direction);
+      if (newNode != null) queue.add(newNode);
+    }
+  }
+
+  return null;
 }
 
 extension SolvingPuzzleExt on List<int> {

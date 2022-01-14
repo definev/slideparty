@@ -60,7 +60,8 @@ class PlayboardView extends HookConsumerWidget {
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeOutBack,
           tween: SizeTween(
-            begin: Size(boardSize / 2, boardSize / 2),
+            begin: Size((boardSize / 2).floorToDouble(),
+                (boardSize / 2).floorToDouble()),
             end: loc.toSize,
           ),
           builder: (context, value, child) => Positioned(
