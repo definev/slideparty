@@ -1,0 +1,29 @@
+name: Testing
+
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      - name: Install and set Flutter version
+        uses: subosito/flutter-action@v1.4.0
+        with:
+          flutter-version: '2.8.1'
+      - name: Restore packages
+        run: flutter pub get
+      - name: Analyze
+        run: flutter analyze
+      - name: Run tests
+        run: flutter test --coverage
+      - name: Upload coverage to codecov
+        run: curl -s https://codecov.io/bash
+        shell: bash

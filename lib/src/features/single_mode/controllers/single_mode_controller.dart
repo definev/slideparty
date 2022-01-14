@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
@@ -22,7 +23,10 @@ final singleModeControllerProvider =
 
 class SingleModePlayboardController
     extends PlayboardController<SinglePlayboardState>
-    with PlayboardGestureControlHelper, PlayboardKeyboardControlHelper {
+    with
+        PlayboardGestureControlHelper,
+        PlayboardKeyboardControlHelper,
+        AutoSolveHelper {
   SingleModePlayboardController(this._read, this.color)
       : super(
           SinglePlayboardState(
@@ -72,6 +76,26 @@ class SingleModePlayboardController
     }
 
     return newBoard;
+  }
+
+  // *Auto solve helper*
+  void autoSolve(BuildContext context) async {
+    if (isSolving) return;
+    final steps = solve(state.playboard);
+    if (steps == null || steps.isEmpty) return;
+    final buttonAudioController = _read(buttonAudioControllerProvider);
+
+    for (final direction in steps) {
+      try {
+        buttonAudioController.clickSound();
+      } catch (_) {}
+      final newBoard = state.playboard.moveHoleExact(direction);
+      if (newBoard == null) {
+        break;
+      }
+      state = state.editPlayboard(newBoard);
+      await Future.delayed(const Duration(milliseconds: 600));
+    }
   }
 }
 
