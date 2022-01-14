@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:slideparty/src/features/playboard/models/loc.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
 
 void main() {
