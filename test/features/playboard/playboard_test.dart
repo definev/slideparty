@@ -14,8 +14,8 @@ void main() {
         ],
       );
 
-      final locs = board.autoSolve();
-      expect(locs, <Loc>[]);
+      final directions = board.autoSolve();
+      expect(directions, <PlayboardDirection>[]);
     });
     test('Cannot solved state', () {
       Playboard board = Playboard.fromMatrix(
@@ -27,8 +27,8 @@ void main() {
         ],
       );
 
-      final locs = board.autoSolve();
-      expect(locs, null);
+      final directions = board.autoSolve();
+      expect(directions, null);
     });
     group('Solving state', () {
       test('One move to finish state', () {
@@ -41,8 +41,8 @@ void main() {
           ],
         );
 
-        final locs = board.autoSolve();
-        expect(locs, const [Loc(3, 3)]);
+        final directions = board.autoSolve();
+        expect(directions, const [PlayboardDirection.right]);
       });
 
       test('More move to finish state', () {
@@ -54,8 +54,8 @@ void main() {
           ],
         );
 
-        final locs = board.autoSolve();
-        expect(locs?.length, greaterThan(1));
+        final directions = board.autoSolve();
+        expect(directions?.length, greaterThan(1));
       });
     });
 
