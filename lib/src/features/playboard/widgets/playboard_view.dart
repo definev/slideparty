@@ -29,6 +29,7 @@ class PlayboardView extends HookConsumerWidget {
       height: size,
       width: size,
       child: Stack(
+        clipBehavior: Clip.none,
         children: List.generate(
           boardSize * boardSize,
           (index) => _numberTile(index, size, boardSize),

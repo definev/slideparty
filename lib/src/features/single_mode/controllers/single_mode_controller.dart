@@ -30,7 +30,7 @@ class SingleModePlayboardController
   SingleModePlayboardController(this._read, this.color)
       : super(
           SinglePlayboardState(
-            playboard: Playboard.random(4),
+            playboard: Playboard.random(3),
             config: NumberPlayboardConfig(color),
           ),
         );

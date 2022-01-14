@@ -23,47 +23,30 @@ class SingleModePage extends StatelessWidget {
 
     return ColoredBox(
       color: state.config.bgColor.backgroundColor(context),
-      child: Column(
-        children: [
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: min(500, screenSize.shortestSide),
-                      maxWidth: min(500, screenSize.shortestSide),
-                    ),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final frameSize = constraints.biggest;
-                        final size = frameSize.shortestSide;
-
-                        return SizedBox(
-                          height: size,
-                          width: size,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: PlayboardView(
-                              size: size - 32,
-                              onPressed: controller.move,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  SlidepartyButton(
-                    color: ButtonColors.green,
-                    onPressed: () => controller.autoSolve(context),
-                    child: const Text('AUTO SOLVE'),
-                  ),
-                ],
-              ),
-            ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: min(525, screenSize.shortestSide),
+            maxWidth: min(525, screenSize.shortestSide),
           ),
-        ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final frameSize = constraints.biggest;
+              final size = frameSize.shortestSide;
+
+              return SizedBox(
+                height: size,
+                width: size,
+                child: Center(
+                  child: PlayboardView(
+                    size: size - 32,
+                    onPressed: controller.move,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
