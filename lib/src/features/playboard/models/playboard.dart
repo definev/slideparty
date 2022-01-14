@@ -86,6 +86,22 @@ class Playboard {
 
       for (int i = 0; i < 4; i++) {
         final direction = PlayboardDirection.values[i];
+        switch (node.direction) {
+          case PlayboardDirection.up:
+            if (direction == PlayboardDirection.down) continue;
+            break;
+          case PlayboardDirection.down:
+            if (direction == PlayboardDirection.up) continue;
+            break;
+          case PlayboardDirection.left:
+            if (direction == PlayboardDirection.right) continue;
+            break;
+          case PlayboardDirection.right:
+            if (direction == PlayboardDirection.left) continue;
+            break;
+          default:
+            break;
+        }
         final newNode = node.move(direction);
         if (newNode != null) queue.add(newNode);
       }
@@ -95,7 +111,7 @@ class Playboard {
   }
 
   // Auto solve the puzzle with A* algorithm
-  List<Loc>? autoSolve([List<int>? finalBoard]) {
+  List<PlayboardDirection>? autoSolve([List<int>? finalBoard]) {
     if (!isSolvable(size, currentBoard)) return null;
 
     final _playboardNode = _solve(
@@ -105,7 +121,7 @@ class Playboard {
     );
 
     if (_playboardNode == null) return null;
-    return _playboardNode.locs;
+    return _playboardNode.directions;
   }
 
   Playboard? move(int number) {
@@ -148,6 +164,12 @@ class Playboard {
         if (numberLoc != null) return swap(holeLoc, numberLoc);
         break;
     }
+  }
+
+  Playboard? moveHoleExact(PlayboardDirection direction) {
+    final holeLoc = currentLoc(hole);
+    final numberLoc = holeLoc.move(size, direction);
+    if (numberLoc != null) return swap(holeLoc, numberLoc);
   }
 
   bool get isWin {
@@ -254,16 +276,20 @@ class _PlayboardNode implements Comparable<_PlayboardNode> {
     return cost;
   }
 
-  List<Loc> get locs {
-    final List<Loc> locs = [];
+  List<PlayboardDirection> get directions {
+    final List<PlayboardDirection> locs = [];
     _PlayboardNode? node = this;
     while (node != null) {
-      if (node.parent != null) locs.add(node.holeLoc);
+      if (node.parent != null) locs.add(node.direction!);
       node = node.parent;
     }
     return locs.reversed.toList();
   }
 
   @override
-  int compareTo(_PlayboardNode other) => cost - other.cost;
+  String toString() => 'Playboard { cost = $cost, depth = $depth }';
+
+  @override
+  int compareTo(_PlayboardNode other) =>
+      (cost + depth) - (other.cost + other.depth);
 }

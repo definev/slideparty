@@ -55,7 +55,7 @@ void main() {
         );
 
         final locs = board.autoSolve();
-        expect(locs, const [Loc(3, 3)]);
+        expect(locs?.length, greaterThan(1));
       });
     });
 

@@ -7,7 +7,6 @@ import 'package:slideparty/src/features/audio/button_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'package:slideparty/src/features/playboard/helpers/helpers.dart';
-import 'package:slideparty/src/features/playboard/models/loc.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
@@ -31,7 +30,7 @@ class SingleModePlayboardController
   SingleModePlayboardController(this._read, this.color)
       : super(
           SinglePlayboardState(
-            playboard: Playboard.random(3),
+            playboard: Playboard.random(4),
             config: NumberPlayboardConfig(color),
           ),
         );
@@ -80,28 +79,23 @@ class SingleModePlayboardController
   }
 
   // *Auto solve helper*
-  void autoSolve(BuildContext context) {
+  void autoSolve(BuildContext context) async {
     if (isSolving) return;
-    debugPrint('AUTO SOLVE START');
-    List<Loc>? steps = solve(state.playboard);
-    debugPrint('AUTO SOLVE STOP');
-    debugPrint('$steps');
+    final steps = solve(state.playboard);
     if (steps == null || steps.isEmpty) return;
-    final size = state.playboard.size;
-    int index = 0;
-    void onSolving() {
-      Future.delayed(
-        const Duration(milliseconds: 500),
-        () {
-          if (index >= steps.length) return;
-          final step = steps[index];
-          move(step.index(size));
-          onSolving();
-        },
-      );
-    }
+    final buttonAudioController = _read(buttonAudioControllerProvider);
 
-    onSolving();
+    for (final direction in steps) {
+      try {
+        buttonAudioController.clickSound();
+      } catch (_) {}
+      final newBoard = state.playboard.moveHoleExact(direction);
+      if (newBoard == null) {
+        break;
+      }
+      state = state.editPlayboard(newBoard);
+      await Future.delayed(const Duration(milliseconds: 600));
+    }
   }
 }
 
