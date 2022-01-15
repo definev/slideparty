@@ -3,7 +3,7 @@ import 'package:slideparty/src/features/playboard/models/playboard.dart';
 
 void main() {
   group('Playboard auto solving', () {
-    test('Already solved state', () {
+    test('Not solve with greater than 3x3', () {
       Playboard board = Playboard.fromMatrix(
         [
           [0, 1, 2, 3],
@@ -14,7 +14,7 @@ void main() {
       );
 
       final directions = board.autoSolve();
-      expect(directions, <PlayboardDirection>[]);
+      expect(directions, null);
     });
     test('Cannot solved state', () {
       Playboard board = Playboard.fromMatrix(
@@ -33,10 +33,9 @@ void main() {
       test('One move to finish state', () {
         Playboard board = Playboard.fromMatrix(
           [
-            [0, 1, 2, 3],
-            [4, 5, 6, 7],
-            [8, 9, 10, 11],
-            [12, 13, 15, 14],
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 8, 7],
           ],
         );
 
