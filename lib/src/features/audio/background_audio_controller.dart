@@ -30,4 +30,11 @@ class BackgroundAudioController extends StateNotifier<bool> {
     state = false;
     _player.stop();
   }
+
+  void playWinSound() async {
+    try {
+      await _player.setAsset('assets/sounds/win.wav');
+      _player.play();
+    } catch (_) {}
+  }
 }

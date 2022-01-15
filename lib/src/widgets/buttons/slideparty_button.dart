@@ -5,13 +5,14 @@ import 'package:slideparty/src/features/audio/button_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'models/slideparty_button_params.dart';
 
-enum _ButtonState { hover, idle, pressed }
+enum ButtonState { hover, idle, pressed }
 
 class SlidepartyButton extends HookConsumerWidget {
   const SlidepartyButton({
     Key? key,
     required this.color,
     this.size = ButtonSize.large,
+    this.customSize,
     this.scale = 1,
     this.fontSize = 14,
     required this.onPressed,
@@ -24,58 +25,85 @@ class SlidepartyButton extends HookConsumerWidget {
   final VoidCallback onPressed;
   final Widget child;
   final double scale;
+  final Size? customSize;
 
-  Color? _surfaceColor(ButtonColors color, _ButtonState state) {
-    return state == _ButtonState.hover
-        ? color.primaryColor
-        : Color.lerp(Colors.white, color.primaryColor, 0.02);
+  Color? _surfaceColor(ButtonColors color, double value) {
+    return Color.lerp(
+      Color.lerp(Colors.white, color.primaryColor, 0.02),
+      color.primaryColor,
+      value,
+    )!;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final buttonState = useState(_ButtonState.idle);
+    final buttonState = useState(ButtonState.idle);
     final audioController = ref.read(buttonAudioControllerProvider);
 
     return MouseRegion(
-      onEnter: (_) => buttonState.value = _ButtonState.hover,
-      onExit: (_) => buttonState.value = _ButtonState.idle,
+      cursor: MouseCursor.defer,
+      onEnter: (_) => buttonState.value = ButtonState.hover,
+      onExit: (_) => buttonState.value = ButtonState.idle,
       child: GestureDetector(
-        onTapDown: (_) => buttonState.value = _ButtonState.pressed,
-        onTapUp: (_) => buttonState.value = _ButtonState.idle,
-        onTapCancel: () => buttonState.value = _ButtonState.idle,
+        onTapDown: (_) => buttonState.value = ButtonState.pressed,
+        onTapUp: (_) => buttonState.value = ButtonState.idle,
+        onTapCancel: () => buttonState.value = ButtonState.idle,
         onTap: () {
           audioController.clickSound();
           onPressed();
         },
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(
-                buttonImagePath(color, buttonState.value, size),
-              ),
-              centerSlice: Rect.fromCircle(
-                center: const Offset(49 / 2, 49 / 2),
-                radius: 49 / 3,
-              ),
-              fit: BoxFit.fill,
-              // scale: 1 / scale,
-            ),
-          ),
-          child: IconTheme(
-            data: IconThemeData(
-              color: _surfaceColor(color, buttonState.value),
-            ),
-            child: DefaultTextStyle(
-              style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                    fontSize: fontSize * scale,
-                    color: _surfaceColor(color, buttonState.value),
+        child: TweenAnimationBuilder<double>(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.decelerate,
+          tween: Tween<double>(
+              begin: 0, end: buttonState.value == ButtonState.hover ? 1 : 0),
+          builder: (context, value, child) {
+            final brightness = Theme.of(context).brightness;
+            final _color = Color.lerp(
+              color.primaryColor,
+              Theme.of(context).colorScheme.background,
+              value,
+            )!;
+            final _borderColor = Color.lerp(
+              Color.lerp(
+                _color,
+                brightness == Brightness.light ? Colors.black : Colors.white,
+                0.3,
+              )!,
+              color.primaryColor,
+              value,
+            );
+
+            return CustomPaint(
+                painter: BorderSlidepartyPainter(
+                  color: _color,
+                  borderColor: _borderColor,
+                  edge: 5,
+                  brightness: Theme.of(context).brightness,
+                  thickness: 2 + value * 1,
+                  elevation: 5 + value * 5,
+                ),
+                child: IconTheme(
+                  data: IconThemeData(
+                    color: _surfaceColor(color, value),
                   ),
-              child: SizedBox(
-                height: 49 * scale,
-                width: size == ButtonSize.square ? (49 * scale) : 190,
-                child: Center(child: child),
-              ),
-            ),
+                  child: DefaultTextStyle(
+                    style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                          fontSize: fontSize * scale,
+                          color: _surfaceColor(color, value),
+                        ),
+                    child: child!,
+                  ),
+                ));
+          },
+          child: SizedBox(
+            height: customSize != null ? customSize!.height : 49 * scale,
+            width: customSize != null
+                ? customSize!.width
+                : size == ButtonSize.square
+                    ? (49 * scale)
+                    : 190,
+            child: Center(child: child),
           ),
         ),
       ),
@@ -83,12 +111,62 @@ class SlidepartyButton extends HookConsumerWidget {
   }
 }
 
-String buttonImagePath(
-    ButtonColors color, _ButtonState state, ButtonSize size) {
-  String path = 'assets/buttons/';
-  path += color.name;
-  path += '_${state.name}';
-  path += '_${size.name}';
-  path += '_button.png';
-  return path;
+class BorderSlidepartyPainter extends CustomPainter {
+  const BorderSlidepartyPainter({
+    required this.color,
+    this.borderColor,
+    required this.thickness,
+    required this.edge,
+    required this.brightness,
+    this.elevation = 4,
+  });
+
+  final Color color;
+  final Color? borderColor;
+  final double thickness;
+  final double edge;
+  final Brightness brightness;
+  final double elevation;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    final path = Path()
+      ..moveTo(edge, 0)
+      ..lineTo(size.width - edge, 0)
+      ..lineTo(size.width, edge)
+      ..lineTo(size.width, size.height - edge)
+      ..lineTo(size.width - edge, size.height)
+      ..lineTo(edge, size.height)
+      ..lineTo(0, size.height - edge)
+      ..lineTo(0, edge)
+      ..close();
+    canvas.drawShadow(
+        path,
+        borderColor ??
+            Color.lerp(
+              color,
+              brightness == Brightness.light ? Colors.black : Colors.white,
+              0.3,
+            )!,
+        elevation,
+        true);
+    canvas.drawPath(path, paint);
+
+    final borderPaint = Paint()
+      ..color = borderColor ??
+          Color.lerp(
+            color,
+            brightness == Brightness.light ? Colors.black : Colors.white,
+            0.3,
+          )!
+      ..strokeWidth = thickness
+      ..style = PaintingStyle.stroke;
+    canvas.drawPath(path, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

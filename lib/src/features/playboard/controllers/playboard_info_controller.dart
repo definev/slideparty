@@ -11,6 +11,7 @@ final playboardInfoControllerProvider =
 class PlayboardInfoController extends ChangeNotifier {
   PlayboardInfoController(this._read) {
     _color = _read(playboardLocalProvider).buttonColor;
+    _boardSize = _read(playboardLocalProvider).boardSize;
   }
 
   final Reader _read;
@@ -20,6 +21,14 @@ class PlayboardInfoController extends ChangeNotifier {
   set color(ButtonColors color) {
     _read(playboardLocalProvider).buttonColor = color;
     _color = color;
+    notifyListeners();
+  }
+
+  int _boardSize = 3;
+  int get boardSize => _boardSize;
+  set boardSize(int value) {
+    _read(playboardLocalProvider).boardSize = value;
+    _boardSize = value;
     notifyListeners();
   }
 }

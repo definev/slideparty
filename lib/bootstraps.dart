@@ -8,7 +8,7 @@ import 'package:slideparty/src/features/app_setting/app_setting_local.dart';
 import 'package:slideparty/src/features/playboard/repositories/playboard_local.dart';
 
 void bootstraps(Widget app) async {
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   await Hive.initFlutter();
 
   // Database initialization

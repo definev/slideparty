@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
+import 'package:slideparty/src/features/playboard/models/playboard_animation_types.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/widgets/number_tile.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
@@ -24,21 +27,71 @@ class PlayboardView extends HookConsumerWidget {
       }
       throw UnimplementedError('Unsupported state');
     }));
+    final animationTypes =
+        ref.watch(playboardControllerProvider.select((value) {
+      if (value is SinglePlayboardState) {
+        if (value.playboard.isSolved) {
+          return PlayboardAnimationTypes.values[0];
+        }
+        return null;
+      }
+      return null;
+    }));
 
-    return SizedBox(
-      height: size,
-      width: size,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: List.generate(
-          boardSize * boardSize,
-          (index) => _numberTile(index, size, boardSize),
-        ),
+    return IgnorePointer(
+      ignoring: animationTypes != null,
+      child: _heartScaleFade(
+        animationTypes == PlayboardAnimationTypes.heartScaleFade,
+        boardSize,
       ),
     );
   }
 
-  Widget _numberTile(int index, double size, int boardSize) {
+  TweenAnimationBuilder<double> _heartScaleFade(
+    bool isAnimated,
+    int boardSize,
+  ) {
+    return TweenAnimationBuilder<double>(
+        duration: const Duration(seconds: 2),
+        curve: Curves.decelerate,
+        tween: Tween<double>(begin: 0, end: isAnimated ? 1 : 0),
+        builder: (context, value, child) {
+          return Transform.rotate(
+            angle: -(pi * 3 / 4) * value,
+            origin: const Offset(0.5, 0.5),
+            child: Transform.scale(
+              scale: value == 0
+                  ? 1
+                  : 1 + (size / sqrt(size * size * 2) - 1) * value,
+              child: SizedBox(
+                height: size,
+                width: size,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: List.generate(
+                    boardSize * boardSize,
+                    (index) => _numberTile(
+                      index: index,
+                      size: size,
+                      boardSize: boardSize,
+                      animationType: PlayboardAnimationTypes.heartScaleFade,
+                      animateValue: value,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  Widget _numberTile({
+    required int index,
+    required double size,
+    required int boardSize,
+    required PlayboardAnimationTypes animationType,
+    required double animateValue,
+  }) {
     if (index == boardSize * boardSize - 1) return const SizedBox();
     return Consumer(
       builder: (context, ref, child) {
@@ -64,29 +117,49 @@ class PlayboardView extends HookConsumerWidget {
                 (boardSize / 2).floorToDouble()),
             end: loc.toSize,
           ),
-          builder: (context, value, child) => Positioned(
-            top: (value?.height ?? loc.dy) * size / boardSize,
-            left: (value?.width ?? loc.dx) * size / boardSize,
-            child: _getTileWithConfig(size, index, config, boardSize),
+          builder: (context, pos, child) => Positioned(
+            top: (pos?.height ?? loc.dy) * size / boardSize,
+            left: (pos?.width ?? loc.dx) * size / boardSize,
+            child: _getTileWithConfig(
+              size: size,
+              index: index,
+              config: config,
+              boardSize: boardSize,
+              animationType: animationType,
+              animateValue: animateValue,
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _getTileWithConfig(
-    double size,
-    int index,
-    PlayboardConfig config,
-    int boardSize,
-  ) {
+  Widget _getTileWithConfig({
+    required double size,
+    required int index,
+    required PlayboardConfig config,
+    required int boardSize,
+    required PlayboardAnimationTypes animationType,
+    required double animateValue,
+  }) {
     if (config is NumberPlayboardConfig) {
-      return NumberTile(
-        index: index,
-        boardSize: boardSize,
-        playboardSize: size,
-        color: config.color,
-        onPressed: onPressed,
+      return Transform.scale(
+        scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
+        child: Opacity(
+          opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
+          child: NumberTile(
+            index: index,
+            boardSize: boardSize,
+            playboardSize: size,
+            color: config.color,
+            onPressed: onPressed,
+            child: Transform.rotate(
+              angle: (pi + pi / 4 - pi / 2) * animateValue,
+              origin: const Offset(0.5, 0.5),
+              child: Text('${index + 1}'),
+            ),
+          ),
+        ),
       );
     }
 

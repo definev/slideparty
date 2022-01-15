@@ -66,17 +66,15 @@ class Playboard {
   }
 
   // Auto solve the puzzle with A* algorithm
-  Future<List<PlayboardDirection>?> autoSolve([List<int>? finalBoard]) async {
+  List<PlayboardDirection>? autoSolve([List<int>? finalBoard]) {
+    if (size > 3) return null;
     if (!isSolvable(size, currentBoard)) return null;
 
-    Stopwatch stopwatch = Stopwatch()..start();
     final _playboardNode = _solve(PlayboardSolverParams(
       currentBoard,
       finalBoard ?? solvedBoard,
       currentLoc(hole),
     ));
-    stopwatch.stop();
-    debugPrint('Solve time: ${stopwatch.elapsedMicroseconds} ms');
 
     if (_playboardNode == null) return null;
     return _playboardNode.directions;
@@ -130,7 +128,7 @@ class Playboard {
     if (numberLoc != null) return swap(holeLoc, numberLoc);
   }
 
-  bool get isWin {
+  bool get isSolved {
     for (int i = 0; i < solvedBoard.length; i++) {
       if (currentBoard[i] != solvedBoard[i]) {
         return false;

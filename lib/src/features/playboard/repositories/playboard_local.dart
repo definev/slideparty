@@ -9,6 +9,9 @@ final playboardLocalProvider = Provider<PlayboardLocal>(
 abstract class PlayboardLocal extends DbCore<dynamic> {
   ButtonColors get buttonColor;
   set buttonColor(ButtonColors color);
+
+  int get boardSize;
+  set boardSize(int size);
 }
 
 class PlayboardLocalImpl extends PlayboardLocal {
@@ -20,4 +23,10 @@ class PlayboardLocalImpl extends PlayboardLocal {
 
   @override
   set buttonColor(ButtonColors color) => box.put('buttonColor', color);
+
+  @override
+  int get boardSize => box.get('boardSize', defaultValue: 3);
+
+  @override
+  set boardSize(int size) => box.put('boardSize', size);
 }

@@ -1,8 +1,9 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slideparty/src/features/audio/background_audio_controller.dart';
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
@@ -17,9 +18,14 @@ final singleModeControllerProvider =
   (ref) {
     final color = ref
         .watch(playboardInfoControllerProvider.select((value) => value.color));
-    return SingleModePlayboardController(ref.read, color);
+    return SingleModePlayboardController(ref.read, color: color, boardSize: 3);
   },
 );
+
+final counterProvider =
+    StateProvider.autoDispose<Duration>((ref) => const Duration(seconds: 0));
+
+final winStateProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 class SingleModePlayboardController
     extends PlayboardController<SinglePlayboardState>
@@ -27,31 +33,89 @@ class SingleModePlayboardController
         PlayboardGestureControlHelper,
         PlayboardKeyboardControlHelper,
         AutoSolveHelper {
-  SingleModePlayboardController(this._read, this.color)
-      : super(
+  SingleModePlayboardController(
+    this._read, {
+    required this.color,
+    required int boardSize,
+  }) : super(
           SinglePlayboardState(
-            playboard: Playboard.random(3),
+            playboard: Playboard.random(boardSize),
             config: NumberPlayboardConfig(color),
+            bestStep: -1,
           ),
-        );
+        ) {
+    final playboard = state.playboard;
+    state = SinglePlayboardState(
+      playboard: playboard,
+      config: state.config,
+      bestStep: solve(playboard)?.length ?? -1,
+    );
+  }
 
   final Reader _read;
   final ButtonColors color;
 
+  Stopwatch stopwatch = Stopwatch();
+  Timer? timer;
+
+  bool get isSolved => state.playboard.isSolved;
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
+  }
+
+  void reset() {
+    stopwatch.stop();
+    timer?.cancel();
+    timer = null;
+    final playboard = Playboard.random(state.playboard.size);
+    state = SinglePlayboardState(
+      playboard: playboard,
+      config: state.config,
+      bestStep: solve(playboard)?.length ?? -1,
+    );
+    _read(counterProvider.notifier).state = const Duration(seconds: 0);
+  }
+
+  void updatePlayboardState(Playboard playboard) {
+    if (timer == null) {
+      stopwatch.start();
+      timer = Timer.periodic(
+        const Duration(milliseconds: 30),
+        (timer) => _read(counterProvider.notifier).state = stopwatch.elapsed,
+      );
+    }
+    if (playboard.isSolved) {
+      _read(winStateProvider.notifier).state = true;
+      timer?.cancel();
+      timer = null;
+      stopwatch.stop();
+      _read(counterProvider.notifier).state = stopwatch.elapsed;
+      Future.delayed(
+        const Duration(milliseconds: 500),
+        () => _read(backgroundAudioControllerProvider.notifier).playWinSound(),
+      );
+    }
+    state = state.editPlayboard(playboard);
+  }
+
   void move(int index) {
+    if (state.playboard.isSolved) return;
     final playboard = state.playboard.move(index);
-    if (playboard != null) state = state.editPlayboard(playboard);
+    if (playboard != null) updatePlayboardState(playboard);
   }
 
   // *Gesture control helper*
 
   @override
   Playboard? moveByGesture(PlayboardDirection direction) {
-    log('moveByGesture: $direction');
+    if (state.playboard.isSolved) return null;
     final newBoard = defaultMoveByGesture(this, direction, state.playboard);
     if (newBoard != null) {
       _read(buttonAudioControllerProvider).clickSound();
-      state = state.editPlayboard(newBoard);
+      updatePlayboardState(newBoard);
     }
 
     return newBoard;
@@ -64,6 +128,7 @@ class SingleModePlayboardController
 
   @override
   Playboard? moveByKeyboard(LogicalKeyboardKey pressedKey) {
+    if (state.playboard.isSolved) return null;
     final newBoard = defaultMoveByKeyboard(
       this,
       pressedKey,
@@ -72,7 +137,7 @@ class SingleModePlayboardController
 
     if (newBoard != null) {
       _read(buttonAudioControllerProvider).clickSound();
-      state = state.editPlayboard(newBoard);
+      updatePlayboardState(newBoard);
     }
 
     return newBoard;
@@ -80,8 +145,9 @@ class SingleModePlayboardController
 
   // *Auto solve helper*
   void autoSolve(BuildContext context) async {
+    if (state.playboard.isSolved) return;
     if (isSolving) return;
-    final steps = await solve(state.playboard);
+    final steps = solve(state.playboard);
     if (steps == null || steps.isEmpty) return;
     final buttonAudioController = _read(buttonAudioControllerProvider);
 
@@ -93,7 +159,7 @@ class SingleModePlayboardController
       if (newBoard == null) {
         break;
       }
-      state = state.editPlayboard(newBoard);
+      updatePlayboardState(newBoard);
       await Future.delayed(const Duration(milliseconds: 600));
     }
   }
@@ -102,14 +168,29 @@ class SingleModePlayboardController
 class SinglePlayboardState extends PlayboardState {
   SinglePlayboardState({
     required this.playboard,
+    required this.bestStep,
+    this.step = 0,
     required PlayboardConfig config,
   }) : super(config: config);
 
   final Playboard playboard;
+  final int step;
+  final int bestStep;
 
-  SinglePlayboardState editPlayboard(Playboard playboard) =>
-      SinglePlayboardState(playboard: playboard, config: config);
+  SinglePlayboardState editPlayboard(Playboard playboard,
+          [bool increment = true]) =>
+      SinglePlayboardState(
+        playboard: playboard,
+        config: config,
+        step: increment ? step + 1 : step,
+        bestStep: bestStep,
+      );
 
   SinglePlayboardState editConfig(PlayboardConfig config) =>
-      SinglePlayboardState(playboard: playboard, config: config);
+      SinglePlayboardState(
+        playboard: playboard,
+        config: config,
+        step: step,
+        bestStep: bestStep,
+      );
 }
