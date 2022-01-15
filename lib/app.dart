@@ -15,7 +15,7 @@ class App extends ConsumerStatefulWidget {
 
   static final router = GoRouter(
     initialLocation: '/',
-    urlPathStrategy: UrlPathStrategy.path,
+    urlPathStrategy: UrlPathStrategy.hash,
     routes: [
       GoRoute(
         path: '/',

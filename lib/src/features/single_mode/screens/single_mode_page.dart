@@ -39,8 +39,7 @@ class SingleModePage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // _header(screenSize, state, controller),
-           
+            _header(screenSize, state, controller),
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: min(425, screenSize.shortestSide),
@@ -116,7 +115,7 @@ class SingleModePage extends StatelessWidget {
     );
   }
 
-  ConstrainedBox header(Size screenSize, SinglePlayboardState state,
+  ConstrainedBox _header(Size screenSize, SinglePlayboardState state,
       SingleModePlayboardController controller) {
     return ConstrainedBox(
       constraints: BoxConstraints(
