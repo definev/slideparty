@@ -10,7 +10,7 @@ abstract class AudioLocal extends DbCore {
 
 class AudioLocalImpl extends AudioLocal {
   @override
-  bool get isMuted => box.get('isMute', defaultValue: false);
+  bool get isMuted => box.get('isMute', defaultValue: true);
 
   @override
   set isMuted(bool value) => box.put('isMute', value);
