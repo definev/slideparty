@@ -71,11 +71,11 @@ class SingleModePlayboardController
     if (size == state.playboard.size) return;
     final playboard = Playboard.random(size);
 
-    Future(() => solve(playboard)?.length).then((bestStep) {
+    Future.microtask(() => solve(playboard)?.length).then((bestStep) {
       state = SinglePlayboardState(
         playboard: playboard,
         config: state.config,
-        bestStep: -1,
+        bestStep: bestStep ?? -1,
       );
     });
 
@@ -101,11 +101,14 @@ class SingleModePlayboardController
     timer?.cancel();
     timer = null;
     final playboard = Playboard.random(state.playboard.size);
-    state = SinglePlayboardState(
-      playboard: playboard,
-      config: state.config,
-      bestStep: solve(playboard)?.length ?? -1,
-    );
+    Future.microtask(() => solve(playboard)?.length).then((bestStep) {
+      state = SinglePlayboardState(
+        playboard: playboard,
+        config: state.config,
+        bestStep: bestStep ?? -1,
+      );
+    });
+
     _read(counterProvider.notifier).state = const Duration(seconds: 0);
   }
 
