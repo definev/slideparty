@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
-import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
+import 'package:slideparty/src/features/single_mode/controllers/controllers.dart';
 import 'package:slideparty/src/utils/durations.dart';
 
 class SingleModeHeader extends ConsumerWidget {

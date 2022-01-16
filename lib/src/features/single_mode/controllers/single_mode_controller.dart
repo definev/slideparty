@@ -13,6 +13,8 @@ import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 
+import 'controllers.dart';
+
 final singleModeControllerProvider =
     StateNotifierProvider.autoDispose<PlayboardController, PlayboardState>(
   (ref) {
@@ -198,34 +200,4 @@ class SingleModePlayboardController
       await Future.delayed(const Duration(milliseconds: 600));
     }
   }
-}
-
-class SinglePlayboardState extends PlayboardState {
-  SinglePlayboardState({
-    required this.playboard,
-    required this.bestStep,
-    this.step = 0,
-    required PlayboardConfig config,
-  }) : super(config: config);
-
-  final Playboard playboard;
-  final int step;
-  final int bestStep;
-
-  SinglePlayboardState editPlayboard(Playboard playboard,
-          [bool increment = true]) =>
-      SinglePlayboardState(
-        playboard: playboard,
-        config: config,
-        step: increment ? step + 1 : step,
-        bestStep: bestStep,
-      );
-
-  SinglePlayboardState editConfig(PlayboardConfig config) =>
-      SinglePlayboardState(
-        playboard: playboard,
-        config: config,
-        step: step,
-        bestStep: bestStep,
-      );
 }

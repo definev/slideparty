@@ -7,7 +7,7 @@ import 'package:slideparty/src/features/playboard/controllers/playboard_controll
 import 'package:slideparty/src/features/playboard/models/playboard_animation_types.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/widgets/number_tile.dart';
-import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
+import 'package:slideparty/src/features/single_mode/controllers/controllers.dart';
 
 class PlayboardView extends HookConsumerWidget {
   const PlayboardView({

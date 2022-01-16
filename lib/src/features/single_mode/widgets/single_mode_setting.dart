@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:slideparty/src/features/audio/general_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
-import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
+import 'package:slideparty/src/features/single_mode/controllers/controllers.dart';
 
 class SingleModeSetting extends ConsumerWidget {
   const SingleModeSetting({Key? key}) : super(key: key);

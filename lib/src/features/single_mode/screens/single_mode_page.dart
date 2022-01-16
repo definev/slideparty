@@ -7,14 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
+import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
-import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
+import 'package:slideparty/src/features/single_mode/controllers/controllers.dart';
 import 'package:slideparty/src/features/single_mode/widgets/single_mode_setting.dart';
 import 'package:slideparty/src/features/single_mode/widgets/widgets.dart';
 import 'package:slideparty/src/utils/app_infos/app_infos.dart';
 import 'package:slideparty/src/widgets/dialogs/slideparty_dialog.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 class SingleModePage extends StatelessWidget {
   const SingleModePage({Key? key}) : super(key: key);
@@ -30,7 +30,9 @@ class SingleModePage extends StatelessWidget {
         final backgroundColor =
             ref.watch(playboardControllerProvider.select((state) {
           if (state is SinglePlayboardState) {
-            return state.config.bgColor.backgroundColor(context);
+            return (state.config as NumberPlayboardConfig)
+                .color
+                .backgroundColor(context);
           }
           throw UnimplementedError('This cannot happen');
         }));
@@ -72,14 +74,16 @@ class SingleModePage extends StatelessWidget {
             child: Stack(
               children: [
                 Center(
-                  child: Consumer(builder: (context, ref, child) {
-                    final openSetting = ref.watch(singleModeSettingProvider);
-                    return PlayboardView(
-                      size: size - 32,
-                      onPressed: controller.move,
-                      clipBehavior: openSetting ? Clip.antiAlias : Clip.none,
-                    );
-                  }),
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      final openSetting = ref.watch(singleModeSettingProvider);
+                      return PlayboardView(
+                        size: size - 32,
+                        onPressed: controller.move,
+                        clipBehavior: openSetting ? Clip.antiAlias : Clip.none,
+                      );
+                    },
+                  ),
                 ),
                 Consumer(
                   builder: (context, ref, child) {
