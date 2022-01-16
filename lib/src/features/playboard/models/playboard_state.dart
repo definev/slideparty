@@ -1,7 +1,91 @@
-import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
+import 'package:equatable/equatable.dart';
+import 'package:slideparty/src/widgets/buttons/buttons.dart';
 
-abstract class PlayboardState {
+import 'playboard_config.dart';
+import 'playboard.dart';
+
+abstract class PlayboardState extends Equatable {
   final PlayboardConfig config;
 
   const PlayboardState({required this.config});
+}
+
+class SinglePlayboardState extends PlayboardState {
+  const SinglePlayboardState({
+    required this.playboard,
+    required this.bestStep,
+    this.step = 0,
+    required PlayboardConfig config,
+  }) : super(config: config);
+
+  final Playboard playboard;
+  final int step;
+  final int bestStep;
+
+  SinglePlayboardState editPlayboard(Playboard playboard,
+          [bool increment = true]) =>
+      SinglePlayboardState(
+        playboard: playboard,
+        config: config,
+        step: increment ? step + 1 : step,
+        bestStep: bestStep,
+      );
+
+  SinglePlayboardState editConfig(PlayboardConfig config) =>
+      SinglePlayboardState(
+        playboard: playboard,
+        config: config,
+        step: step,
+        bestStep: bestStep,
+      );
+
+  @override
+  List<Object?> get props => [playboard];
+}
+
+class MultiplePlayboardState extends PlayboardState {
+  MultiplePlayboardState({
+    required int playerCount,
+    List<SinglePlayboardState>? playerStates,
+  }) : super(
+          config: MultiplePlayboardConfig(
+            List.generate(
+              ButtonColors.values.length,
+              (index) => NumberPlayboardConfig(ButtonColors.values[index]),
+            ),
+          ),
+        ) {
+    assert(playerCount > 0 && playerCount <= 4);
+    assert(playerStates == null || playerStates.length == playerCount);
+    _playerStates = playerStates ??
+        List.generate(
+          playerCount,
+          (index) {
+            final singleConfig =
+                (config as MultiplePlayboardConfig).configs[index];
+            final playboard = Playboard.random(3);
+
+            return SinglePlayboardState(
+              playboard: playboard,
+              bestStep: playboard.autoSolve()?.length ?? 0,
+              config: singleConfig,
+            );
+          },
+        );
+  }
+
+  int get playerCount => _playerStates.length;
+  late final List<SinglePlayboardState> _playerStates;
+
+  SinglePlayboardState currentState(int index) => _playerStates[index];
+
+  MultiplePlayboardState setState(int index, SinglePlayboardState state) {
+    return MultiplePlayboardState(
+      playerCount: playerCount,
+      playerStates: List.from(_playerStates)..[index] = state,
+    );
+  }
+
+  @override
+  List<Object?> get props => [_playerStates];
 }

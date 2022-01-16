@@ -13,8 +13,6 @@ import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 
-import 'controllers.dart';
-
 final singleModeControllerProvider =
     StateNotifierProvider.autoDispose<PlayboardController, PlayboardState>(
   (ref) {

@@ -9,7 +9,7 @@ import 'package:slideparty/src/features/playboard/controllers/playboard_controll
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
-import 'package:slideparty/src/features/single_mode/controllers/controllers.dart';
+import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
 import 'package:slideparty/src/features/single_mode/widgets/single_mode_setting.dart';
 import 'package:slideparty/src/features/single_mode/widgets/widgets.dart';
 import 'package:slideparty/src/utils/app_infos/app_infos.dart';

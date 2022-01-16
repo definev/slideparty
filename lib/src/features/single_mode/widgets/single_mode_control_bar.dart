@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
-import 'package:slideparty/src/features/single_mode/controllers/controllers.dart';
+import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
 
 class SingleModeControlBar extends ConsumerWidget {
   const SingleModeControlBar({Key? key}) : super(key: key);
