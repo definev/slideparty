@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
-import 'package:slideparty/src/features/audio/background_audio_controller.dart';
+import 'package:slideparty/src/features/audio/general_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
 
@@ -17,9 +17,10 @@ class ThemeSettingBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final audioController =
-        ref.watch(backgroundAudioControllerProvider.notifier);
-    final initSound = ref.watch(backgroundAudioControllerProvider);
+    final enableSound = ref
+        .watch(generalAudioControllerProvider.select((value) => value.isMuted));
+    final audioController = ref.watch(generalAudioControllerProvider.notifier);
+
     final isDarkMode = ref.watch(
       appSettingControllerProvider.select((value) => value.isDarkTheme),
     );
@@ -137,9 +138,8 @@ class ThemeSettingBar extends HookConsumerWidget {
               SlidepartyButton(
                 color: playboardDefaultColor,
                 size: ButtonSize.square,
-                onPressed: () =>
-                    initSound ? audioController.stop() : audioController.play(),
-                child: initSound
+                onPressed: () => audioController.isMuted = !enableSound,
+                child: enableSound
                     ? const Icon(Icons.music_off)
                     : const Icon(Icons.music_note),
               ),

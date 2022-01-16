@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:slideparty/src/features/audio/general_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
 
@@ -48,18 +49,20 @@ class SingleModeSetting extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(left: 25.0, top: 16, right: 25.0),
               child: Row(
-                children: const [
-                  // Consumer(builder: (context, ref, _) {
-                  //   final controller =
-                  //       ref.watch(generalAudioControllerProvider);
-                  //   return Padding(
-                  //     padding: const EdgeInsets.only(right: 8.0),
-                  //     child: Checkbox(
-                  //         value: controller.isMuted,
-                  //         onChanged: (value) => controller.isMuted = value!),
-                  //   );
-                  // }),
-                  Text('Sound'),
+                children: [
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final controller =
+                          ref.watch(generalAudioControllerProvider);
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Checkbox(
+                            value: controller.isMuted,
+                            onChanged: (value) => controller.isMuted = value!),
+                      );
+                    },
+                  ),
+                  const Text('Sound'),
                 ],
               ),
             ),
