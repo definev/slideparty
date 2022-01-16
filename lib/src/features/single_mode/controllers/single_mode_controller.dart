@@ -70,11 +70,15 @@ class SingleModePlayboardController
   void changeDimension(int size) {
     if (size == state.playboard.size) return;
     final playboard = Playboard.random(size);
-    state = SinglePlayboardState(
-      playboard: playboard,
-      config: state.config,
-      bestStep: solve(playboard)?.length ?? -1,
-    );
+
+    Future(() => solve(playboard)?.length).then((bestStep) {
+      state = SinglePlayboardState(
+        playboard: playboard,
+        config: state.config,
+        bestStep: -1,
+      );
+    });
+
     stopwatch
       ..stop()
       ..reset();
