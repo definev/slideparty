@@ -1,0 +1,1 @@
+dynamic get window => null;

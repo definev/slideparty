@@ -11,6 +11,7 @@ import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
 import 'package:slideparty/src/features/single_mode/widgets/single_mode_setting.dart';
 import 'package:slideparty/src/features/single_mode/widgets/widgets.dart';
+import 'package:slideparty/src/utils/app_infos/app_infos.dart';
 import 'package:slideparty/src/widgets/dialogs/slideparty_dialog.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -145,33 +146,58 @@ class SingleModePage extends StatelessWidget {
                 },
               );
 
-              if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-                return SwipeDetector(
-                  onSwipeLeft: () =>
-                      controller.moveByGesture(PlayboardDirection.left),
-                  onSwipeRight: () =>
-                      controller.moveByGesture(PlayboardDirection.right),
-                  onSwipeUp: () =>
-                      controller.moveByGesture(PlayboardDirection.up),
-                  onSwipeDown: () =>
-                      controller.moveByGesture(PlayboardDirection.down),
-                  child: playboard(context, controller),
-                );
+              switch (AppInfos.screenType) {
+                case ScreenTypes.touchscreen:
+                  return SwipeDetector(
+                    onSwipeLeft: () =>
+                        controller.moveByGesture(PlayboardDirection.left),
+                    onSwipeRight: () =>
+                        controller.moveByGesture(PlayboardDirection.right),
+                    onSwipeUp: () =>
+                        controller.moveByGesture(PlayboardDirection.up),
+                    onSwipeDown: () =>
+                        controller.moveByGesture(PlayboardDirection.down),
+                    child: playboard(context, controller),
+                  );
+                case ScreenTypes.mouse:
+                  return RawKeyboardListener(
+                    focusNode: focusNode,
+                    autofocus: true,
+                    onKey: (event) {
+                      if (event is RawKeyDownEvent) {
+                        controller.moveByKeyboard(event.logicalKey);
+                      }
+                    },
+                    child: GestureDetector(
+                      onTap: () => focusNode.requestFocus(),
+                      child: playboard(context, controller),
+                    ),
+                  );
+                case ScreenTypes.touchscreenAndMouse:
+                  return SwipeDetector(
+                    onSwipeLeft: () =>
+                        controller.moveByGesture(PlayboardDirection.left),
+                    onSwipeRight: () =>
+                        controller.moveByGesture(PlayboardDirection.right),
+                    onSwipeUp: () =>
+                        controller.moveByGesture(PlayboardDirection.up),
+                    onSwipeDown: () =>
+                        controller.moveByGesture(PlayboardDirection.down),
+                    child: RawKeyboardListener(
+                      focusNode: focusNode,
+                      autofocus: true,
+                      onKey: (event) {
+                        if (event is RawKeyDownEvent) {
+                          controller.moveByKeyboard(event.logicalKey);
+                        }
+                      },
+                      child: GestureDetector(
+                        onTap: () => focusNode.requestFocus(),
+                        child: playboard(context, controller),
+                      ),
+                    ),
+                  );
               }
-
-              return RawKeyboardListener(
-                focusNode: focusNode,
-                autofocus: true,
-                onKey: (event) {
-                  if (event is RawKeyDownEvent) {
-                    controller.moveByKeyboard(event.logicalKey);
-                  }
-                },
-                child: GestureDetector(
-                  onTap: () => focusNode.requestFocus(),
-                  child: playboard(context, controller),
-                ),
-              );
             },
           ),
         ),
