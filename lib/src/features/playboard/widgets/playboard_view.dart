@@ -14,10 +14,12 @@ class PlayboardView extends HookConsumerWidget {
     Key? key,
     required this.size,
     required this.onPressed,
+    required this.clipBehavior,
   }) : super(key: key);
 
   final double size;
   final Function(int index) onPressed;
+  final Clip clipBehavior;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +69,7 @@ class PlayboardView extends HookConsumerWidget {
                 height: size,
                 width: size,
                 child: Stack(
-                  clipBehavior: Clip.none,
+                  clipBehavior: clipBehavior,
                   children: List.generate(
                     boardSize * boardSize,
                     (index) => _numberTile(

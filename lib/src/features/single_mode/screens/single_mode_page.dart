@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:line_icons/line_icons.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
-import 'package:slideparty/src/utils/durations.dart';
+import 'package:slideparty/src/features/single_mode/widgets/single_mode_setting.dart';
+import 'package:slideparty/src/features/single_mode/widgets/widgets.dart';
 import 'package:slideparty/src/widgets/dialogs/slideparty_dialog.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -52,7 +52,9 @@ class SingleModePage extends StatelessWidget {
   }
 
   ConstrainedBox _playboardView(
-      Size screenSize, SingleModePlayboardController controller) {
+    Size screenSize,
+    SingleModePlayboardController controller,
+  ) {
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: min(425, screenSize.shortestSide),
@@ -66,11 +68,33 @@ class SingleModePage extends StatelessWidget {
           return SizedBox(
             height: size,
             width: size,
-            child: Center(
-              child: PlayboardView(
-                size: size - 32,
-                onPressed: controller.move,
-              ),
+            child: Stack(
+              children: [
+                Center(
+                  child: Consumer(builder: (context, ref, child) {
+                    final openSetting = ref.watch(singleModeSettingProvider);
+                    return PlayboardView(
+                      size: size - 32,
+                      onPressed: controller.move,
+                      clipBehavior: openSetting ? Clip.antiAlias : Clip.none,
+                    );
+                  }),
+                ),
+                Consumer(
+                  builder: (context, ref, child) {
+                    final openSetting = ref.watch(singleModeSettingProvider);
+                    return IgnorePointer(
+                      ignoring: !openSetting,
+                      child: AnimatedOpacity(
+                        opacity: openSetting ? 1 : 0,
+                        duration: const Duration(milliseconds: 200),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: const SingleModeSetting(),
+                ),
+              ],
             ),
           );
         },
@@ -150,189 +174,6 @@ class SingleModePage extends StatelessWidget {
               );
             },
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class SingleModeHeader extends ConsumerWidget {
-  const SingleModeHeader({Key? key}) : super(key: key);
-
-  double _rSpacing(double playboardSize, int boardSize) =>
-      2.5 * _tileSize(playboardSize, boardSize) / 49;
-  double _tileSize(double playboardSize, int boardSize) =>
-      playboardSize / boardSize;
-  double maxPlayboardSize(double screenSize, int boardSize) =>
-      screenSize - 16 - 2 * _rSpacing(screenSize, boardSize);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final boardSize = ref.watch(playboardControllerProvider.select((state) {
-      if (state is SinglePlayboardState) {
-        return state.playboard.size;
-      }
-      throw UnimplementedError('This cannot happen');
-    }));
-    final screenSize = MediaQuery.of(context).size;
-
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: maxPlayboardSize(
-          min(425, screenSize.shortestSide),
-          boardSize,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 16.0),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final textStyle = Theme.of(context).textTheme.subtitle1!.copyWith(
-                  fontSize: Playboard.bp.responsiveValue(
-                    constraints.biggest,
-                    watch: 10,
-                    tablet: 16,
-                    defaultValue: 14,
-                  ),
-                );
-
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Flexible(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        final step = ref
-                            .watch(playboardControllerProvider.select((state) {
-                          if (state is SinglePlayboardState) {
-                            return state.step;
-                          }
-                          throw UnimplementedError('This cannot happen');
-                        }));
-
-                        return Text.rich(
-                          TextSpan(
-                            text: 'STEP: ',
-                            children: [
-                              TextSpan(
-                                text: '$step',
-                                style: textStyle.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                          style: textStyle,
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                Flexible(
-                  child: Center(
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        final duration = ref.watch(counterProvider);
-                        return Text(
-                          Durations.watchFormat(duration),
-                          style: textStyle.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                Flexible(
-                  child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Consumer(builder: (context, ref, child) {
-                        final bestStep = ref
-                            .watch(playboardControllerProvider.select((state) {
-                          if (state is SinglePlayboardState) {
-                            return state.bestStep;
-                          }
-                          throw UnimplementedError('This cannot happen');
-                        }));
-
-                        return Text.rich(
-                          TextSpan(
-                            text: 'BEST: ',
-                            children: [
-                              TextSpan(
-                                text:
-                                    bestStep == -1 ? '?' : bestStep.toString(),
-                                style: textStyle.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                          style: textStyle,
-                        );
-                      })),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class SingleModeControlBar extends ConsumerWidget {
-  const SingleModeControlBar({Key? key}) : super(key: key);
-
-  double _rSpacing(double playboardSize, int boardSize) =>
-      2.5 * _tileSize(playboardSize, boardSize) / 49;
-  double _tileSize(double playboardSize, int boardSize) =>
-      playboardSize / boardSize;
-  double maxPlayboardSize(double screenSize, int boardSize) =>
-      screenSize - 16 - 2 * _rSpacing(screenSize, boardSize);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as SingleModePlayboardController;
-    final state =
-        ref.watch(playboardControllerProvider) as SinglePlayboardState;
-    final screenSize = MediaQuery.of(context).size;
-
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: maxPlayboardSize(
-          min(425, screenSize.shortestSide),
-          state.playboard.size,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            IconButton(
-              onPressed: () => controller.reset(),
-              icon: Icon(
-                LineIcons.syncIcon,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            if (state.bestStep > 0)
-              TextButton(
-                onPressed: () => controller.autoSolve(context),
-                child: const Text('SOLVE'),
-              ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(
-                LineIcons.cog,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          ],
         ),
       ),
     );

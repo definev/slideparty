@@ -25,7 +25,8 @@ final singleModeControllerProvider =
 final counterProvider =
     StateProvider.autoDispose<Duration>((ref) => const Duration(seconds: 0));
 
-final winStateProvider = StateProvider.autoDispose<bool>((ref) => false);
+final singleModeSettingProvider =
+    StateProvider.autoDispose<bool>((ref) => false);
 
 class SingleModePlayboardController
     extends PlayboardController<SinglePlayboardState>
@@ -66,8 +67,33 @@ class SingleModePlayboardController
     timer?.cancel();
   }
 
-  void reset() {
+  void changeDimension(int size) {
+    if (size == state.playboard.size) return;
+    final playboard = Playboard.random(size);
+    state = SinglePlayboardState(
+      playboard: playboard,
+      config: state.config,
+      bestStep: solve(playboard)?.length ?? -1,
+    );
+    stopwatch
+      ..stop()
+      ..reset();
+    timer?.cancel();
+    timer = null;
+    _read(counterProvider.notifier).state = const Duration(seconds: 0);
+  }
+
+  void pause() {
     stopwatch.stop();
+    timer?.cancel();
+    timer = null;
+  }
+
+  void reset() {
+    if (_read(singleModeSettingProvider)) return;
+    stopwatch
+      ..stop()
+      ..reset();
     timer?.cancel();
     timer = null;
     final playboard = Playboard.random(state.playboard.size);
@@ -88,7 +114,6 @@ class SingleModePlayboardController
       );
     }
     if (playboard.isSolved) {
-      _read(winStateProvider.notifier).state = true;
       timer?.cancel();
       timer = null;
       stopwatch.stop();
@@ -111,6 +136,7 @@ class SingleModePlayboardController
 
   @override
   Playboard? moveByGesture(PlayboardDirection direction) {
+    if (_read(singleModeSettingProvider)) return null;
     if (state.playboard.isSolved) return null;
     final newBoard = defaultMoveByGesture(this, direction, state.playboard);
     if (newBoard != null) {
@@ -128,6 +154,7 @@ class SingleModePlayboardController
 
   @override
   Playboard? moveByKeyboard(LogicalKeyboardKey pressedKey) {
+    if (_read(singleModeSettingProvider)) return null;
     if (state.playboard.isSolved) return null;
     final newBoard = defaultMoveByKeyboard(
       this,
@@ -145,6 +172,7 @@ class SingleModePlayboardController
 
   // *Auto solve helper*
   void autoSolve(BuildContext context) async {
+    if (_read(singleModeSettingProvider)) return;
     if (state.playboard.isSolved) return;
     if (isSolving) return;
     final steps = solve(state.playboard);
