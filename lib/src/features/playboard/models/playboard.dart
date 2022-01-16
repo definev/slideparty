@@ -56,6 +56,16 @@ class Playboard {
 
   int get hole => size * size - 1;
 
+  int get cost {
+    int cost = 0;
+    for (int i = 0; i < currentBoard.length; i++) {
+      if (currentBoard[i] != solvedBoard[i]) {
+        cost++;
+      }
+    }
+    return cost;
+  }
+
   void logPlayboard() {
     currentBoard.printBoard();
   }
@@ -67,7 +77,7 @@ class Playboard {
 
   // Auto solve the puzzle with A* algorithm
   List<PlayboardDirection>? autoSolve([List<int>? finalBoard]) {
-    if (size > 3) return null;
+    if (cost > 8) return null;
     if (!isSolvable(size, currentBoard)) return null;
 
     final _playboardNode = _solve(PlayboardSolverParams(

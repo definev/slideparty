@@ -45,7 +45,7 @@ class SingleModeControlBar extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
-            if (state.bestStep > 0)
+            if (state.playboard.cost < 8)
               TextButton(
                 onPressed: () => controller.autoSolve(context),
                 child: const Text('SOLVE'),
