@@ -17,7 +17,7 @@ class ThemeSettingBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final enableSound = ref
+    final isMuted = ref
         .watch(generalAudioControllerProvider.select((value) => value.isMuted));
     final audioController = ref.watch(generalAudioControllerProvider.notifier);
 
@@ -138,8 +138,8 @@ class ThemeSettingBar extends HookConsumerWidget {
               SlidepartyButton(
                 color: playboardDefaultColor,
                 size: ButtonSize.square,
-                onPressed: () => audioController.isMuted = !enableSound,
-                child: enableSound
+                onPressed: () => audioController.isMuted = !isMuted,
+                child: isMuted
                     ? const Icon(Icons.music_off)
                     : const Icon(Icons.music_note),
               ),

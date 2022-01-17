@@ -12,7 +12,7 @@ class ButtonAudioController {
   final _player = AudioPlayer();
 
   void clickSound() async {
-    if (_read(generalAudioControllerProvider).isMuted == false) return;
+    if (_read(generalAudioControllerProvider).isMuted) return;
     try {
       await _player.setAsset('assets/sounds/click1.wav');
       _player.play();

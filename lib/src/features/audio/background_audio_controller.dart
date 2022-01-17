@@ -13,7 +13,7 @@ class BackgroundAudioController extends StateNotifier<bool> {
   final _player = AudioPlayer();
 
   void playWinSound() async {
-    if (_read(generalAudioControllerProvider).isMuted == false) return;
+    if (_read(generalAudioControllerProvider).isMuted) return;
 
     try {
       await _player.setAsset('assets/sounds/win.wav');
