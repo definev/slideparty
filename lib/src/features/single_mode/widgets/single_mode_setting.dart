@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:go_router/go_router.dart';
+import 'package:line_icons/line_icon.dart';
 import 'package:slideparty/src/features/audio/general_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
@@ -21,8 +22,8 @@ class SingleModeSetting extends ConsumerWidget {
         as SingleModePlayboardController;
 
     return Card(
-      color: Theme.of(context).colorScheme.surface.withOpacity(1),
-      margin: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+      color: Theme.of(context).colorScheme.surface,
+      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 16.0),
       child: SizedBox.expand(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -33,6 +34,10 @@ class SingleModeSetting extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  GestureDetector(
+                    child: LineIcon.home(),
+                    onTap: () => context.go('/'),
+                  ),
                   Text(
                     'Setting',
                     style: Theme.of(context).textTheme.subtitle1!.copyWith(
@@ -40,29 +45,41 @@ class SingleModeSetting extends ConsumerWidget {
                         ),
                   ),
                   GestureDetector(
-                    child: const Icon(LineIcons.times),
+                    child: LineIcon.times(),
                     onTap: () => openSettingController.state = false,
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 25.0, top: 16, right: 25.0),
+              padding:
+                  const EdgeInsets.only(left: 32.0, top: 32.0, right: 32.0),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Consumer(
                     builder: (context, ref, _) {
-                      final controller =
+                      final audioController =
                           ref.watch(generalAudioControllerProvider);
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Checkbox(
-                            value: controller.isMuted,
-                            onChanged: (value) => controller.isMuted = value!),
+                      final color = audioController.isMuted
+                          ? Theme.of(context).disabledColor
+                          : Theme.of(context).colorScheme.primary;
+
+                      return TextButton(
+                        onPressed: () =>
+                            audioController.isMuted = !audioController.isMuted,
+                        style: TextButton.styleFrom(
+                            backgroundColor: color.withOpacity(0.1)),
+                        child: Text(
+                          'Sound',
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle2!
+                              .copyWith(color: color),
+                        ),
                       );
                     },
                   ),
-                  const Text('Sound'),
                 ],
               ),
             ),
@@ -70,12 +87,13 @@ class SingleModeSetting extends ConsumerWidget {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding:
-                    const EdgeInsets.only(top: 32.0, left: 32.0, right: 32.0),
+                    const EdgeInsets.only(top: 16.0, left: 32.0, right: 32.0),
                 child: Text(
                   'Layout',
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                  style: Theme.of(context)
+                      .textTheme
+                      .subtitle2!
+                      .copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
               ),
             ),

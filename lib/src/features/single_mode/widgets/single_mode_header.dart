@@ -63,19 +63,23 @@ class SingleModeHeader extends ConsumerWidget {
                           throw UnimplementedError('This cannot happen');
                         }));
 
-                        return Text.rich(
-                          TextSpan(
-                            text: 'STEP: ',
-                            children: [
-                              TextSpan(
-                                text: '$step',
-                                style: textStyle.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 1),
+                          child: Text.rich(
+                            TextSpan(
+                              text: 'STEP: ',
+                              children: [
+                                TextSpan(
+                                  text: '$step',
+                                  style: textStyle.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                            style: textStyle,
                           ),
-                          style: textStyle,
                         );
                       },
                     ),
