@@ -80,9 +80,9 @@ class Playboard {
       case 3:
         return true;
       case 4:
-        return cost < 5;
+        return cost < 4;
       case 5:
-        return cost < 5;
+        return cost < 4;
       default:
         return false;
     }
