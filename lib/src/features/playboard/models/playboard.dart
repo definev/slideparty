@@ -77,7 +77,7 @@ class Playboard {
 
   // Auto solve the puzzle with A* algorithm
   List<PlayboardDirection>? autoSolve([List<int>? finalBoard]) {
-    if (cost > 8) return null;
+    if (cost > 9) return null;
     if (!isSolvable(size, currentBoard)) return null;
 
     final _playboardNode = _solve(PlayboardSolverParams(
