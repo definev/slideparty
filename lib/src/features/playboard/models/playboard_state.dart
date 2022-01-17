@@ -22,6 +22,19 @@ class SinglePlayboardState extends PlayboardState {
   final int step;
   final int bestStep;
 
+  bool get canSolve {
+    switch (playboard.size) {
+      case 3:
+        return true;
+      case 4:
+        return playboard.cost < 8;
+      case 5:
+        return playboard.cost < 5;
+      default:
+        return false;
+    }
+  }
+
   SinglePlayboardState editPlayboard(Playboard playboard,
           [bool increment = true]) =>
       SinglePlayboardState(
