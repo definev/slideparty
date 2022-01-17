@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
+
 import 'package:slideparty/src/widgets/widgets.dart';
 
 class SlidepartyDialog extends StatelessWidget {
-  const SlidepartyDialog({Key? key}) : super(key: key);
+  const SlidepartyDialog({
+    Key? key,
+    required this.title,
+    required this.content,
+    required this.actions,
+  }) : super(key: key);
+
+  final String title;
+  final Widget content;
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
       child: CustomPaint(
         painter: BorderSlidepartyPainter(
           edge: 6,
@@ -16,7 +27,7 @@ class SlidepartyDialog extends StatelessWidget {
         ),
         child: SizedBox(
           height: 200,
-          width: 300,
+          width: double.maxFinite,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
@@ -24,13 +35,17 @@ class SlidepartyDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  const Expanded(child: Center(child: Text('YOU WIN !!!'))),
-                  SlidepartyButton(
-                    color: ButtonColors.yellow,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
+                  Center(
+                      child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.headline6!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )),
+                  Expanded(child: Center(child: content)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: actions,
                   ),
                 ],
               ),

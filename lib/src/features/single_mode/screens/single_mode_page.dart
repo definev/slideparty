@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:line_icons/line_icon.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
+import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
@@ -22,6 +24,7 @@ class SingleModePage extends StatelessWidget {
   Widget playboard(
     BuildContext context,
     SingleModePlayboardController controller,
+    ValueNotifier<bool> showWinDialog,
   ) {
     final screenSize = MediaQuery.of(context).size;
 
@@ -44,7 +47,7 @@ class SingleModePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SingleModeHeader(),
-                _playboardView(screenSize, controller),
+                _playboardView(screenSize, controller, showWinDialog),
                 const SingleModeControlBar(),
               ],
             ),
@@ -57,6 +60,7 @@ class SingleModePage extends StatelessWidget {
   ConstrainedBox _playboardView(
     Size screenSize,
     SingleModePlayboardController controller,
+    ValueNotifier<bool> showWinDialog,
   ) {
     return ConstrainedBox(
       constraints: BoxConstraints(
@@ -68,6 +72,51 @@ class SingleModePage extends StatelessWidget {
           final frameSize = constraints.biggest;
           final size = frameSize.shortestSide;
 
+          if (showWinDialog.value) {
+            return Center(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 500),
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: child,
+                  );
+                },
+                child: Consumer(builder: (context, ref, _) {
+                  final playboardDefaultColor = ref.watch(
+                      playboardInfoControllerProvider
+                          .select((value) => value.color));
+
+                  return SlidepartyDialog(
+                    title: 'You win!',
+                    content: const Text(
+                      'You solved the puzzle!',
+                      textAlign: TextAlign.center,
+                    ),
+                    actions: [
+                      SlidepartyButton(
+                        color: playboardDefaultColor,
+                        size: ButtonSize.square,
+                        style: SlidepartyButtonStyle.invert,
+                        child: LineIcon.syncIcon(),
+                        onPressed: () {
+                          showWinDialog.value = false;
+                          controller.reset();
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      SlidepartyButton(
+                        color: playboardDefaultColor,
+                        child: const Text('Go Home'),
+                        onPressed: () => context.go('/'),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            );
+          }
           return SizedBox(
             height: size,
             width: size,
@@ -126,6 +175,7 @@ class SingleModePage extends StatelessWidget {
               final controller = ref.watch(playboardControllerProvider.notifier)
                   as SingleModePlayboardController;
               final isMounted = useIsMounted();
+              final showWinDialog = useState(false);
               ref.listen<bool>(
                 playboardControllerProvider.select((state) {
                   if (state is SinglePlayboardState) {
@@ -139,10 +189,7 @@ class SingleModePage extends StatelessWidget {
                       const Duration(seconds: 4),
                       () {
                         if (isMounted()) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const SlidepartyDialog(),
-                          );
+                          showWinDialog.value = true;
                         }
                       },
                     );
@@ -161,7 +208,7 @@ class SingleModePage extends StatelessWidget {
                         controller.moveByGesture(PlayboardDirection.up),
                     onSwipeDown: () =>
                         controller.moveByGesture(PlayboardDirection.down),
-                    child: playboard(context, controller),
+                    child: playboard(context, controller, showWinDialog),
                   );
                 case ScreenTypes.mouse:
                   return RawKeyboardListener(
@@ -174,7 +221,7 @@ class SingleModePage extends StatelessWidget {
                     },
                     child: GestureDetector(
                       onTap: () => focusNode.requestFocus(),
-                      child: playboard(context, controller),
+                      child: playboard(context, controller, showWinDialog),
                     ),
                   );
                 case ScreenTypes.touchscreenAndMouse:
@@ -197,7 +244,7 @@ class SingleModePage extends StatelessWidget {
                       },
                       child: GestureDetector(
                         onTap: () => focusNode.requestFocus(),
-                        child: playboard(context, controller),
+                        child: playboard(context, controller, showWinDialog),
                       ),
                     ),
                   );

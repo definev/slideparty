@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
+
 import 'models/slideparty_button_params.dart';
 
-enum ButtonState { hover, idle, pressed }
+enum SlidepartyButtonState { hover, idle, pressed }
+enum SlidepartyButtonStyle { invert, normal }
 
 class SlidepartyButton extends HookConsumerWidget {
   const SlidepartyButton({
@@ -17,10 +20,12 @@ class SlidepartyButton extends HookConsumerWidget {
     this.fontSize = 14,
     required this.onPressed,
     required this.child,
+    this.style = SlidepartyButtonStyle.normal,
   }) : super(key: key);
 
   final ButtonColors color;
   final ButtonSize size;
+  final SlidepartyButtonStyle style;
   final double fontSize;
   final VoidCallback onPressed;
   final Widget child;
@@ -31,23 +36,23 @@ class SlidepartyButton extends HookConsumerWidget {
     return Color.lerp(
       Color.lerp(Colors.white, color.primaryColor, 0.02),
       color.primaryColor,
-      value,
+      style == SlidepartyButtonStyle.invert ? 1 - value : value,
     )!;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final buttonState = useState(ButtonState.idle);
+    final buttonState = useState(SlidepartyButtonState.idle);
     final audioController = ref.read(buttonAudioControllerProvider);
 
     return MouseRegion(
       cursor: MouseCursor.defer,
-      onEnter: (_) => buttonState.value = ButtonState.hover,
-      onExit: (_) => buttonState.value = ButtonState.idle,
+      onEnter: (_) => buttonState.value = SlidepartyButtonState.hover,
+      onExit: (_) => buttonState.value = SlidepartyButtonState.idle,
       child: GestureDetector(
-        onTapDown: (_) => buttonState.value = ButtonState.pressed,
-        onTapUp: (_) => buttonState.value = ButtonState.idle,
-        onTapCancel: () => buttonState.value = ButtonState.idle,
+        onTapDown: (_) => buttonState.value = SlidepartyButtonState.pressed,
+        onTapUp: (_) => buttonState.value = SlidepartyButtonState.idle,
+        onTapCancel: () => buttonState.value = SlidepartyButtonState.idle,
         onTap: () {
           audioController.clickSound();
           onPressed();
@@ -56,13 +61,14 @@ class SlidepartyButton extends HookConsumerWidget {
           duration: const Duration(milliseconds: 300),
           curve: Curves.decelerate,
           tween: Tween<double>(
-              begin: 0, end: buttonState.value == ButtonState.hover ? 1 : 0),
+              begin: 0,
+              end: buttonState.value == SlidepartyButtonState.hover ? 1 : 0),
           builder: (context, value, child) {
             final brightness = Theme.of(context).brightness;
             final _color = Color.lerp(
               color.primaryColor,
               Theme.of(context).colorScheme.background,
-              value,
+              style == SlidepartyButtonStyle.invert ? 1 - value : value,
             )!;
             final _borderColor = Color.lerp(
               Color.lerp(
@@ -71,7 +77,7 @@ class SlidepartyButton extends HookConsumerWidget {
                 0.3,
               )!,
               color.primaryColor,
-              value,
+              style == SlidepartyButtonStyle.invert ? 1 - value : value,
             );
 
             return CustomPaint(
