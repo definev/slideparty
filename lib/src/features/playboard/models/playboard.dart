@@ -75,9 +75,22 @@ class Playboard {
     return Loc.fromIndex(size, index);
   }
 
+  bool get canSolve {
+    switch (size) {
+      case 3:
+        return true;
+      case 4:
+        return cost < 5;
+      case 5:
+        return cost < 5;
+      default:
+        return false;
+    }
+  }
+
   // Auto solve the puzzle with A* algorithm
   List<PlayboardDirection>? autoSolve([List<int>? finalBoard]) {
-    if (cost > 9) return null;
+    if (!canSolve) return null;
     if (!isSolvable(size, currentBoard)) return null;
 
     final _playboardNode = _solve(PlayboardSolverParams(
