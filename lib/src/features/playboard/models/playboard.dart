@@ -93,7 +93,8 @@ class Playboard {
     if (!canSolve) return null;
     if (!isSolvable(size, currentBoard)) return null;
 
-    final _playboardNode = _solve(PlayboardSolverParams(
+    final _playboardNode =
+        SolvingMachine.bestStepSolution(PlayboardSolverParams(
       currentBoard,
       finalBoard ?? solvedBoard,
       currentLoc(hole),
@@ -169,45 +170,63 @@ class PlayboardSolverParams {
   final Loc holeLoc;
 }
 
-_PlayboardNode? _solve(PlayboardSolverParams params) {
-  PriorityQueue<_PlayboardNode> queue = PriorityQueue<_PlayboardNode>();
-  _PlayboardNode root = _PlayboardNode(
-    holeLoc: params.holeLoc,
-    board: params.currentBoard,
-    finalBoard: params.finalBoard,
-    depth: 0,
-  );
-  queue.add(root);
+@visibleForTesting
+class SolvingMachine {
+  @visibleForTesting
+  static _PlayboardNode? bestStepSolution(PlayboardSolverParams params) {
+    PriorityQueue<_PlayboardNode> queue = PriorityQueue<_PlayboardNode>();
+    _PlayboardNode root = _PlayboardNode(
+      holeLoc: params.holeLoc,
+      board: params.currentBoard,
+      finalBoard: params.finalBoard,
+      depth: 0,
+    );
+    queue.add(root);
 
-  while (queue.isNotEmpty) {
-    _PlayboardNode node = queue.first;
-    queue.removeFirst();
-    if (node.cost == 0) return node;
+    while (queue.isNotEmpty) {
+      _PlayboardNode node = queue.first;
+      queue.removeFirst();
+      if (node.cost == 0) return node;
 
-    for (int i = 0; i < 4; i++) {
-      final direction = PlayboardDirection.values[i];
-      switch (node.direction) {
-        case PlayboardDirection.up:
-          if (direction == PlayboardDirection.down) continue;
-          break;
-        case PlayboardDirection.down:
-          if (direction == PlayboardDirection.up) continue;
-          break;
-        case PlayboardDirection.left:
-          if (direction == PlayboardDirection.right) continue;
-          break;
-        case PlayboardDirection.right:
-          if (direction == PlayboardDirection.left) continue;
-          break;
-        default:
-          break;
+      for (int i = 0; i < 4; i++) {
+        final direction = PlayboardDirection.values[i];
+        switch (node.direction) {
+          case PlayboardDirection.up:
+            if (direction == PlayboardDirection.down) continue;
+            break;
+          case PlayboardDirection.down:
+            if (direction == PlayboardDirection.up) continue;
+            break;
+          case PlayboardDirection.left:
+            if (direction == PlayboardDirection.right) continue;
+            break;
+          case PlayboardDirection.right:
+            if (direction == PlayboardDirection.left) continue;
+            break;
+          default:
+            break;
+        }
+        final newNode = node.move(direction);
+        if (newNode != null) queue.add(newNode);
       }
-      final newNode = node.move(direction);
-      if (newNode != null) queue.add(newNode);
     }
+
+    return null;
   }
 
-  return null;
+  // Quick solve solution
+  static List<int> needToSolvePos(int size) => List.generate(
+        size * 2 - 1,
+        (index) => index >= size ? (index - size + 1) * size : index,
+      );
+
+  @visibleForTesting
+  static _PlayboardNode? quickSolveSolution(PlayboardSolverParams params) {
+    // final size = params.currentBoard.size;
+    // final _needToSolvePos = needToSolvePos(size);
+
+    return null;
+  }
 }
 
 extension SolvingPuzzleExt on List<int> {
