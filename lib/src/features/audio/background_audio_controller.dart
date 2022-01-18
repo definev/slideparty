@@ -16,7 +16,7 @@ class BackgroundAudioController extends StateNotifier<bool> {
     if (_read(generalAudioControllerProvider).isMuted) return;
 
     try {
-      await _player.setAsset('assets/sounds/win.wav');
+      await _player.setAsset('assets/sounds/win.mp3');
       _player.play();
     } catch (_) {}
   }

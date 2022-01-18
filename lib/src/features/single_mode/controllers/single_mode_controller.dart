@@ -126,10 +126,10 @@ class SingleModePlayboardController
     if (playboard.isSolved) {
       timer?.cancel();
       timer = null;
-      stopwatch.stop();
       _read(counterProvider.notifier).state = stopwatch.elapsed;
+      stopwatch.reset();
       Future.delayed(
-        const Duration(milliseconds: 500),
+        const Duration(seconds: 2, milliseconds: 500),
         () => _read(backgroundAudioControllerProvider.notifier).playWinSound(),
       );
     }
