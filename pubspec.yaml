@@ -44,6 +44,7 @@ dependencies:
   just_audio: ^0.9.18
   line_icons: ^2.0.1
   simple_animations: ^4.0.1
+  sprintf: ^6.0.0
   universal_platform: ^1.0.0+1
 
 dev_dependencies:

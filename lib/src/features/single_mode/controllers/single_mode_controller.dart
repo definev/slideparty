@@ -97,6 +97,7 @@ class SingleModePlayboardController
 
   void reset() {
     if (_read(singleModeSettingProvider)) return;
+
     _steps = null;
     stopwatch
       ..stop()
@@ -111,7 +112,7 @@ class SingleModePlayboardController
         bestStep: bestStep ?? -1,
       );
     });
-
+    debugPrint('Playboard:\n$playboard');
     _read(counterProvider.notifier).state = const Duration(seconds: 0);
   }
 

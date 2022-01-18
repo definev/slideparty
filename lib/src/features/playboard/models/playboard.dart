@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:slideparty/src/utils/breakpoint.dart';
+import 'package:sprintf/sprintf.dart';
 
 import 'loc.dart';
 
@@ -48,6 +49,21 @@ class Playboard {
       size: matrix.length,
       currentBoard: matrix.expand((row) => row).toList(),
     );
+  }
+
+  @override
+  String toString() {
+    StringBuffer sb = StringBuffer();
+    for (int i = 0; i < size; i++) {
+      sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
+      sb.writeln(List.generate(size,
+                  (index) => sprintf('|%3d', [currentBoard[i * size + index]]))
+              .join() +
+          '|');
+    }
+    sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
+
+    return sb.toString();
   }
 
   late final List<int> solvedBoard;
@@ -222,8 +238,36 @@ class SolvingMachine {
 
   @visibleForTesting
   static _PlayboardNode? quickSolveSolution(PlayboardSolverParams params) {
-    // final size = params.currentBoard.size;
-    // final _needToSolvePos = needToSolvePos(size);
+    final size = params.currentBoard.size;
+    final _needToSolvePos = needToSolvePos(size);
+
+    /// Not solved yet
+    /// -----------------
+    /// | 0 | 1 | 2 | 3 |
+    /// -----------------
+    /// | 4 | 5 | 6 | 7 |
+    /// -----------------
+    /// | 8 | 9 | 10| 11|
+    /// -----------------
+    /// | 12| 13| 14| 15|
+    /// -----------------
+    ///
+    /// Solved board
+    /// -----------------
+    /// | 0 | 1 | 2 | 3 |
+    /// -----------------
+    /// | 4 | 5 | 6 | 7 |
+    /// -----------------
+    /// | 8 | 9 | 10| 11|
+    /// -----------------
+    /// | 12| 13| 14| 15|
+    /// -----------------
+    for (final pos in _needToSolvePos) {
+      final numberLoc = params.currentBoard.loc(pos);
+      final destinationLoc = Loc.fromIndex(size, pos);
+
+      final holeLoc = params.currentBoard.holeLoc;
+    }
 
     return null;
   }
@@ -233,6 +277,17 @@ extension SolvingPuzzleExt on List<int> {
   int get size => sqrt(length).floor();
 
   int get hole => length - 1;
+
+  Loc get holeLoc {
+    final index = indexOf(hole);
+    return Loc.fromIndex(size, index);
+  }
+
+  Loc loc(int number) {
+    if (number >= length) throw Exception('Number $number is out of range');
+    final index = indexOf(number);
+    return Loc.fromIndex(size, index);
+  }
 
   int get inversion {
     final board = [...this]..remove(hole);
