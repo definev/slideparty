@@ -29,7 +29,7 @@ jobs:
       - name: Instal lcov
         run: sudo apt-get install -y lcov
       - name: Remove generated file from coverage report
-        run: lcov --remove coverage.info 'lib/*/*.freezed.dart' 'lib/*/*.g.dart' --output-file coverage.info
+        run: lcov --remove coverage/lcov.info 'lib/*/*.freezed.dart' 'lib/*/*.g.dart' --output-file coverage/lcov.info
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
