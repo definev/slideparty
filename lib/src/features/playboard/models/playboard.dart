@@ -238,8 +238,8 @@ class SolvingMachine {
 
   @visibleForTesting
   static _PlayboardNode? quickSolveSolution(PlayboardSolverParams params) {
-    final size = params.currentBoard.size;
-    final _needToSolvePos = needToSolvePos(size);
+    // final size = params.currentBoard.size;
+    // final _needToSolvePos = needToSolvePos(size);
 
     /// Not solved yet
     /// -----------------
@@ -262,12 +262,12 @@ class SolvingMachine {
     /// -----------------
     /// | 12| 13| 14| 15|
     /// -----------------
-    for (final pos in _needToSolvePos) {
-      final numberLoc = params.currentBoard.loc(pos);
-      final destinationLoc = Loc.fromIndex(size, pos);
+    // for (final pos in _needToSolvePos) {
+    //   final numberLoc = params.currentBoard.loc(pos);
+    //   final destinationLoc = Loc.fromIndex(size, pos);
 
-      final holeLoc = params.currentBoard.holeLoc;
-    }
+    //   final holeLoc = params.currentBoard.holeLoc;
+    // }
 
     return null;
   }
