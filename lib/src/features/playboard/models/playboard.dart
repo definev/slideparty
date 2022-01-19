@@ -17,22 +17,6 @@ class Playboard {
     solvedBoard = List.generate(size * size, (index) => index);
   }
 
-  static const bp = Breakpoint(small: 300, normal: 400, large: 500);
-
-  static bool isSolvable(int size, List<int> board) {
-    final inversion = board.inversion;
-    if (size.isOdd) {
-      return inversion.isEven;
-    } else {
-      final holeLoc = Loc.fromIndex(size, board.indexOf(board.hole));
-      if (inversion.isOdd) {
-        return holeLoc.isInEvenRow(size);
-      } else {
-        return !holeLoc.isInEvenRow(size);
-      }
-    }
-  }
-
   factory Playboard.random(int size) {
     List<int> currentBoard = List.generate(size * size, (index) => index)
       ..shuffle();
@@ -51,20 +35,7 @@ class Playboard {
     );
   }
 
-  @override
-  String toString() {
-    StringBuffer sb = StringBuffer();
-    for (int i = 0; i < size; i++) {
-      sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
-      sb.writeln(List.generate(size,
-                  (index) => sprintf('|%3d', [currentBoard[i * size + index]]))
-              .join() +
-          '|');
-    }
-    sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
-
-    return sb.toString();
-  }
+  static const bp = Breakpoint(small: 300, normal: 400, large: 500);
 
   late final List<int> solvedBoard;
   final int size;
@@ -80,6 +51,35 @@ class Playboard {
       }
     }
     return cost;
+  }
+
+  static bool isSolvable(int size, List<int> board) {
+    final inversion = board.inversion;
+    if (size.isOdd) {
+      return inversion.isEven;
+    } else {
+      final holeLoc = Loc.fromIndex(size, board.indexOf(board.hole));
+      if (inversion.isOdd) {
+        return holeLoc.isInEvenRow(size);
+      } else {
+        return !holeLoc.isInEvenRow(size);
+      }
+    }
+  }
+
+  @override
+  String toString() {
+    StringBuffer sb = StringBuffer();
+    for (int i = 0; i < size; i++) {
+      sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
+      sb.writeln(List.generate(size,
+                  (index) => sprintf('|%3d', [currentBoard[i * size + index]]))
+              .join() +
+          '|');
+    }
+    sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
+
+    return sb.toString();
   }
 
   void logPlayboard() {
@@ -102,6 +102,15 @@ class Playboard {
       default:
         return false;
     }
+  }
+
+  bool get isSolved {
+    for (int i = 0; i < solvedBoard.length; i++) {
+      if (currentBoard[i] != solvedBoard[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // Auto solve the puzzle with A* algorithm
@@ -167,15 +176,6 @@ class Playboard {
     final numberLoc = holeLoc.move(size, direction);
     if (numberLoc != null) return swap(holeLoc, numberLoc);
   }
-
-  bool get isSolved {
-    for (int i = 0; i < solvedBoard.length; i++) {
-      if (currentBoard[i] != solvedBoard[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
 }
 
 class PlayboardSolverParams {
@@ -237,7 +237,10 @@ class SolvingMachine {
       );
 
   @visibleForTesting
-  static _PlayboardNode? quickSolveSolution(PlayboardSolverParams params) {
+  static List<PlayboardDirection> quickSolveSolution(
+    PlayboardSolverParams params,
+  ) {
+    var directions = <PlayboardDirection>[];
     final size = params.currentBoard.size;
     final _needToSolvePos = needToSolvePos(size);
 
@@ -269,7 +272,7 @@ class SolvingMachine {
       final holeLoc = params.currentBoard.holeLoc;
     }
 
-    return null;
+    return [];
   }
 }
 
