@@ -9,6 +9,7 @@ import 'package:slideparty/src/features/online_mode/online_mode.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
 import 'package:slideparty/src/features/single_mode/single_mode.dart';
+import 'package:slideparty/src/widgets/buttons/models/slideparty_button_params.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({Key? key}) : super(key: key);

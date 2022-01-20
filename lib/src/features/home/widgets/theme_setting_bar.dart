@@ -45,6 +45,7 @@ class ThemeSettingBar extends HookConsumerWidget {
                 childAnchor: Alignment.bottomRight,
                 portalAnchor: Alignment.bottomLeft,
                 portal: Column(
+                  key: const ValueKey('color-picker'),
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ...ButtonColors.values.map(
@@ -83,6 +84,7 @@ class ThemeSettingBar extends HookConsumerWidget {
                             child: IgnorePointer(
                               ignoring: isPreCloseColorPicker.value,
                               child: SlidepartyButton(
+                                key: ValueKey('color-${color.index}'),
                                 color: color,
                                 size: ButtonSize.square,
                                 onPressed: () =>

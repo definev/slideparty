@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
-import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 
 import 'models/slideparty_button_params.dart';
 

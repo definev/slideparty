@@ -44,4 +44,21 @@ extension BackgroundColor on ButtonColors {
   }
 }
 
+
+extension ColorSchemeExt on ButtonColors {
+  Color get primaryColor {
+    switch (this) {
+      case ButtonColors.blue:
+        return const Color(0xFF25ADE6);
+      case ButtonColors.green:
+        return const Color(0xFF75CF4E);
+      case ButtonColors.yellow:
+        return const Color(0xFFFFCD06);
+      case ButtonColors.red:
+        return const Color(0xFFED701E);
+    }
+  }
+}
+
+
 enum ButtonSize { large, square }

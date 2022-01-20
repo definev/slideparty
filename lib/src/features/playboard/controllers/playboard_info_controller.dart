@@ -32,18 +32,3 @@ class PlayboardInfoController extends ChangeNotifier {
     notifyListeners();
   }
 }
-
-extension ColorSchemeExt on ButtonColors {
-  Color get primaryColor {
-    switch (this) {
-      case ButtonColors.blue:
-        return const Color(0xFF25ADE6);
-      case ButtonColors.green:
-        return const Color(0xFF75CF4E);
-      case ButtonColors.yellow:
-        return const Color(0xFFFFCD06);
-      case ButtonColors.red:
-        return const Color(0xFFED701E);
-    }
-  }
-}
