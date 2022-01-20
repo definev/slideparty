@@ -103,6 +103,32 @@ void main() {
       await tester.pump();
       expect(find.text('Un-mute'), findsNothing);
       expect(find.text('Mute'), findsOneWidget);
+
+      await tester.tap(find.byIcon(LineIcons.times));
+      await tester.pump();
+      expect(find.byType(SingleModeSetting), findsNothing);
+    });
+    testWidgets('Auto solving and win', (tester) async {
+      final t = await testApp(
+        ProviderScope(
+          overrides: [
+            playboardControllerProvider
+                .overrideWithProvider(singleModeControllerProvider),
+          ],
+          child: const SingleModePage(),
+        ),
+      );
+      final widget = t.first;
+      await tester.pumpWidget(widget);
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // Check PlayboardView exists
+      expect(find.byType(PlayboardView), findsOneWidget);
+
+      await tester.tap(find.text('SOLVE'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('You win!'), findsOneWidget);
     });
   });
 }
