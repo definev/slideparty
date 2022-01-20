@@ -120,35 +120,23 @@ class SingleModePage extends StatelessWidget {
           return SizedBox(
             height: size,
             width: size,
-            child: Stack(
-              children: [
-                Center(
-                  child: Consumer(
-                    builder: (context, ref, child) {
-                      final openSetting = ref.watch(singleModeSettingProvider);
-                      return PlayboardView(
+            child: Consumer(
+              builder: (context, ref, child) {
+                final openSetting = ref.watch(singleModeSettingProvider);
+                return Stack(
+                  children: [
+                    Center(
+                      child: PlayboardView(
+                        key: const ValueKey('single-mode-playboard'),
                         size: size - 32,
                         onPressed: controller.move,
                         clipBehavior: openSetting ? Clip.antiAlias : Clip.none,
-                      );
-                    },
-                  ),
-                ),
-                Consumer(
-                  builder: (context, ref, child) {
-                    final openSetting = ref.watch(singleModeSettingProvider);
-                    return IgnorePointer(
-                      ignoring: !openSetting,
-                      child: AnimatedOpacity(
-                        opacity: openSetting ? 1 : 0,
-                        duration: const Duration(milliseconds: 200),
-                        child: child,
                       ),
-                    );
-                  },
-                  child: const SingleModeSetting(),
-                ),
-              ],
+                    ),
+                    if (openSetting) const SingleModeSetting(),
+                  ],
+                );
+              },
             ),
           );
         },
@@ -163,55 +151,73 @@ class SingleModePage extends StatelessWidget {
         context.go('/');
         return false;
       },
-      child: ProviderScope(
-        overrides: [
-          playboardControllerProvider
-              .overrideWithProvider(singleModeControllerProvider),
-        ],
-        child: Scaffold(
-          body: HookConsumer(
-            builder: (context, ref, child) {
-              final focusNode = useFocusNode();
-              final controller = ref.watch(playboardControllerProvider.notifier)
-                  as SingleModePlayboardController;
-              final isMounted = useIsMounted();
-              final showWinDialog = useState(false);
-              ref.listen<bool>(
-                playboardControllerProvider.select((state) {
-                  if (state is SinglePlayboardState) {
-                    return state.playboard.isSolved;
-                  }
-                  return false;
-                }),
-                (_, next) {
-                  if (next) {
-                    Future.delayed(
-                      const Duration(seconds: 2),
-                      () {
-                        if (isMounted()) {
-                          showWinDialog.value = true;
-                        }
-                      },
-                    );
-                  }
-                },
-              );
-
-              switch (AppInfos.screenType) {
-                case ScreenTypes.touchscreen:
-                  return SwipeDetector(
-                    onSwipeLeft: () =>
-                        controller.moveByGesture(PlayboardDirection.left),
-                    onSwipeRight: () =>
-                        controller.moveByGesture(PlayboardDirection.right),
-                    onSwipeUp: () =>
-                        controller.moveByGesture(PlayboardDirection.up),
-                    onSwipeDown: () =>
-                        controller.moveByGesture(PlayboardDirection.down),
-                    child: playboard(context, controller, showWinDialog),
+      child: Scaffold(
+        body: HookConsumer(
+          builder: (context, ref, child) {
+            final focusNode = useFocusNode();
+            final controller = ref.watch(playboardControllerProvider.notifier)
+                as SingleModePlayboardController;
+            final isMounted = useIsMounted();
+            final showWinDialog = useState(false);
+            ref.listen<bool>(
+              playboardControllerProvider.select((state) {
+                if (state is SinglePlayboardState) {
+                  return state.playboard.isSolved;
+                }
+                return false;
+              }),
+              (_, next) {
+                if (next) {
+                  Future.delayed(
+                    const Duration(seconds: 2),
+                    () {
+                      if (isMounted()) {
+                        showWinDialog.value = true;
+                      }
+                    },
                   );
-                case ScreenTypes.mouse:
-                  return RawKeyboardListener(
+                }
+              },
+            );
+
+            switch (AppInfos.screenType) {
+              case ScreenTypes.touchscreen:
+                return SwipeDetector(
+                  onSwipeLeft: () =>
+                      controller.moveByGesture(PlayboardDirection.left),
+                  onSwipeRight: () =>
+                      controller.moveByGesture(PlayboardDirection.right),
+                  onSwipeUp: () =>
+                      controller.moveByGesture(PlayboardDirection.up),
+                  onSwipeDown: () =>
+                      controller.moveByGesture(PlayboardDirection.down),
+                  child: playboard(context, controller, showWinDialog),
+                );
+              case ScreenTypes.mouse:
+                return RawKeyboardListener(
+                  focusNode: focusNode,
+                  autofocus: true,
+                  onKey: (event) {
+                    if (event is RawKeyDownEvent) {
+                      controller.moveByKeyboard(event.logicalKey);
+                    }
+                  },
+                  child: GestureDetector(
+                    onTap: () => focusNode.requestFocus(),
+                    child: playboard(context, controller, showWinDialog),
+                  ),
+                );
+              case ScreenTypes.touchscreenAndMouse:
+                return SwipeDetector(
+                  onSwipeLeft: () =>
+                      controller.moveByGesture(PlayboardDirection.left),
+                  onSwipeRight: () =>
+                      controller.moveByGesture(PlayboardDirection.right),
+                  onSwipeUp: () =>
+                      controller.moveByGesture(PlayboardDirection.up),
+                  onSwipeDown: () =>
+                      controller.moveByGesture(PlayboardDirection.down),
+                  child: RawKeyboardListener(
                     focusNode: focusNode,
                     autofocus: true,
                     onKey: (event) {
@@ -223,34 +229,10 @@ class SingleModePage extends StatelessWidget {
                       onTap: () => focusNode.requestFocus(),
                       child: playboard(context, controller, showWinDialog),
                     ),
-                  );
-                case ScreenTypes.touchscreenAndMouse:
-                  return SwipeDetector(
-                    onSwipeLeft: () =>
-                        controller.moveByGesture(PlayboardDirection.left),
-                    onSwipeRight: () =>
-                        controller.moveByGesture(PlayboardDirection.right),
-                    onSwipeUp: () =>
-                        controller.moveByGesture(PlayboardDirection.up),
-                    onSwipeDown: () =>
-                        controller.moveByGesture(PlayboardDirection.down),
-                    child: RawKeyboardListener(
-                      focusNode: focusNode,
-                      autofocus: true,
-                      onKey: (event) {
-                        if (event is RawKeyDownEvent) {
-                          controller.moveByKeyboard(event.logicalKey);
-                        }
-                      },
-                      child: GestureDetector(
-                        onTap: () => focusNode.requestFocus(),
-                        child: playboard(context, controller, showWinDialog),
-                      ),
-                    ),
-                  );
-              }
-            },
-          ),
+                  ),
+                );
+            }
+          },
         ),
       ),
     );

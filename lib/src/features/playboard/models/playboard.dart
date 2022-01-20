@@ -9,6 +9,15 @@ import 'loc.dart';
 
 enum PlayboardDirection { up, down, left, right }
 
+extension PlayboardDirectionExtension on PlayboardDirection {
+  PlayboardDirection get opposite => {
+        PlayboardDirection.up: PlayboardDirection.down,
+        PlayboardDirection.down: PlayboardDirection.up,
+        PlayboardDirection.left: PlayboardDirection.right,
+        PlayboardDirection.right: PlayboardDirection.left,
+      }[this]!;
+}
+
 class Playboard {
   Playboard({
     required this.size,
@@ -41,6 +50,9 @@ class Playboard {
   final int size;
   final List<int> currentBoard;
 
+  Playboard clone() =>
+      Playboard(size: size, currentBoard: List.from(currentBoard));
+
   int get hole => size * size - 1;
 
   int get cost {
@@ -72,9 +84,12 @@ class Playboard {
     StringBuffer sb = StringBuffer();
     for (int i = 0; i < size; i++) {
       sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
-      sb.writeln(List.generate(size,
-                  (index) => sprintf('|%3d', [currentBoard[i * size + index]]))
-              .join() +
+      sb.writeln(List.generate(size, (index) {
+            if (currentBoard[i * size + index] == size - 1) {
+              return '| X ';
+            }
+            return sprintf('|%3d', [currentBoard[i * size + index]]);
+          }).join() +
           '|');
     }
     sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
@@ -240,9 +255,9 @@ class SolvingMachine {
   static List<PlayboardDirection> quickSolveSolution(
     PlayboardSolverParams params,
   ) {
-    var directions = <PlayboardDirection>[];
-    final size = params.currentBoard.size;
-    final _needToSolvePos = needToSolvePos(size);
+    // var directions = <PlayboardDirection>[];
+    // final size = params.currentBoard.size;
+    // final _needToSolvePos = needToSolvePos(size);
 
     /// Not solved yet
     /// -----------------
@@ -265,12 +280,12 @@ class SolvingMachine {
     /// -----------------
     /// | 12| 13| 14| 15|
     /// -----------------
-    for (final pos in _needToSolvePos) {
-      final numberLoc = params.currentBoard.loc(pos);
-      final destinationLoc = Loc.fromIndex(size, pos);
+    // for (final pos in _needToSolvePos) {
+    //   final numberLoc = params.currentBoard.loc(pos);
+    //   final destinationLoc = Loc.fromIndex(size, pos);
 
-      final holeLoc = params.currentBoard.holeLoc;
-    }
+    //   final holeLoc = params.currentBoard.holeLoc;
+    // }
 
     return [];
   }
