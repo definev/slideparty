@@ -1,3 +1,4 @@
 ignore:
   - '**/example/'
   - '**/*.g.dart'
+  - 'lib/src/cores/**'
