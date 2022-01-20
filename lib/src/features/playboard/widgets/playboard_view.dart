@@ -93,7 +93,6 @@ class PlayboardView extends HookConsumerWidget {
     required PlayboardAnimationTypes animationType,
     required double animateValue,
   }) {
-    if (index == boardSize * boardSize - 1) return const SizedBox();
     return Consumer(
       builder: (context, ref, child) {
         final loc = ref.watch(
@@ -146,6 +145,13 @@ class PlayboardView extends HookConsumerWidget {
     required PlayboardAnimationTypes animationType,
     required double animateValue,
   }) {
+    if (index == boardSize * boardSize - 1) {
+      return SizedBox(
+        height: size,
+        width: size,
+        key: const ValueKey('hole-tile'),
+      );
+    }
     if (config is NumberPlayboardConfig) {
       return Transform.scale(
         scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,

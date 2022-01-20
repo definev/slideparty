@@ -96,6 +96,7 @@ class SingleModePage extends StatelessWidget {
                     ),
                     actions: [
                       SlidepartyButton(
+                        key: const Key('play-again-button'),
                         color: playboardDefaultColor,
                         size: ButtonSize.square,
                         style: SlidepartyButtonStyle.invert,
