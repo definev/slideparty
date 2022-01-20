@@ -71,7 +71,7 @@ class SingleModeSetting extends ConsumerWidget {
                         style: TextButton.styleFrom(
                             backgroundColor: color.withOpacity(0.1)),
                         child: Text(
-                          'Sound',
+                          audioController.isMuted ? 'Un-mute' : 'Mute',
                           style: Theme.of(context)
                               .textTheme
                               .subtitle2!
