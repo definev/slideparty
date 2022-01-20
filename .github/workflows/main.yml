@@ -26,6 +26,12 @@ jobs:
         run: flutter analyze
       - name: Run tests
         run: flutter test --coverage
-      - name: Upload coverage to codecov
-        run: curl -s https://codecov.io/bash
-        shell: bash
+      - name: Instal lcov
+        run: sudo apt-get install -y lcov
+      - name: Remove generated file from coverage report
+        run: lcov --remove coverage/lcov.info 'lib/*/*.freezed.dart' 'lib/*/*.g.dart' --output-file coverage/lcov.info
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: coverage/lcov.info
+          token: ${{ secrets.CODECOV }}
