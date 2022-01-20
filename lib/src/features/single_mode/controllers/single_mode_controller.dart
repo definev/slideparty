@@ -18,7 +18,14 @@ final singleModeControllerProvider =
   (ref) {
     final color = ref
         .watch(playboardInfoControllerProvider.select((value) => value.color));
-    return SingleModePlayboardController(ref.read, color: color, boardSize: 3);
+    final boardSize = ref.watch(
+        playboardInfoControllerProvider.select((value) => value.boardSize));
+
+    return SingleModePlayboardController(
+      ref.read,
+      color: color,
+      boardSize: boardSize,
+    );
   },
 );
 

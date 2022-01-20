@@ -41,6 +41,13 @@ class SinglePlayboardState extends PlayboardState {
         bestStep: bestStep,
       );
 
+  SinglePlayboardState clone() => SinglePlayboardState(
+        playboard: playboard.clone(),
+        config: config,
+        step: step,
+        bestStep: bestStep,
+      );
+
   @override
   List<Object?> get props => [playboard];
 }

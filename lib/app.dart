@@ -6,9 +6,9 @@ import 'package:slideparty/src/features/app_setting/app_setting_controller.dart'
 import 'package:slideparty/src/features/home/home.dart';
 import 'package:slideparty/src/features/multiple_mode/multiple_mode.dart';
 import 'package:slideparty/src/features/online_mode/online_mode.dart';
+import 'package:slideparty/src/features/playboard/playboard.dart';
+import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
 import 'package:slideparty/src/features/single_mode/single_mode.dart';
-
-import 'src/features/playboard/controllers/playboard_info_controller.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -25,8 +25,14 @@ class App extends ConsumerStatefulWidget {
       ),
       GoRoute(
         path: '/s_mode',
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: SingleModePage(),
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: ProviderScope(
+            overrides: [
+              playboardControllerProvider
+                  .overrideWithProvider(singleModeControllerProvider),
+            ],
+            child: const SingleModePage(),
+          ),
         ),
       ),
       GoRoute(

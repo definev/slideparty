@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_animation_types.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
-import 'package:slideparty/src/features/playboard/widgets/number_tile.dart';
+
+import '../playboard.dart';
 
 class PlayboardView extends HookConsumerWidget {
   const PlayboardView({
@@ -109,19 +109,21 @@ class PlayboardView extends HookConsumerWidget {
         final config = ref.watch(
           playboardControllerProvider.select((value) => value.config),
         );
-
         return TweenAnimationBuilder<Size?>(
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeOutBack,
           tween: SizeTween(
-            begin: Size((boardSize / 2).floorToDouble(),
-                (boardSize / 2).floorToDouble()),
+            begin: Size(
+              (boardSize / 2).floorToDouble(),
+              (boardSize / 2).floorToDouble(),
+            ),
             end: loc.toSize,
           ),
           builder: (context, pos, child) => Positioned(
             top: (pos?.height ?? loc.dy) * size / boardSize,
             left: (pos?.width ?? loc.dx) * size / boardSize,
             child: _getTileWithConfig(
+              loc: loc,
               size: size,
               index: index,
               config: config,
@@ -136,6 +138,7 @@ class PlayboardView extends HookConsumerWidget {
   }
 
   Widget _getTileWithConfig({
+    required Loc loc,
     required double size,
     required int index,
     required PlayboardConfig config,
@@ -149,6 +152,7 @@ class PlayboardView extends HookConsumerWidget {
         child: Opacity(
           opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
           child: NumberTile(
+            key: ValueKey('number-tile-${loc.index(boardSize)}'),
             index: index,
             boardSize: boardSize,
             playboardSize: size,
