@@ -147,8 +147,8 @@ class PlayboardView extends HookConsumerWidget {
   }) {
     if (index == boardSize * boardSize - 1) {
       return SizedBox(
-        height: size,
-        width: size,
+        height: size / boardSize,
+        width: size / boardSize,
         key: const ValueKey('hole-tile'),
       );
     }

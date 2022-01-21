@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -13,6 +14,125 @@ import 'package:slideparty/src/features/single_mode/single_mode.dart';
 import 'package:slideparty/src/features/single_mode/widgets/single_mode_setting.dart';
 
 import '../../mocks/test_app.dart';
+
+List<PlayboardDirection> _getDirections(Loc holeLoc, int boardSize) {
+  getDirection() {
+    if (holeLoc.dx == 0) {
+      return PlayboardDirection.right;
+    } else if (holeLoc.dx == boardSize) {
+      return PlayboardDirection.left;
+    } else if (holeLoc.dy == 0) {
+      return PlayboardDirection.down;
+    } else if (holeLoc.dy == boardSize) {
+      return PlayboardDirection.up;
+    }
+    return PlayboardDirection.values[Random().nextInt(4)];
+  }
+
+  final dir = getDirection();
+  final directions = {
+    PlayboardDirection.down: {
+      PlayboardDirection.left: [
+        PlayboardDirection.down,
+        PlayboardDirection.left,
+        PlayboardDirection.up,
+        PlayboardDirection.right,
+      ],
+      PlayboardDirection.right: [
+        PlayboardDirection.down,
+        PlayboardDirection.right,
+        PlayboardDirection.up,
+        PlayboardDirection.left,
+      ],
+    },
+    PlayboardDirection.up: {
+      PlayboardDirection.left: [
+        PlayboardDirection.up,
+        PlayboardDirection.left,
+        PlayboardDirection.down,
+        PlayboardDirection.right,
+      ],
+      PlayboardDirection.right: [
+        PlayboardDirection.up,
+        PlayboardDirection.right,
+        PlayboardDirection.down,
+        PlayboardDirection.left,
+      ],
+    },
+    PlayboardDirection.left: {
+      PlayboardDirection.down: [
+        PlayboardDirection.left,
+        PlayboardDirection.down,
+        PlayboardDirection.right,
+        PlayboardDirection.up,
+      ],
+      PlayboardDirection.up: [
+        PlayboardDirection.left,
+        PlayboardDirection.up,
+        PlayboardDirection.down,
+        PlayboardDirection.right,
+      ],
+    },
+    PlayboardDirection.right: {
+      PlayboardDirection.down: [
+        PlayboardDirection.right,
+        PlayboardDirection.down,
+        PlayboardDirection.left,
+        PlayboardDirection.up,
+      ],
+      PlayboardDirection.up: [
+        PlayboardDirection.right,
+        PlayboardDirection.up,
+        PlayboardDirection.left,
+        PlayboardDirection.down,
+      ],
+    },
+  };
+
+  final canGoDirection = () {
+    switch (dir) {
+      case PlayboardDirection.left:
+        if (holeLoc.dy == 0) {
+          return PlayboardDirection.down;
+        } else {
+          return PlayboardDirection.up;
+        }
+      case PlayboardDirection.right:
+        if (holeLoc.dy == 0) {
+          return PlayboardDirection.down;
+        } else {
+          return PlayboardDirection.up;
+        }
+      case PlayboardDirection.up:
+        if (holeLoc.dx == 0) {
+          return PlayboardDirection.right;
+        } else {
+          return PlayboardDirection.left;
+        }
+      case PlayboardDirection.down:
+        if (holeLoc.dx == 0) {
+          return PlayboardDirection.right;
+        } else {
+          return PlayboardDirection.left;
+        }
+    }
+  }();
+
+  return directions[dir]![canGoDirection]!;
+}
+
+Offset _getOffset(PlayboardDirection direction) {
+  switch (direction) {
+    case PlayboardDirection.up:
+      return const Offset(0, 50);
+    case PlayboardDirection.down:
+      return const Offset(0, -50);
+    case PlayboardDirection.left:
+      return const Offset(50, 0);
+    case PlayboardDirection.right:
+      return const Offset(-50, 0);
+  }
+}
 
 void main() {
   group('Single mode', () {
@@ -104,41 +224,35 @@ void main() {
         final preState = state!.clone();
         final boardSize = preState.playboard.size;
         final holeLoc = preState.playboard.currentBoard.holeLoc;
-        final direction = () {
-          if (holeLoc.dx == 0) {
-            return PlayboardDirection.right;
-          } else if (holeLoc.dx == preState.playboard.size - 1) {
-            return PlayboardDirection.left;
-          } else if (holeLoc.dy == 0) {
-            return PlayboardDirection.down;
-          } else if (holeLoc.dy == preState.playboard.size - 1) {
-            return PlayboardDirection.up;
+
+        final directions = _getDirections(holeLoc, boardSize);
+
+        for (final direction in directions) {
+          final holeLoc = state!.playboard.currentBoard.holeLoc;
+
+          switch (direction) {
+            case PlayboardDirection.up:
+              await simulateKeyDownEvent(LogicalKeyboardKey.arrowDown);
+              break;
+            case PlayboardDirection.down:
+              await simulateKeyDownEvent(LogicalKeyboardKey.arrowUp);
+              break;
+            case PlayboardDirection.left:
+              await simulateKeyDownEvent(LogicalKeyboardKey.arrowRight);
+              break;
+            case PlayboardDirection.right:
+              await simulateKeyDownEvent(LogicalKeyboardKey.arrowLeft);
+              break;
           }
-          return PlayboardDirection.values[Random().nextInt(4)];
-        }();
+          await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
-        switch (direction) {
-          case PlayboardDirection.up:
-            await simulateKeyDownEvent(LogicalKeyboardKey.arrowDown);
-            break;
-          case PlayboardDirection.down:
-            await simulateKeyDownEvent(LogicalKeyboardKey.arrowUp);
-            break;
-          case PlayboardDirection.left:
-            await simulateKeyDownEvent(LogicalKeyboardKey.arrowRight);
-            break;
-          case PlayboardDirection.right:
-            await simulateKeyDownEvent(LogicalKeyboardKey.arrowLeft);
-            break;
+          final newHoleLoc = holeLoc.move(boardSize, direction);
+          expect(newHoleLoc, isNotNull);
+
+          final actualHoleLoc =
+              state!.playboard.currentLoc(boardSize * boardSize - 1);
+          expect(actualHoleLoc, newHoleLoc);
         }
-        await tester.pumpAndSettle(const Duration(milliseconds: 500));
-
-        final newHoleLoc = holeLoc.move(boardSize, direction);
-        expect(newHoleLoc, isNotNull);
-
-        final actualHoleLoc =
-            state!.playboard.currentLoc(boardSize * boardSize - 1);
-        expect(actualHoleLoc, newHoleLoc);
       });
       testWidgets('Swipe control', (tester) async {
         SinglePlayboardState? state;
@@ -170,61 +284,27 @@ void main() {
         final preState = state!.clone();
         final boardSize = preState.playboard.size;
         final holeLoc = preState.playboard.currentBoard.holeLoc;
-        final direction = () {
-          if (holeLoc.dx == 0) {
-            return PlayboardDirection.right;
-          } else if (holeLoc.dx == preState.playboard.size - 1) {
-            return PlayboardDirection.left;
-          } else if (holeLoc.dy == 0) {
-            return PlayboardDirection.down;
-          } else if (holeLoc.dy == preState.playboard.size - 1) {
-            return PlayboardDirection.up;
-          }
-          return PlayboardDirection.values[Random().nextInt(4)];
-        }();
 
-        switch (direction.opposite) {
-          case PlayboardDirection.up:
-            await tester.timedDrag(
-              find.byKey(const ValueKey('hole-tile')),
-              const Offset(0, -100),
-              const Duration(milliseconds: 300),
-              warnIfMissed: false,
-            );
-            break;
-          case PlayboardDirection.down:
-            await tester.timedDrag(
-              find.byKey(const ValueKey('hole-tile')),
-              const Offset(0, 100),
-              const Duration(milliseconds: 300),
-              warnIfMissed: false,
-            );
-            break;
-          case PlayboardDirection.left:
-            await tester.timedDrag(
-              find.byKey(const ValueKey('hole-tile')),
-              const Offset(-100, 0),
-              const Duration(milliseconds: 300),
-              warnIfMissed: false,
-            );
-            break;
-          case PlayboardDirection.right:
-            await tester.timedDrag(
-              find.byKey(const ValueKey('hole-tile')),
-              const Offset(100, 0),
-              const Duration(milliseconds: 300),
-              warnIfMissed: false,
-            );
-            break;
+        final directions = _getDirections(holeLoc, boardSize);
+
+        for (final direction in directions) {
+          final holeLoc = state!.playboard.currentBoard.holeLoc;
+          await tester.timedDrag(
+            find.byKey(const ValueKey('hole-tile')),
+            _getOffset(direction),
+            const Duration(milliseconds: 100),
+            buttons: kTouchContact,
+            warnIfMissed: false,
+          );
+          await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+          final newHoleLoc = holeLoc.move(boardSize, direction);
+          expect(newHoleLoc, isNotNull);
+
+          final actualHoleLoc =
+              state!.playboard.currentLoc(boardSize * boardSize - 1);
+          expect(actualHoleLoc, newHoleLoc);
         }
-        await tester.pumpAndSettle();
-
-        final newHoleLoc = holeLoc.move(boardSize, direction);
-        expect(newHoleLoc, isNotNull);
-
-        final actualHoleLoc =
-            state!.playboard.currentLoc(boardSize * boardSize - 1);
-        expect(actualHoleLoc, newHoleLoc);
       });
     });
     group('Setting screen', () {
