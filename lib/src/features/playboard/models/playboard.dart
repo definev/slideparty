@@ -1,7 +1,10 @@
+// ignore_for_file: unused_element, unused_local_variable
+
 import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:slideparty/src/utils/breakpoint.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -148,9 +151,35 @@ class Playboard {
     Loc holeLoc = currentLoc(hole);
     Loc numberLoc = currentLoc(number);
 
-    if (numberLoc.relate(holeLoc)) {
-      return swap(holeLoc, numberLoc);
+    var newBoard = clone();
+
+    if (holeLoc.dx == numberLoc.dx) {
+      final dyDistance = holeLoc.dy - numberLoc.dy;
+      if (dyDistance < 0) {
+        for (int i = 0; i < dyDistance.abs(); i++) {
+          newBoard = newBoard.moveHole(PlayboardDirection.up)!;
+        }
+      } else {
+        for (int i = 0; i < dyDistance; i++) {
+          newBoard = newBoard.moveHole(PlayboardDirection.down)!;
+        }
+      }
     }
+
+    if (holeLoc.dy == numberLoc.dy) {
+      final dxDistance = holeLoc.dx - numberLoc.dx;
+      if (dxDistance < 0) {
+        for (int i = 0; i < dxDistance.abs(); i++) {
+          newBoard = newBoard.moveHole(PlayboardDirection.left)!;
+        }
+      } else {
+        for (int i = 0; i < dxDistance; i++) {
+          newBoard = newBoard.moveHole(PlayboardDirection.right)!;
+        }
+      }
+    }
+
+    return newBoard;
   }
 
   Playboard swap(Loc holeLoc, Loc numberLoc) {
@@ -251,13 +280,57 @@ class SolvingMachine {
         (index) => index >= size ? (index - size + 1) * size : index,
       );
 
+  static Tuple2<Loc, List<PlayboardDirection>> _getHoleDirectionPath({
+    required int size,
+    required Loc holeLoc,
+    required Loc toLoc,
+  }) {
+    var directions = <PlayboardDirection>[];
+    if (holeLoc == toLoc) return Tuple2(holeLoc, directions);
+    final dxDistance = holeLoc.dx - toLoc.dx;
+    final dyDistance = holeLoc.dy - toLoc.dy;
+    if (dxDistance < 0) {
+      holeLoc = holeLoc.move(size, PlayboardDirection.right)!;
+      directions.add(PlayboardDirection.right);
+    } else if (dxDistance > 0) {
+      holeLoc = holeLoc.move(size, PlayboardDirection.left)!;
+      directions.add(PlayboardDirection.left);
+    }
+    if (dyDistance < 0) {
+      holeLoc = holeLoc.move(size, PlayboardDirection.down)!;
+      directions.add(PlayboardDirection.down);
+    } else if (dyDistance > 0) {
+      holeLoc = holeLoc.move(size, PlayboardDirection.up)!;
+      directions.add(PlayboardDirection.up);
+    }
+    return Tuple2(holeLoc, directions);
+  }
+
+  static List<PlayboardDirection> _getNumberDirectionPath({
+    required int size,
+    required Loc holeLoc,
+    required Loc numberLoc,
+  }) {
+    if (holeLoc == numberLoc) return [];
+    int loop = (holeLoc.dx - numberLoc.dx).abs() +
+        (holeLoc.dy - numberLoc.dy).abs() -
+        1;
+    var directions = <PlayboardDirection>[];
+    for (var i = 0; i < loop; i++) {}
+    directions.addAll(
+      _getHoleDirectionPath(size: size, holeLoc: holeLoc, toLoc: numberLoc)
+          .second,
+    );
+    return directions;
+  }
+
   @visibleForTesting
   static List<PlayboardDirection> quickSolveSolution(
     PlayboardSolverParams params,
   ) {
-    // var directions = <PlayboardDirection>[];
-    // final size = params.currentBoard.size;
-    // final _needToSolvePos = needToSolvePos(size);
+    var directions = <PlayboardDirection>[];
+    final size = params.currentBoard.size;
+    final _needToSolvePos = needToSolvePos(size);
 
     /// Not solved yet
     /// -----------------
@@ -280,12 +353,12 @@ class SolvingMachine {
     /// -----------------
     /// | 12| 13| 14| 15|
     /// -----------------
-    // for (final pos in _needToSolvePos) {
-    //   final numberLoc = params.currentBoard.loc(pos);
-    //   final destinationLoc = Loc.fromIndex(size, pos);
+    for (final pos in _needToSolvePos) {
+      final numberLoc = params.currentBoard.loc(pos);
+      final destinationLoc = Loc.fromIndex(size, pos);
 
-    //   final holeLoc = params.currentBoard.holeLoc;
-    // }
+      final holeLoc = params.currentBoard.holeLoc;
+    }
 
     return [];
   }
