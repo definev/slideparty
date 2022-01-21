@@ -372,8 +372,9 @@ void main() {
 
         await tester.tap(find.byIcon(LineIcons.cog));
         await tester.pump();
-
         await tester.tap(find.text('5 x 5'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(LineIcons.times));
         await tester.pumpAndSettle();
         expect(find.byType(PlayboardView), findsOneWidget);
         expect(find.byKey(const ValueKey('number-tile-15')), findsOneWidget);

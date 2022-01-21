@@ -119,7 +119,6 @@ class SingleModePlayboardController
         bestStep: bestStep ?? -1,
       );
     });
-    debugPrint('Playboard:\n$playboard');
     _read(counterProvider.notifier).state = const Duration(seconds: 0);
   }
 

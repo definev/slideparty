@@ -1,9 +1,7 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:io';
-
 import 'package:universal_platform/universal_platform.dart';
 
-import 'html_localtor.dart' if (dart.library.html) 'dart:html';
+import 'html_locator.dart' if (dart.library.html) 'dart:html';
+import 'io_locator.dart' if (dart.library.io) 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
@@ -21,10 +19,10 @@ class AppInfos {
 
     if (kIsWeb) {
       return getOSInsideWeb();
-    }
-
-    if (Platform.environment.containsKey('FLUTTER_TEST')) {
-      return ScreenTypes.touchscreenAndMouse;
+    } else {
+      if (Platform.environment.containsKey('FLUTTER_TEST')) {
+        return ScreenTypes.touchscreenAndMouse;
+      }
     }
 
     return UniversalPlatform.isDesktop
