@@ -1,0 +1,6 @@
+[submodule "packages/slideparty_socket"]
+	path = packages/slideparty_socket
+	url = https://github.com/definev/slideparty_socket.git
+[submodule "packages/slideparty_server"]
+	path = packages/slideparty_server
+	url = https://github.com/definev/slideparty_server.git
