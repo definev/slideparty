@@ -100,9 +100,7 @@ class Playboard {
     return sb.toString();
   }
 
-  void logPlayboard() {
-    currentBoard.printBoard();
-  }
+  void logPlayboard() => currentBoard.printBoard();
 
   Loc currentLoc(int number) {
     final index = currentBoard.indexOf(number);
@@ -308,21 +306,89 @@ class SolvingMachine {
 
   static List<PlayboardDirection> _getNumberDirectionPath({
     required int size,
-    required Loc holeLoc,
     required Loc numberLoc,
+    required Loc destLoc,
   }) {
-    if (holeLoc == numberLoc) return [];
-    int loop = (holeLoc.dx - numberLoc.dx).abs() +
-        (holeLoc.dy - numberLoc.dy).abs() -
-        1;
-    var directions = <PlayboardDirection>[];
-    for (var i = 0; i < loop; i++) {}
-    directions.addAll(
-      _getHoleDirectionPath(size: size, holeLoc: holeLoc, toLoc: numberLoc)
-          .second,
-    );
+    if (destLoc.relate(numberLoc)) {
+      if (destLoc.dx - numberLoc.dx == 0) {
+        if (destLoc.dy - numberLoc.dy == 0) return [];
+        return [
+          destLoc.dy > numberLoc.dy
+              ? PlayboardDirection.down
+              : PlayboardDirection.up
+        ];
+      }
+      return [
+        destLoc.dx > numberLoc.dx
+            ? PlayboardDirection.right
+            : PlayboardDirection.left
+      ];
+    }
+
+    final dxDistance = numberLoc.dx - destLoc.dx;
+    final dyDistance = numberLoc.dy - destLoc.dy;
+
+    final directions = <PlayboardDirection>[];
+
+    List<PlayboardDirection> _moveDirections(
+      int loop, {
+      required int dyDistance,
+      required int dxDistance,
+    }) {
+      final directions = <PlayboardDirection>[];
+      for (int time = 0; time < loop; time++) {
+        final dxLoop = (time >= dxDistance ? 1 : dxDistance - time);
+        final dyLoop =
+            (time >= dxDistance ? dyDistance - (loop - time - 1) : dyDistance);
+        directions.addAll([
+          ...List.generate(dyLoop, (index) => PlayboardDirection.down),
+          ...List.generate(
+            dxLoop,
+            (index) => dxDistance < 0
+                ? PlayboardDirection.left
+                : PlayboardDirection.right,
+          ),
+          ...List.generate(dyLoop, (index) => PlayboardDirection.up),
+          ...List.generate(
+            dxLoop,
+            (index) => dxDistance < 0
+                ? PlayboardDirection.right
+                : PlayboardDirection.left,
+          ),
+        ]);
+      }
+      directions.add(PlayboardDirection.down);
+      return directions;
+    }
+
+    if (dxDistance == 0) {
+      directions.addAll(_moveDirections(
+        dyDistance - 1,
+        dxDistance: 1,
+        dyDistance: dyDistance,
+      ));
+    } else if (dyDistance == 0) {
+      directions.addAll(_moveDirections(
+        dxDistance - 1,
+        dxDistance: dxDistance,
+        dyDistance: 1,
+      ));
+    } else {
+      directions.addAll(_moveDirections(
+        dxDistance + dyDistance - 1,
+        dyDistance: dyDistance,
+        dxDistance: dxDistance,
+      ));
+    }
+
     return directions;
   }
+
+  // static List<PlayboardDirection> _getNegativeNumberDirectionPath({
+  //   required int size,
+  //   required int number,
+  //   required Loc numberLoc,
+  // }) {}
 
   @visibleForTesting
   static List<PlayboardDirection> quickSolveSolution(
