@@ -5,11 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
 import 'package:slideparty/src/features/home/home.dart';
 import 'package:slideparty/src/features/multiple_mode/multiple_mode.dart';
+import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
 import 'package:slideparty/src/features/online_mode/online_mode.dart';
+import 'package:slideparty/src/features/online_mode/screens/online_playboard_page.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
 import 'package:slideparty/src/features/single_mode/single_mode.dart';
 import 'package:slideparty/src/widgets/buttons/models/slideparty_button_params.dart';
+import 'package:slideparty_socket/slideparty_socket_fe.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -41,6 +44,24 @@ class App extends ConsumerStatefulWidget {
         pageBuilder: (context, state) => const NoTransitionPage(
           child: OnlineModePage(),
         ),
+      ),
+      GoRoute(
+        path: '/o_mode/:boardSize/:roomCode',
+        pageBuilder: (context, state) {
+          final info = RoomInfo(
+            int.parse(state.params['boardSize']!),
+            state.params['roomCode']!,
+          );
+          return NoTransitionPage(
+            child: ProviderScope(
+              overrides: [
+                playboardControllerProvider.overrideWithProvider(
+                    onlinePlayboardControlllerProvider(info)),
+              ],
+              child: const OnlinePlayboardPage(),
+            ),
+          );
+        },
       ),
       GoRoute(
         path: '/m_mode',

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
+import 'package:slideparty_socket/slideparty_socket_fe.dart';
 
 import 'playboard_config.dart';
 import 'playboard.dart';
@@ -97,4 +98,21 @@ class MultiplePlayboardState extends PlayboardState {
 
   @override
   List<Object?> get props => [_playerStates];
+}
+
+class OnlinePlayboardState extends PlayboardState {
+  const OnlinePlayboardState({required this.state})
+      : super(config: const OnlinePlayboardConfig());
+
+  final ServerState state;
+
+  OnlinePlayboardState copyWith({
+    ServerState? state,
+  }) =>
+      OnlinePlayboardState(
+        state: state ?? this.state,
+      );
+
+  @override
+  List<Object?> get props => [state];
 }
