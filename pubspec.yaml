@@ -46,7 +46,9 @@ dependencies:
   line_icons: ^2.0.1
   simple_animations: ^4.0.1
   slideparty_socket:
-    path: "packages/slideparty_socket"
+    git:
+      url: https://github.com/definev/slideparty_socket.git
+      ref: main
   sprintf: ^6.0.0
   universal_platform: ^1.0.0+1
 
