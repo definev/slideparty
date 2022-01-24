@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:slideparty/src/utils/breakpoint.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -100,9 +99,7 @@ class Playboard {
     return sb.toString();
   }
 
-  void logPlayboard() {
-    currentBoard.printBoard();
-  }
+  void logPlayboard() => currentBoard.printBoard();
 
   Loc currentLoc(int number) {
     final index = currentBoard.indexOf(number);
@@ -280,15 +277,16 @@ class SolvingMachine {
         (index) => index >= size ? (index - size + 1) * size : index,
       );
 
-  static Tuple2<Loc, List<PlayboardDirection>> _getHoleDirectionPath({
+  static List<PlayboardDirection> _getHoleToRightNumberLocPath({
     required int size,
     required Loc holeLoc,
-    required Loc toLoc,
+    required Loc rightNumberLoc,
+    required List<int> currentBoard,
   }) {
     var directions = <PlayboardDirection>[];
-    if (holeLoc == toLoc) return Tuple2(holeLoc, directions);
-    final dxDistance = holeLoc.dx - toLoc.dx;
-    final dyDistance = holeLoc.dy - toLoc.dy;
+    if (holeLoc == rightNumberLoc) return directions;
+    final dxDistance = holeLoc.dx - rightNumberLoc.dx;
+    final dyDistance = holeLoc.dy - rightNumberLoc.dy;
     if (dxDistance < 0) {
       holeLoc = holeLoc.move(size, PlayboardDirection.right)!;
       directions.add(PlayboardDirection.right);
@@ -303,24 +301,163 @@ class SolvingMachine {
       holeLoc = holeLoc.move(size, PlayboardDirection.up)!;
       directions.add(PlayboardDirection.up);
     }
-    return Tuple2(holeLoc, directions);
+    return directions;
   }
 
-  static List<PlayboardDirection> _getNumberDirectionPath({
-    required int size,
-    required Loc holeLoc,
-    required Loc numberLoc,
+  /// From the hole loc to number loc
+  /// The the `dxDistance` and `dyDistance` is the distance between the hole and the number
+  /// - `dxDistance` must be zero or positive
+  /// - `dyDistance` must be zero or positive
+  ///
+  /// CASE 0: `dxDistance` is zero and `dyDistance` is zero (So it's already in the right position)
+  ///
+  /// CASE 1: `dxDistance` and `dyDistance` are both positive
+  /// Loc(0, 0)
+  ///  |
+  /// -------------
+  /// |X |2 |3 |4 |
+  /// -------------
+  /// |5 |6 |7 |8 |
+  /// -------------
+  /// |9 |10|11|1 | -----> Loc(2, 3)
+  /// -------------
+  /// |13|14|15|12|
+  /// -------------
+  ///
+  /// CASE 2: `dxDistance` is positive and `dyDistance` is zero
+  /// Loc(0, 0)
+  ///  |
+  ///  |    Loc(0, 2)
+  ///  |     |
+  ///  |     |
+  /// -------------
+  /// |X |2 |1 |4 |
+  /// -------------
+  /// |5 |6 |7 |8 |
+  /// -------------
+  /// |9 |10|11|3 |
+  /// -------------
+  /// |13|14|15|12|
+  /// -------------
+  ///
+  /// CASE 3: `dxDistance` is zero and `dyDistance` is positive
+  ///
+  ///             -------------
+  /// Loc(0, 0)-> |X |2 |3 |4 |
+  ///             -------------
+  ///             |5 |6 |7 |8 |
+  ///             -------------
+  /// Loc(2, 0)-> |1 |10|11|9 |
+  ///             -------------
+  ///             |13|14|15|12|
+  ///             -------------
+  ///
+  static List<PlayboardDirection> _numberToRightNumberLocPositiveCase({
+    required int dyDistance,
+    required int dxDistance,
   }) {
-    if (holeLoc == numberLoc) return [];
-    int loop = (holeLoc.dx - numberLoc.dx).abs() +
-        (holeLoc.dy - numberLoc.dy).abs() -
-        1;
+    assert(dxDistance >= 0);
+    assert(dyDistance >= 0);
+    List<PlayboardDirection> directions = [];
+    // [Case 0]
+    if (dxDistance == 0 && dyDistance == 0) return <PlayboardDirection>[];
+    // [Case 1]
+    if (dxDistance > 0 && dyDistance > 0) {
+      var loop = dxDistance + dyDistance - 1;
+      while (loop > 0) {
+        loop--;
+        directions.addAll([
+          ...List.generate(dyDistance, (index) => PlayboardDirection.down),
+          ...List.generate(dxDistance, (index) => PlayboardDirection.right),
+          ...List.generate(dyDistance, (index) => PlayboardDirection.up),
+          ...List.generate(dxDistance, (index) => PlayboardDirection.left),
+        ]);
+      }
+      directions.add(PlayboardDirection.down);
+    }
+    // [Case 2]
+    if (dxDistance > 0 && dyDistance == 0) {
+      var loop = dxDistance - 1;
+      while (loop > 0) {
+        loop--;
+        directions.addAll([
+          ...List.generate(dxDistance, (index) => PlayboardDirection.left),
+          PlayboardDirection.down,
+          ...List.generate(dxDistance, (index) => PlayboardDirection.right),
+          PlayboardDirection.up,
+        ]);
+      }
+      directions.add(PlayboardDirection.left);
+    }
+
+    // [Case 3]
+    if (dxDistance == 0 && dyDistance > 0) {
+      var loop = dyDistance - 1;
+      while (loop > 0) {
+        loop--;
+        directions.addAll([
+          ...List.generate(dyDistance, (index) => PlayboardDirection.down),
+          PlayboardDirection.right,
+          ...List.generate(dyDistance, (index) => PlayboardDirection.up),
+          PlayboardDirection.left,
+        ]);
+      }
+      directions.add(PlayboardDirection.down);
+    }
+    return directions;
+  }
+
+  ///
+  static List<PlayboardDirection> _numberToRightNumberLocNegativeCase({
+    required int dyDistance,
+    required int dxDistance,
+    required List<int> currentBoard,
+  }) {
     var directions = <PlayboardDirection>[];
-    for (var i = 0; i < loop; i++) {}
-    directions.addAll(
-      _getHoleDirectionPath(size: size, holeLoc: holeLoc, toLoc: numberLoc)
-          .second,
-    );
+    return directions;
+  }
+
+  static List<PlayboardDirection> _numberToRightNumberLoc({
+    required int size,
+    required Loc numberLoc,
+    required Loc rightNumberLoc,
+    required List<int> currentBoard,
+  }) {
+    if (rightNumberLoc.relate(numberLoc)) {
+      if (rightNumberLoc.dx - numberLoc.dx == 0) {
+        if (rightNumberLoc.dy - numberLoc.dy == 0) return [];
+        return [
+          rightNumberLoc.dy > numberLoc.dy
+              ? PlayboardDirection.down
+              : PlayboardDirection.up
+        ];
+      }
+      return [
+        rightNumberLoc.dx > numberLoc.dx
+            ? PlayboardDirection.right
+            : PlayboardDirection.left
+      ];
+    }
+
+    final dxDistance = numberLoc.dx - rightNumberLoc.dx;
+    final dyDistance = numberLoc.dy - rightNumberLoc.dy;
+
+    final directions = <PlayboardDirection>[];
+
+    if (dxDistance >= 0 && dyDistance >= 0) {
+      directions.addAll(
+        _numberToRightNumberLocPositiveCase(
+          dxDistance: dxDistance,
+          dyDistance: dyDistance,
+        ),
+      );
+    } else {
+      directions.addAll(_numberToRightNumberLocNegativeCase(
+        dyDistance: dyDistance,
+        dxDistance: dxDistance,
+        currentBoard: currentBoard,
+      ));
+    }
     return directions;
   }
 
@@ -329,38 +466,31 @@ class SolvingMachine {
     PlayboardSolverParams params,
   ) {
     var directions = <PlayboardDirection>[];
+    var currentBoard = params.currentBoard;
     final size = params.currentBoard.size;
     final _needToSolvePos = needToSolvePos(size);
 
-    /// Not solved yet
-    /// -----------------
-    /// | 0 | 1 | 2 | 3 |
-    /// -----------------
-    /// | 4 | 5 | 6 | 7 |
-    /// -----------------
-    /// | 8 | 9 | 10| 11|
-    /// -----------------
-    /// | 12| 13| 14| 15|
-    /// -----------------
-    ///
-    /// Solved board
-    /// -----------------
-    /// | 0 | 1 | 2 | 3 |
-    /// -----------------
-    /// | 4 | 5 | 6 | 7 |
-    /// -----------------
-    /// | 8 | 9 | 10| 11|
-    /// -----------------
-    /// | 12| 13| 14| 15|
-    /// -----------------
-    for (final pos in _needToSolvePos) {
-      final numberLoc = params.currentBoard.loc(pos);
-      final destinationLoc = Loc.fromIndex(size, pos);
+    for (int index = 0; index < size - 1; index++) {
+      final rightNumberLoc = Loc.fromIndex(size, index);
+      final holeLoc = currentBoard.holeLoc;
+      final holePath = _getHoleToRightNumberLocPath(
+        size: size,
+        holeLoc: holeLoc,
+        rightNumberLoc: rightNumberLoc,
+        currentBoard: currentBoard,
+      );
+      currentBoard = currentBoard.moveDirections(holePath);
+      final currentNumberLoc = currentBoard.loc(index);
+      final numberPath = _numberToRightNumberLoc(
+        size: size,
+        numberLoc: currentNumberLoc,
+        rightNumberLoc: rightNumberLoc,
+        currentBoard: currentBoard,
+      );
 
-      final holeLoc = params.currentBoard.holeLoc;
+      directions.addAll([...holePath, ...numberPath]);
     }
-
-    return [];
+    return directions;
   }
 }
 
@@ -411,6 +541,23 @@ extension SolvingPuzzleExt on List<int> {
     }
 
     debugPrint(buffer.toString());
+  }
+
+  List<int> moveDirections(List<PlayboardDirection> directions) {
+    List<int> newList = List.from(this);
+
+    for (final direction in directions) {
+      final newHoleLoc = holeLoc.move(size, direction);
+
+      if (newHoleLoc == null) throw Exception('Cannot move direction');
+
+      final temp = newList[hole];
+      final newHoleIndex = newHoleLoc.index(size);
+      newList[hole] = newHoleIndex;
+      newList[newHoleIndex] = temp;
+    }
+
+    return newList;
   }
 }
 
