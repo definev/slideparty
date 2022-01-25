@@ -497,6 +497,8 @@ class SolvingMachine {
 extension SolvingPuzzleExt on List<int> {
   int get size => sqrt(length).floor();
 
+  bool get isSolved => sum == (length + 1) * length / 2;
+
   int get hole => length - 1;
 
   Loc get holeLoc {
@@ -541,6 +543,23 @@ extension SolvingPuzzleExt on List<int> {
     }
 
     debugPrint(buffer.toString());
+  }
+
+  List<int>? move(int number) {
+    if (number >= length) throw Exception('Number $number is out of range');
+    final numberLoc = loc(number);
+    if (numberLoc.relate(holeLoc)) {
+      swap(holeLoc, numberLoc);
+      return this;
+    }
+  }
+
+  List<int>? moveDirection(PlayboardDirection direction) {
+    final numberLoc = holeLoc.move(size, direction);
+    if (numberLoc != null) {
+      swap(holeLoc, numberLoc);
+      return this;
+    }
   }
 
   List<int> moveDirections(List<PlayboardDirection> directions) {
