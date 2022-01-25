@@ -8,16 +8,21 @@ void showSlidepartyToast(
 ) {
   showToastWidget(
     Container(
+      height: 49,
       width: width,
       padding: const EdgeInsets.all(16.0),
       decoration: ShapeDecoration(
-          color: Theme.of(context).colorScheme.secondary,
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(5),
-          )),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodyText2,
+        color: Theme.of(context).colorScheme.secondary,
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        shadows: const [BoxShadow()],
+      ),
+      child: Center(
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.bodyText2,
+        ),
       ),
     ),
     context: context,

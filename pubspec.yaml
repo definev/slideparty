@@ -52,6 +52,7 @@ dependencies:
       ref: main
   sprintf: ^6.0.0
   universal_platform: ^1.0.0+1
+  uuid: ^3.0.5
 
 dev_dependencies:
   build_runner: ^2.1.7
