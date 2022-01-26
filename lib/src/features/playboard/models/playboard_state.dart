@@ -134,6 +134,7 @@ class OnlinePlayboardState extends PlayboardState {
 }
 
 extension OnlinePlayboardExt on OnlinePlayboardState {
-  int get boardSize => (state as RoomData).players[playerId]!.currentBoard.size;
+  int get boardSize =>
+      (state as RoomData).players.values.first.currentBoard.size;
 
 }
