@@ -1,3 +1,4 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:slideparty/src/cores/db.dart';
@@ -44,7 +45,6 @@ extension BackgroundColor on ButtonColors {
   }
 }
 
-
 extension ColorSchemeExt on ButtonColors {
   Color get primaryColor {
     switch (this) {
@@ -60,5 +60,19 @@ extension ColorSchemeExt on ButtonColors {
   }
 }
 
+extension ThemeBaseOnColor on ButtonColors {
+  ThemeData get lightTheme => FlexColorScheme.light(
+        fontFamily: 'kenvector_future',
+        primary: primaryColor,
+        blendLevel: 20,
+        surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
+      ).toTheme;
+  ThemeData get darkTheme => FlexColorScheme.dark(
+        fontFamily: 'kenvector_future',
+        primary: primaryColor,
+        blendLevel: 20,
+        surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
+      ).toTheme;
+}
 
 enum ButtonSize { large, square }

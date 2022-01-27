@@ -13,6 +13,7 @@ class PlayboardView extends HookConsumerWidget {
   const PlayboardView({
     Key? key,
     this.playerId,
+    this.playerIndex,
     required this.boardSize,
     required this.size,
     required this.onPressed,
@@ -21,6 +22,7 @@ class PlayboardView extends HookConsumerWidget {
   }) : super(key: key);
 
   final String? playerId;
+  final int? playerIndex;
   final int boardSize;
   final double size;
   final Function(int index) onPressed;
@@ -100,6 +102,13 @@ class PlayboardView extends HookConsumerWidget {
                   .currentBoard
                   .loc(index);
             }
+            if (state is MultiplePlayboardState) {
+              return state
+                  .currentState(playerIndex!)
+                  .playboard
+                  .currentLoc(index);
+            }
+
             throw UnimplementedError(
                 'This kind of playboard is not implemented yet.');
           }),
@@ -188,6 +197,32 @@ class PlayboardView extends HookConsumerWidget {
               boardSize: boardSize,
               playboardSize: size,
               color: color,
+              onPressed: onPressed,
+              child: Transform.rotate(
+                angle: (pi + pi / 4 - pi / 2) * animateValue,
+                origin: const Offset(0.5, 0.5),
+                child: Text('${index + 1}'),
+              ),
+            );
+          }),
+        ),
+      );
+    }
+
+    if (config is MultiplePlayboardConfig) {
+      final tileConfig =
+          (config.configs[playerIndex!] as NumberPlayboardConfig);
+      return Transform.scale(
+        scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
+        child: Opacity(
+          opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
+          child: Consumer(builder: (context, ref, child) {
+            return NumberTile(
+              key: ValueKey('number-tile-${loc.index(boardSize)}'),
+              index: index,
+              boardSize: boardSize,
+              playboardSize: size,
+              color: tileConfig.color,
               onPressed: onPressed,
               child: Transform.rotate(
                 angle: (pi + pi / 4 - pi / 2) * animateValue,

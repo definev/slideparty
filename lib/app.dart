@@ -1,9 +1,9 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
 import 'package:slideparty/src/features/home/home.dart';
+import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
 import 'package:slideparty/src/features/multiple_mode/multiple_mode.dart';
 import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
 import 'package:slideparty/src/features/online_mode/online_mode.dart';
@@ -65,8 +65,14 @@ class App extends ConsumerStatefulWidget {
       ),
       GoRoute(
         path: '/m_mode',
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: MultipleModePage(),
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: ProviderScope(
+            overrides: [
+              playboardControllerProvider
+                  .overrideWithProvider(multipleModeControllerProvider),
+            ],
+            child: const MultipleModePage(),
+          ),
         ),
       ),
     ],
@@ -89,18 +95,8 @@ class _AppState extends ConsumerState<App> {
       routerDelegate: App.router.routerDelegate,
       debugShowCheckedModeBanner: false,
       themeMode: isDarkTheme ? ThemeMode.dark : ThemeMode.light,
-      theme: FlexColorScheme.light(
-        fontFamily: 'kenvector_future',
-        primary: playboardDefaultColor.primaryColor,
-        blendLevel: 20,
-        surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
-      ).toTheme,
-      darkTheme: FlexColorScheme.dark(
-        fontFamily: 'kenvector_future',
-        primary: playboardDefaultColor.primaryColor,
-        blendLevel: 20,
-        surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
-      ).toTheme,
+      theme: playboardDefaultColor.lightTheme,
+      darkTheme: playboardDefaultColor.darkTheme,
     );
   }
 }
