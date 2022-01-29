@@ -289,18 +289,22 @@ class SolvingMachine {
     final dxDistance = holeLoc.dx - rightNumberLoc.dx;
     final dyDistance = holeLoc.dy - rightNumberLoc.dy;
     if (dxDistance < 0) {
-      holeLoc = holeLoc.move(size, PlayboardDirection.right)!;
-      directions.add(PlayboardDirection.right);
-    } else if (dxDistance > 0) {
-      holeLoc = holeLoc.move(size, PlayboardDirection.left)!;
-      directions.add(PlayboardDirection.left);
+      directions.addAll(
+        List.generate(dxDistance.abs(), (_) => PlayboardDirection.right),
+      );
+    } else {
+      directions.addAll(
+        List.generate(dxDistance, (_) => PlayboardDirection.left),
+      );
     }
     if (dyDistance < 0) {
-      holeLoc = holeLoc.move(size, PlayboardDirection.down)!;
-      directions.add(PlayboardDirection.down);
-    } else if (dyDistance > 0) {
-      holeLoc = holeLoc.move(size, PlayboardDirection.up)!;
-      directions.add(PlayboardDirection.up);
+      directions.addAll(
+        List.generate(dyDistance.abs(), (_) => PlayboardDirection.down),
+      );
+    } else {
+      directions.addAll(
+        List.generate(dyDistance, (_) => PlayboardDirection.up),
+      );
     }
     return directions;
   }
@@ -376,10 +380,10 @@ class SolvingMachine {
       while (loop > 0) {
         loop--;
         directions.addAll([
-          ...List.generate(dyDistance, (index) => PlayboardDirection.down),
-          ...List.generate(dxDistance, (index) => PlayboardDirection.right),
-          ...List.generate(dyDistance, (index) => PlayboardDirection.up),
-          ...List.generate(dxDistance, (index) => PlayboardDirection.left),
+          ...List.generate(dyDistance, (_) => PlayboardDirection.down),
+          ...List.generate(dxDistance, (_) => PlayboardDirection.right),
+          ...List.generate(dyDistance, (_) => PlayboardDirection.up),
+          ...List.generate(dxDistance, (_) => PlayboardDirection.left),
         ]);
       }
       directions.add(PlayboardDirection.down);
@@ -390,9 +394,9 @@ class SolvingMachine {
       while (loop > 0) {
         loop--;
         directions.addAll([
-          ...List.generate(dxDistance, (index) => PlayboardDirection.left),
+          ...List.generate(dxDistance, (_) => PlayboardDirection.left),
           PlayboardDirection.down,
-          ...List.generate(dxDistance, (index) => PlayboardDirection.right),
+          ...List.generate(dxDistance, (_) => PlayboardDirection.right),
           PlayboardDirection.up,
         ]);
       }
@@ -404,9 +408,9 @@ class SolvingMachine {
       while (loop > 0) {
         loop--;
         directions.addAll([
-          ...List.generate(dyDistance, (index) => PlayboardDirection.down),
+          ...List.generate(dyDistance, (_) => PlayboardDirection.down),
           PlayboardDirection.right,
-          ...List.generate(dyDistance, (index) => PlayboardDirection.up),
+          ...List.generate(dyDistance, (_) => PlayboardDirection.up),
           PlayboardDirection.left,
         ]);
       }
@@ -513,7 +517,7 @@ class SolvingMachine {
     // [Case 0]
     if (dyDistance > 0 && dxDistance < 0) {
       directions.addAll(
-        [...List.generate(dyDistance, (index) => PlayboardDirection.down)],
+        [...List.generate(dyDistance, (_) => PlayboardDirection.down)],
       );
       // [Sub case 0]
       if (numberLoc.dy == 1) {
@@ -522,12 +526,12 @@ class SolvingMachine {
             PlayboardDirection.down,
             ...List.generate(
               dxDistance.abs(),
-              (index) => PlayboardDirection.left,
+              (_) => PlayboardDirection.left,
             ),
             PlayboardDirection.up,
             ...List.generate(
               dxDistance.abs(),
-              (index) => PlayboardDirection.right,
+              (_) => PlayboardDirection.right,
             ),
           ]);
         }
@@ -536,12 +540,12 @@ class SolvingMachine {
           directions.addAll([
             ...List.generate(
               dyDistance,
-              (index) => PlayboardDirection.up,
+              (_) => PlayboardDirection.up,
             ),
             PlayboardDirection.right,
             ...List.generate(
               dyDistance,
-              (index) => PlayboardDirection.down,
+              (_) => PlayboardDirection.down,
             ),
             PlayboardDirection.left,
           ]);
@@ -555,23 +559,23 @@ class SolvingMachine {
             PlayboardDirection.up,
             ...List.generate(
               dxDistance.abs(),
-              (index) => PlayboardDirection.left,
+              (_) => PlayboardDirection.left,
             ),
             PlayboardDirection.down,
             ...List.generate(
               dxDistance.abs(),
-              (index) => PlayboardDirection.right,
+              (_) => PlayboardDirection.right,
             ),
           ]);
         }
         directions.addAll(
-          [...List.generate(dyDistance, (index) => PlayboardDirection.up)],
+          [...List.generate(dyDistance, (_) => PlayboardDirection.up)],
         );
         for (final i in 0.till(dyDistance - 1)) {
           directions.addAll([
-            ...List.generate(dyDistance, (index) => PlayboardDirection.down),
+            ...List.generate(dyDistance, (_) => PlayboardDirection.down),
             PlayboardDirection.right,
-            ...List.generate(dyDistance, (index) => PlayboardDirection.up),
+            ...List.generate(dyDistance, (_) => PlayboardDirection.up),
             PlayboardDirection.left,
           ]);
         }
@@ -584,7 +588,7 @@ class SolvingMachine {
         [
           ...List.generate(
             dxDistance.abs(),
-            (index) => PlayboardDirection.right,
+            (_) => PlayboardDirection.right,
           ),
         ],
       );
@@ -593,11 +597,9 @@ class SolvingMachine {
         for (final i in 0.till(dyDistance.abs() + 1)) {
           directions.addAll([
             PlayboardDirection.right,
-            ...List.generate(
-                dyDistance.abs(), (index) => PlayboardDirection.up),
+            ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.up),
             PlayboardDirection.left,
-            ...List.generate(
-                dyDistance.abs(), (index) => PlayboardDirection.down),
+            ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.down),
           ]);
         }
         directions
@@ -607,7 +609,7 @@ class SolvingMachine {
             PlayboardDirection.down,
             ...List.generate(
               dxDistance.abs(),
-              (index) => PlayboardDirection.left,
+              (_) => PlayboardDirection.left,
             ),
             PlayboardDirection.up,
           ])
@@ -620,31 +622,30 @@ class SolvingMachine {
             PlayboardDirection.left,
             ...List.generate(
               dyDistance.abs(),
-              (index) => PlayboardDirection.up,
+              (_) => PlayboardDirection.up,
             ),
             PlayboardDirection.right,
             ...List.generate(
               dyDistance.abs(),
-              (index) => PlayboardDirection.down,
+              (_) => PlayboardDirection.down,
             ),
           ]);
         }
         directions.addAll([
           PlayboardDirection.down,
-          ...List.generate(
-              dxDistance.abs(), (index) => PlayboardDirection.left),
+          ...List.generate(dxDistance.abs(), (_) => PlayboardDirection.left),
           PlayboardDirection.up,
         ]);
         for (final i in 0.till(dxDistance - 2)) {
           directions.addAll([
             ...List.generate(
               dxDistance - 1,
-              (index) => PlayboardDirection.right,
+              (_) => PlayboardDirection.right,
             ),
             PlayboardDirection.up,
             ...List.generate(
               dxDistance - 1,
-              (index) => PlayboardDirection.left,
+              (_) => PlayboardDirection.left,
             ),
             PlayboardDirection.down,
           ]);
@@ -727,29 +728,37 @@ class SolvingMachine {
     final _needToSolvePos = needToSolvePos(size);
 
     for (int index = 0; index < size - 1; index++) {
+      // [Case 1]
+      if (index == size - 1) {
+      }
+      // [Case 2]
+      else if (index == size * (size - 1) + 1) {
+      }
       // [Case 0]
-      final rightNumberLoc = Loc.fromIndex(size, index);
-      var currentNumberLoc = currentBoard.loc(index);
-      if (currentNumberLoc == rightNumberLoc) continue;
+      else {
+        final rightNumberLoc = Loc.fromIndex(size, index);
+        var currentNumberLoc = currentBoard.loc(index);
+        if (currentNumberLoc == rightNumberLoc) continue;
 
-      final holeLoc = currentBoard.holeLoc;
-      final holePath = _holeToRightNumberLoc(
-        size: size,
-        holeLoc: holeLoc,
-        rightNumberLoc: rightNumberLoc,
-        currentBoard: currentBoard,
-      );
-      currentBoard = currentBoard.moveDirections(holePath);
+        final holeLoc = currentBoard.holeLoc;
+        final holePath = _holeToRightNumberLoc(
+          size: size,
+          holeLoc: holeLoc,
+          rightNumberLoc: rightNumberLoc,
+          currentBoard: currentBoard,
+        );
+        currentBoard = currentBoard.moveDirections(holePath);
 
-      currentNumberLoc = currentBoard.loc(index);
-      final numberPath = _numberToRightNumberLoc(
-        size: size,
-        numberLoc: currentNumberLoc,
-        rightNumberLoc: rightNumberLoc,
-        currentBoard: currentBoard,
-      );
+        currentNumberLoc = currentBoard.loc(index);
+        final numberPath = _numberToRightNumberLoc(
+          size: size,
+          numberLoc: currentNumberLoc,
+          rightNumberLoc: rightNumberLoc,
+          currentBoard: currentBoard,
+        );
 
-      directions.addAll([...holePath, ...numberPath]);
+        directions.addAll([...holePath, ...numberPath]);
+      }
     }
     return directions;
   }
