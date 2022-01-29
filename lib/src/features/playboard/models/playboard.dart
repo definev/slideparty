@@ -730,9 +730,11 @@ class SolvingMachine {
     for (int index = 0; index < size - 1; index++) {
       // [Case 1]
       if (index == size - 1) {
+        // TODO: Need to solve this case
       }
       // [Case 2]
       else if (index == size * (size - 1) + 1) {
+        // TODO: Need to solve this case
       }
       // [Case 0]
       else {
@@ -756,10 +758,23 @@ class SolvingMachine {
           rightNumberLoc: rightNumberLoc,
           currentBoard: currentBoard,
         );
+        currentBoard = currentBoard.moveDirections(numberPath);
 
         directions.addAll([...holePath, ...numberPath]);
       }
     }
+
+    final newParams = PlayboardSolverParams(
+      currentBoard.transform(),
+      params.finalBoard,
+      params.holeLoc,
+    );
+    if (size > 4) {
+      directions.addAll(quickSolveSolution(newParams));
+    } else {
+      directions.addAll(bestStepSolution(newParams)?.directions ?? []);
+    }
+
     return directions;
   }
 }
@@ -828,6 +843,60 @@ extension SolvingPuzzleExt on List<int> {
     }
 
     return newList;
+  }
+
+  /// ```
+  /// -------------
+  /// | 5 | 6 | 7 |
+  /// -------------
+  /// | 9 | 10| 11|
+  /// -------------
+  /// | 13| 14| X |
+  /// -------------
+  ///       |
+  ///       |
+  /// -------------
+  /// | 0 | 1 | 2 |
+  /// -------------
+  /// | 3 | 4 | 5 |
+  /// -------------
+  /// | 6 | 7 | X |
+  /// -------------
+  ///
+  /// -----------------
+  /// | 6 | 7 | 8 | 9 |
+  /// -----------------
+  /// | 11| 12| 13| 14|
+  /// -----------------
+  /// | 16| 17| 18| 19|
+  /// -----------------
+  /// | 21| 22| 23| X |
+  /// -----------------
+  ///         |
+  ///         |
+  /// -----------------
+  /// | 0 | 1 | 2 | 3 |
+  /// -----------------
+  /// | 4 | 5 | 6 | 7 |
+  /// -----------------
+  /// | 8 | 9 | 10| 11|
+  /// -----------------
+  /// | 12| 13| 14| X |
+  /// -----------------
+  /// ```
+  List<int> transform() {
+    final boardSize = size;
+    final pos = SolvingMachine.needToSolvePos(size);
+    var list = [...this];
+    for (final solved in pos) {
+      list.removeWhere((e) => e == solved);
+    }
+
+    return list.map((index) {
+      final remain = index ~/ boardSize;
+      final newIndex = index - boardSize - remain;
+      return newIndex;
+    }).toList();
   }
 }
 
