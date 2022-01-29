@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:slideparty/src/utils/breakpoint.dart';
+import 'package:slideparty/src/utils/int_range.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'loc.dart';
@@ -277,7 +278,7 @@ class SolvingMachine {
         (index) => index >= size ? (index - size + 1) * size : index,
       );
 
-  static List<PlayboardDirection> _getHoleToRightNumberLocPath({
+  static List<PlayboardDirection> _holeToRightNumberLoc({
     required int size,
     required Loc holeLoc,
     required Loc rightNumberLoc,
@@ -312,6 +313,8 @@ class SolvingMachine {
   /// CASE 0: `dxDistance` is zero and `dyDistance` is zero (So it's already in the right position)
   ///
   /// CASE 1: `dxDistance` and `dyDistance` are both positive
+  ///
+  /// ```
   /// Loc(0, 0)
   ///  |
   /// -------------
@@ -323,8 +326,10 @@ class SolvingMachine {
   /// -------------
   /// |13|14|15|12|
   /// -------------
+  /// ```
   ///
   /// CASE 2: `dxDistance` is positive and `dyDistance` is zero
+  /// ```
   /// Loc(0, 0)
   ///  |
   ///  |    Loc(0, 2)
@@ -339,9 +344,11 @@ class SolvingMachine {
   /// -------------
   /// |13|14|15|12|
   /// -------------
+  /// ```
   ///
   /// CASE 3: `dxDistance` is zero and `dyDistance` is positive
   ///
+  /// ```
   ///             -------------
   /// Loc(0, 0)-> |X |2 |3 |4 |
   ///             -------------
@@ -351,11 +358,13 @@ class SolvingMachine {
   ///             -------------
   ///             |13|14|15|12|
   ///             -------------
-  ///
+  /// ```
   static List<PlayboardDirection> _numberToRightNumberLocPositiveCase({
-    required int dyDistance,
-    required int dxDistance,
+    required Loc numberLoc,
+    required Loc rightNumberLoc,
   }) {
+    int dxDistance = numberLoc.dx - rightNumberLoc.dx;
+    int dyDistance = numberLoc.dy - rightNumberLoc.dy;
     assert(dxDistance >= 0);
     assert(dyDistance >= 0);
     List<PlayboardDirection> directions = [];
@@ -389,7 +398,6 @@ class SolvingMachine {
       }
       directions.add(PlayboardDirection.left);
     }
-
     // [Case 3]
     if (dxDistance == 0 && dyDistance > 0) {
       var loop = dyDistance - 1;
@@ -407,13 +415,243 @@ class SolvingMachine {
     return directions;
   }
 
+  /// From the hole loc to number loc
+  /// The the `dxDistance` and `dyDistance` is the distance between the hole and the number
+  /// - `dxDistance` or `dyDistance` must be negative
   ///
+  /// CASE 0: `dxDistance` is negative and `dyDistance` is positive
+  ///
+  /// - SUB-CASE 0: `numberLoc` not in the bottom row
+  ///
+  /// dyDistance = 2
+  /// dxDistance = -2
+  /// ```
+  ///                    Loc(0, 2)
+  ///                     |
+  ///                     |
+  ///              -------------
+  ///              |1 |2 |X |14|
+  ///              -------------
+  ///              |12|6 |11|15|
+  ///              -------------
+  /// Loc(2, 0)--->|3 |10|8 |9 |
+  ///              -------------
+  ///              |5 |4 |13|7 |
+  ///              -------------
+  /// ```
+  /// - SUB-CASE 1: `numberLoc` in the bottom row
+  ///
+  /// dyDistance = 2
+  /// dxDistance = -1
+  ///
+  /// ```
+  ///       Loc(0, 1)
+  ///        |
+  ///        |
+  /// -------------
+  /// |1 |2 |X |14|
+  /// -------------
+  /// |12|6 |11|15|
+  /// -------------
+  /// |9 |10|8 |4 |
+  /// -------------
+  /// |5 |3 |13|7 |
+  /// -------------
+  ///     |
+  ///     |
+  ///    Loc(3, 1)
+  /// ```
+  ///
+  /// CASE 1: `dxDistance` is positive and `dyDistance` is negative
+  ///
+  /// - SUB-CASE 0: `numberLoc` in the right-most column
+  /// dyDistance = -1
+  /// dxDistance = 3
+  ///
+  /// ```
+  ///              -------------
+  ///              |1 |2 |3 |4 |
+  ///              -------------
+  ///              |5 |15|12|9 | <-- Loc(1, 3)
+  ///              -------------
+  /// Loc(2, 0)--> |X |13|8 |7 |
+  ///              -------------
+  ///              |14|6 |10|11|
+  ///              -------------
+  /// ```
+  ///
+  /// - SUB-CASE 0: `numberLoc` not in the right-most column
+  /// dyDistance = -1
+  /// dxDistance = 3
+  ///
+  /// ```
+  ///              -------------
+  ///              |1 |2 |3 |4 |
+  ///              -------------
+  ///              |5 |15|9 |12| <-- Loc(1, 2)
+  ///              -------------
+  /// Loc(2, 0)--> |X |13|8 |7 |
+  ///              -------------
+  ///              |14|6 |10|11|
+  ///              -------------
+  /// ```
+  ///
+  /// CASE 2: `dxDistance` is negative and `dyDistance` is negative (Not possible)
+  ///
+  /// CASE 3: `dxDistance` is negative and `dyDistance` is zero (Handle it in the `_numberToRightNumberLoc`)
+  ///
+  /// CASE 4: `dxDistance` is zero and `dyDistance` is negative (Handle it in the `_numberToRightNumberLoc`)
   static List<PlayboardDirection> _numberToRightNumberLocNegativeCase({
-    required int dyDistance,
-    required int dxDistance,
+    required Loc numberLoc,
+    required Loc rightNumberLoc,
     required List<int> currentBoard,
   }) {
+    int dyDistance = numberLoc.dy - rightNumberLoc.dy;
+    int dxDistance = numberLoc.dx - rightNumberLoc.dx;
+
     var directions = <PlayboardDirection>[];
+    // [Case 0]
+    if (dyDistance > 0 && dxDistance < 0) {
+      directions.addAll(
+        [...List.generate(dyDistance, (index) => PlayboardDirection.down)],
+      );
+      // [Sub case 0]
+      if (numberLoc.dy == 1) {
+        for (final i in 0.till(dxDistance.abs() + 1)) {
+          directions.addAll([
+            PlayboardDirection.down,
+            ...List.generate(
+              dxDistance.abs(),
+              (index) => PlayboardDirection.left,
+            ),
+            PlayboardDirection.up,
+            ...List.generate(
+              dxDistance.abs(),
+              (index) => PlayboardDirection.right,
+            ),
+          ]);
+        }
+        directions.add(PlayboardDirection.up);
+        for (final i in 0.till(dyDistance)) {
+          directions.addAll([
+            ...List.generate(
+              dyDistance,
+              (index) => PlayboardDirection.up,
+            ),
+            PlayboardDirection.right,
+            ...List.generate(
+              dyDistance,
+              (index) => PlayboardDirection.down,
+            ),
+            PlayboardDirection.left,
+          ]);
+        }
+        directions.add(PlayboardDirection.up);
+      }
+      // [Sub case 1]
+      else {
+        for (final i in 0.till(dxDistance.abs() + 1)) {
+          directions.addAll([
+            PlayboardDirection.up,
+            ...List.generate(
+              dxDistance.abs(),
+              (index) => PlayboardDirection.left,
+            ),
+            PlayboardDirection.down,
+            ...List.generate(
+              dxDistance.abs(),
+              (index) => PlayboardDirection.right,
+            ),
+          ]);
+        }
+        directions.addAll(
+          [...List.generate(dyDistance, (index) => PlayboardDirection.up)],
+        );
+        for (final i in 0.till(dyDistance - 1)) {
+          directions.addAll([
+            ...List.generate(dyDistance, (index) => PlayboardDirection.down),
+            PlayboardDirection.right,
+            ...List.generate(dyDistance, (index) => PlayboardDirection.up),
+            PlayboardDirection.left,
+          ]);
+        }
+        directions.add(PlayboardDirection.down);
+      }
+    }
+    // [Case 1]
+    if (dyDistance < 0 && dxDistance > 0) {
+      directions.addAll(
+        [
+          ...List.generate(
+            dxDistance.abs(),
+            (index) => PlayboardDirection.right,
+          ),
+        ],
+      );
+      // [Sub case 0]
+      if (numberLoc.dx == 1) {
+        for (final i in 0.till(dyDistance.abs() + 1)) {
+          directions.addAll([
+            PlayboardDirection.right,
+            ...List.generate(
+                dyDistance.abs(), (index) => PlayboardDirection.up),
+            PlayboardDirection.left,
+            ...List.generate(
+                dyDistance.abs(), (index) => PlayboardDirection.down),
+          ]);
+        }
+        directions
+          ..add(PlayboardDirection.left)
+          ..addAll([
+            PlayboardDirection.right,
+            PlayboardDirection.down,
+            ...List.generate(
+              dxDistance.abs(),
+              (index) => PlayboardDirection.left,
+            ),
+            PlayboardDirection.up,
+          ])
+          ..add(PlayboardDirection.right);
+      }
+      // [Sub case 1]
+      else {
+        for (final i in 0.till(dyDistance.abs() + 1)) {
+          directions.addAll([
+            PlayboardDirection.left,
+            ...List.generate(
+              dyDistance.abs(),
+              (index) => PlayboardDirection.up,
+            ),
+            PlayboardDirection.right,
+            ...List.generate(
+              dyDistance.abs(),
+              (index) => PlayboardDirection.down,
+            ),
+          ]);
+        }
+        directions.addAll([
+          PlayboardDirection.down,
+          ...List.generate(
+              dxDistance.abs(), (index) => PlayboardDirection.left),
+          PlayboardDirection.up,
+        ]);
+        for (final i in 0.till(dxDistance - 2)) {
+          directions.addAll([
+            ...List.generate(
+              dxDistance - 1,
+              (index) => PlayboardDirection.right,
+            ),
+            PlayboardDirection.up,
+            ...List.generate(
+              dxDistance - 1,
+              (index) => PlayboardDirection.left,
+            ),
+            PlayboardDirection.down,
+          ]);
+        }
+        directions.add(PlayboardDirection.right);
+      }
+    }
     return directions;
   }
 
@@ -447,20 +685,38 @@ class SolvingMachine {
     if (dxDistance >= 0 && dyDistance >= 0) {
       directions.addAll(
         _numberToRightNumberLocPositiveCase(
-          dxDistance: dxDistance,
-          dyDistance: dyDistance,
+          numberLoc: numberLoc,
+          rightNumberLoc: rightNumberLoc,
         ),
       );
     } else {
       directions.addAll(_numberToRightNumberLocNegativeCase(
-        dyDistance: dyDistance,
-        dxDistance: dxDistance,
+        numberLoc: numberLoc,
+        rightNumberLoc: rightNumberLoc,
         currentBoard: currentBoard,
       ));
     }
     return directions;
   }
 
+  /// [Case 0]
+  /// - Normal case we need calculate step hole loc and number loc
+  /// [Case 1]
+  /// - Current number equal to `boardSize - 1`
+  /// - Push all previous number to right
+  /// - Move `boardSize - 1` number to Loc(1, boardSize - 1)
+  /// - Move hole to Loc(0, 0)
+  /// - Push all previous number to left
+  /// - Move `boardSize - 1` number to Loc(0, boardSize - 1)
+  /// [Case 2]
+  /// - Current number equal to `boardSize * (boardSize - 1) + 1`
+  /// - Push all top number to down
+  /// - Push all right number to left
+  /// - Move `boardSize * (boardSize - 1) + 1` number to Loc(boardSize - 1, 1)
+  /// - Move hole to Loc(0, boardSize - 1)
+  /// - Push all left number to right
+  /// - Push all bottom number to up
+  /// - Move `boardSize * (boardSize - 1) + 1` number to Loc(boardSize - 1, 0)
   @visibleForTesting
   static List<PlayboardDirection> quickSolveSolution(
     PlayboardSolverParams params,
@@ -471,16 +727,21 @@ class SolvingMachine {
     final _needToSolvePos = needToSolvePos(size);
 
     for (int index = 0; index < size - 1; index++) {
+      // [Case 0]
       final rightNumberLoc = Loc.fromIndex(size, index);
+      var currentNumberLoc = currentBoard.loc(index);
+      if (currentNumberLoc == rightNumberLoc) continue;
+
       final holeLoc = currentBoard.holeLoc;
-      final holePath = _getHoleToRightNumberLocPath(
+      final holePath = _holeToRightNumberLoc(
         size: size,
         holeLoc: holeLoc,
         rightNumberLoc: rightNumberLoc,
         currentBoard: currentBoard,
       );
       currentBoard = currentBoard.moveDirections(holePath);
-      final currentNumberLoc = currentBoard.loc(index);
+
+      currentNumberLoc = currentBoard.loc(index);
       final numberPath = _numberToRightNumberLoc(
         size: size,
         numberLoc: currentNumberLoc,
