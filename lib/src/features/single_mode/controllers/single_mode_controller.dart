@@ -78,40 +78,37 @@ class SingleModePlayboardController
 
   void changeDimension(int size) {
     if (size == state.playboard.size) return;
-    // CASE 0
+    final playboard = Playboard.random(size);
     // final playboard = Playboard.fromList(
     //     [0, 15, 13, 14, 1, 5, 3, 11, 6, 4, 7, 8, 10, 2, 12, 9]);
     // final playboard = Playboard.fromList(
     //     [0, 8, 10, 13, 15, 5, 14, 1, 9, 7, 12, 11, 3, 4, 2, 6]);
-    // final playboard = Playboard.random(size);
+    // final playboard = Playboard.fromList(
+    //   [
+    //     [25, 5, 17, 22, 18],
+    //     [12, 7, 2, 10, 8],
+    //     [15, 9, 14, 24, 20],
+    //     [3, 21, 4, 19, 1],
+    //     [13, 6, 16, 23, 11],
+    //   ].expand((e) => e).map((e) => e - 1).toList(),
+    // );
+    // final playboard = Playboard.fromList(
+    //   [10, 8, 12, 5, 15, 11, 16, 9, 13, 2, 4, 14, 3, 1, 6, 7]
+    //       .map((e) => e - 1)
+    //       .toList(),
+    // );
+    // final playboard = Playboard.fromList(
+    //   [1, 16, 14, 12, 13, 7, 4, 11, 3, 5, 9, 15, 10, 2, 8, 6]
+    //       .map((e) => e - 1)
+    //       .toList(),
+    // );
     // final playboard = Playboard.fromList([
-    //   25,
-    //   5,
-    //   17,
-    //   22,
-    //   18,
-    //   12,
-    //   7,
-    //   2,
-    //   10,
-    //   8,
-    //   15,
-    //   9,
-    //   14,
-    //   24,
-    //   20,
-    //   3,
-    //   21,
-    //   4,
-    //   19,
-    //   1,
-    //   13,
-    //   6,
-    //   16,
-    //   23,
-    //   11
-    // ].map((e) => e - 1).toList());
-    final playboard = Playboard.random(size);
+    //   [1, 2, 3, 4, 5],
+    //   [6, 23, 12, 9, 13],
+    //   [11, 25, 10, 19, 16],
+    //   [15, 14, 8, 18, 7],
+    //   [22, 17, 20, 21, 24],
+    // ].expand((e) => e).map((e) => e - 1).toList());
 
     Future.microtask(() => solve(playboard)?.length).then((bestStep) {
       state = SinglePlayboardState(

@@ -680,15 +680,21 @@ class SolvingMachine {
             ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.down),
           ]);
         }
-        numberPath
-          ..add(PlayboardDirection.left)
-          ..addAll([
-            PlayboardDirection.right,
+        _currentBoard = _currentBoard.moveDirections(numberPath);
+        print('NUMBER PATH: ${_currentBoard.printBoard()}');
+        _currentBoard = _currentBoard.moveDirections([PlayboardDirection.left]);
+        numberPath.add(PlayboardDirection.left);
+        for (final i in 0.till(dxDistance.abs() + 2)) {
+          numberPath.addAll([
             PlayboardDirection.down,
-            ...List.generate(dxDistance.abs(), (_) => PlayboardDirection.left),
+            ...List.generate(
+                dxDistance.abs() + 1, (_) => PlayboardDirection.right),
             PlayboardDirection.up,
-          ])
-          ..add(PlayboardDirection.right);
+            ...List.generate(
+                dxDistance.abs() + 1, (_) => PlayboardDirection.left),
+          ]);
+        }
+        numberPath.add(PlayboardDirection.down);
       }
       // [Sub case 1]
       else {
@@ -839,13 +845,17 @@ class SolvingMachine {
           PlayboardDirection.down,
         ]);
     } else {
-      prePath = [
-        PlayboardDirection.right,
-        PlayboardDirection.up,
-        ...List.generate(size - 1, (_) => PlayboardDirection.left),
-        PlayboardDirection.down,
-        ...List.generate(size - 1, (_) => PlayboardDirection.right),
-      ];
+      final preHolePath = _holeToRightNumberLoc(
+        targetLoc: Loc(size - 1, 0),
+        currentBoard: currentBoard,
+      );
+      prePath
+        ..addAll(preHolePath)
+        ..addAll([
+          ...List.generate(size - 1, (_) => PlayboardDirection.left),
+          PlayboardDirection.down,
+          ...List.generate(size - 1, (_) => PlayboardDirection.right),
+        ]);
       _currentBoard = _currentBoard.moveDirections(prePath);
       final numberLoc = _currentBoard.loc(size - 1);
       final holeLoc = _currentBoard.holeLoc;
@@ -1017,52 +1027,70 @@ class SolvingMachine {
     final size = params.currentBoard.size;
     final _needToSolvePos = needToSolvePos(size);
 
-    for (final index in _needToSolvePos) {
-      // [Case 1]
-      if (index == size - 1) {
-        if (currentBoard.loc(index) == Loc(size - 1, 0)) continue;
-        final path = _solveRowEdgeCase(currentBoard);
-        currentBoard = currentBoard.moveDirections(path);
-        directions.addAll(path);
-      }
-      // [Case 2]
-      else if (index == size * (size - 1)) {
-        if (currentBoard.loc(index) == Loc(0, size - 1)) continue;
-        final holePath = _holeToRightNumberLoc(
-          targetLoc: Loc(0, size - 1),
-          currentBoard: currentBoard,
-          verticalPriority: true,
-        );
-        currentBoard = currentBoard.moveDirections(holePath);
-        final path = _solveColumnEdgeCase(currentBoard);
-        currentBoard = currentBoard.moveDirections(path);
-        directions.addAll([...holePath, ...path]);
-      }
-      // [Case 0]
-      else {
-        final rightNumberLoc = Loc.fromIndex(size, index);
-        var currentNumberLoc = currentBoard.loc(index);
-        if (currentNumberLoc == rightNumberLoc) continue;
+    // try {
+    _needToSolvePos.forEachIndexed(
+      (index, element) {
+        // [Case 1]
+        if (element == size - 1) {
+          if (currentBoard.loc(element) == Loc(size - 1, 0)) return;
+          final path = _solveRowEdgeCase(currentBoard);
+          currentBoard = currentBoard.moveDirections(path);
+          directions.addAll(path);
+        }
+        // [Case 2]
+        else if (element == size * (size - 1)) {
+          if (currentBoard.loc(element) == Loc(0, size - 1)) return;
+          final holePath = _holeToRightNumberLoc(
+            targetLoc: Loc(0, size - 1),
+            currentBoard: currentBoard,
+            verticalPriority: true,
+          );
+          currentBoard = currentBoard.moveDirections(holePath);
+          final path = _solveColumnEdgeCase(currentBoard);
+          currentBoard = currentBoard.moveDirections(path);
+          directions.addAll([...holePath, ...path]);
+        }
+        // [Case 0]
+        else {
+          final rightNumberLoc = Loc.fromIndex(size, element);
+          var currentNumberLoc = currentBoard.loc(element);
+          if (currentNumberLoc == rightNumberLoc) return;
 
-        final holePath = _holeToRightNumberLoc(
-          targetLoc: rightNumberLoc,
-          currentBoard: currentBoard,
-        );
-        currentBoard = currentBoard.moveDirections(holePath);
+          final currentHoleLoc = currentBoard.holeLoc;
+          bool verticalPriority = false;
+          for (int i = 0; i < index; i++) {
+            if (currentHoleLoc.dy ==
+                Loc.fromIndex(size, _needToSolvePos[i]).dy) {
+              verticalPriority = true;
+              break;
+            }
+          }
 
-        currentNumberLoc = currentBoard.loc(index);
-        final numberPath = _numberToRightNumberLoc(
-          numberLoc: currentNumberLoc,
-          rightNumberLoc: rightNumberLoc,
-          currentBoard: currentBoard,
-        );
+          final holePath = _holeToRightNumberLoc(
+            targetLoc: rightNumberLoc,
+            currentBoard: currentBoard,
+            verticalPriority: verticalPriority,
+          );
+          currentBoard = currentBoard.moveDirections(holePath);
 
-        currentBoard = currentBoard.moveDirections(numberPath);
-        directions
-          ..addAll(holePath)
-          ..addAll(numberPath);
-      }
-    }
+          currentNumberLoc = currentBoard.loc(element);
+          final numberPath = _numberToRightNumberLoc(
+            numberLoc: currentNumberLoc,
+            rightNumberLoc: rightNumberLoc,
+            currentBoard: currentBoard,
+          );
+
+          currentBoard = currentBoard.moveDirections(numberPath);
+          directions
+            ..addAll(holePath)
+            ..addAll(numberPath);
+        }
+        print('STATE ${element + 1}: ${currentBoard.printBoard()}');
+      },
+    );
+    // } catch (e) {
+    //   print('ERROR STATE: ${currentBoard.printBoard()}');
+    // }
 
     final compressedBoard = currentBoard.transform();
     final newParams = PlayboardSolverParams(compressedBoard);
