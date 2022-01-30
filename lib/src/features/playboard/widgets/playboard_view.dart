@@ -5,29 +5,30 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:slideparty/src/features/playboard/models/playboard_animation_types.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
+import 'package:slideparty_socket/slideparty_socket_be.dart';
 
 import '../playboard.dart';
 
 class PlayboardView extends HookConsumerWidget {
   const PlayboardView({
     Key? key,
+    this.playerId,
+    required this.boardSize,
     required this.size,
     required this.onPressed,
     required this.clipBehavior,
+    this.duration = const Duration(milliseconds: 500),
   }) : super(key: key);
 
+  final String? playerId;
+  final int boardSize;
   final double size;
   final Function(int index) onPressed;
   final Clip clipBehavior;
+  final Duration duration;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final boardSize = ref.watch(playboardControllerProvider.select((value) {
-      if (value is SinglePlayboardState) {
-        return value.playboard.size;
-      }
-      throw UnimplementedError('Unsupported state');
-    }));
     final animationTypes =
         ref.watch(playboardControllerProvider.select((value) {
       if (value is SinglePlayboardState) {
@@ -42,54 +43,47 @@ class PlayboardView extends HookConsumerWidget {
     return IgnorePointer(
       ignoring: animationTypes != null,
       child: _heartScaleFade(
-        animationTypes == PlayboardAnimationTypes.heartScaleFade,
-        boardSize,
-      ),
+          animationTypes == PlayboardAnimationTypes.heartScaleFade),
     );
   }
 
-  TweenAnimationBuilder<double> _heartScaleFade(
-    bool isAnimated,
-    int boardSize,
-  ) {
+  TweenAnimationBuilder<double> _heartScaleFade(bool isAnimated) {
     return TweenAnimationBuilder<double>(
-        duration: const Duration(seconds: 2),
-        curve: Curves.decelerate,
-        tween: Tween<double>(begin: 0, end: isAnimated ? 1 : 0),
-        builder: (context, value, child) {
-          return Transform.rotate(
-            angle: -(pi * 3 / 4) * value,
-            origin: const Offset(0.5, 0.5),
-            child: Transform.scale(
-              scale: value == 0
-                  ? 1
-                  : 1 + (size / sqrt(size * size * 2) - 1) * value,
-              child: SizedBox(
-                height: size,
-                width: size,
-                child: Stack(
-                  clipBehavior: clipBehavior,
-                  children: List.generate(
-                    boardSize * boardSize,
-                    (index) => _numberTile(
-                      index: index,
-                      size: size,
-                      boardSize: boardSize,
-                      animationType: PlayboardAnimationTypes.heartScaleFade,
-                      animateValue: value,
-                    ),
+      duration: const Duration(seconds: 2),
+      curve: Curves.decelerate,
+      tween: Tween<double>(begin: 0, end: isAnimated ? 1 : 0),
+      builder: (context, value, child) {
+        return Transform.rotate(
+          angle: -(pi * 3 / 4) * value,
+          origin: const Offset(0.5, 0.5),
+          child: Transform.scale(
+            scale:
+                value == 0 ? 1 : 1 + (size / sqrt(size * size * 2) - 1) * value,
+            child: SizedBox(
+              height: size,
+              width: size,
+              child: Stack(
+                clipBehavior: clipBehavior,
+                children: List.generate(
+                  boardSize * boardSize,
+                  (index) => _numberTile(
+                    index: index,
+                    size: size,
+                    animationType: PlayboardAnimationTypes.heartScaleFade,
+                    animateValue: value,
                   ),
                 ),
               ),
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   Widget _numberTile({
     required int index,
     required double size,
-    required int boardSize,
     required PlayboardAnimationTypes animationType,
     required double animateValue,
   }) {
@@ -100,6 +94,12 @@ class PlayboardView extends HookConsumerWidget {
             if (state is SinglePlayboardState) {
               return state.playboard.currentLoc(index);
             }
+            if (state is OnlinePlayboardState) {
+              return (state.state as RoomData)
+                  .players[playerId]!
+                  .currentBoard
+                  .loc(index);
+            }
             throw UnimplementedError(
                 'This kind of playboard is not implemented yet.');
           }),
@@ -109,7 +109,7 @@ class PlayboardView extends HookConsumerWidget {
           playboardControllerProvider.select((value) => value.config),
         );
         return TweenAnimationBuilder<Size?>(
-          duration: const Duration(milliseconds: 500),
+          duration: duration,
           curve: Curves.easeOutBack,
           tween: SizeTween(
             begin: Size(
@@ -126,7 +126,6 @@ class PlayboardView extends HookConsumerWidget {
               size: size,
               index: index,
               config: config,
-              boardSize: boardSize,
               animationType: animationType,
               animateValue: animateValue,
             ),
@@ -141,7 +140,6 @@ class PlayboardView extends HookConsumerWidget {
     required double size,
     required int index,
     required PlayboardConfig config,
-    required int boardSize,
     required PlayboardAnimationTypes animationType,
     required double animateValue,
   }) {
@@ -170,6 +168,34 @@ class PlayboardView extends HookConsumerWidget {
               child: Text('${index + 1}'),
             ),
           ),
+        ),
+      );
+    }
+    if (config is OnlinePlayboardConfig) {
+      return Transform.scale(
+        scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
+        child: Opacity(
+          opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
+          child: Consumer(builder: (context, ref, child) {
+            final color = ref.watch(playboardControllerProvider.select((value) {
+              value = value as OnlinePlayboardState;
+              return config
+                  .configs[(value.state as RoomData).players[playerId]!.color]!;
+            }));
+            return NumberTile(
+              key: ValueKey('number-tile-${loc.index(boardSize)}'),
+              index: index,
+              boardSize: boardSize,
+              playboardSize: size,
+              color: color,
+              onPressed: onPressed,
+              child: Transform.rotate(
+                angle: (pi + pi / 4 - pi / 2) * animateValue,
+                origin: const Offset(0.5, 0.5),
+                child: Text('${index + 1}'),
+              ),
+            );
+          }),
         ),
       );
     }

@@ -127,11 +127,22 @@ class SingleModePage extends StatelessWidget {
                 return Stack(
                   children: [
                     Center(
-                      child: PlayboardView(
-                        key: const ValueKey('single-mode-playboard'),
-                        size: size - 32,
-                        onPressed: controller.move,
-                        clipBehavior: openSetting ? Clip.antiAlias : Clip.none,
+                      child: Consumer(
+                        builder: (context, ref, child) {
+                          final boardSize = ref.watch(
+                            playboardControllerProvider.select((state) =>
+                                (state as SinglePlayboardState).playboard.size),
+                          );
+
+                          return PlayboardView(
+                            key: const ValueKey('single-mode-playboard'),
+                            size: size - 32,
+                            onPressed: controller.move,
+                            boardSize: boardSize,
+                            clipBehavior:
+                                openSetting ? Clip.antiAlias : Clip.none,
+                          );
+                        },
                       ),
                     ),
                     if (openSetting) const SingleModeSetting(),
