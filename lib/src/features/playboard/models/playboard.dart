@@ -681,7 +681,6 @@ class SolvingMachine {
           ]);
         }
         _currentBoard = _currentBoard.moveDirections(numberPath);
-        print('NUMBER PATH: ${_currentBoard.printBoard()}');
         _currentBoard = _currentBoard.moveDirections([PlayboardDirection.left]);
         numberPath.add(PlayboardDirection.left);
         for (final i in 0.till(dxDistance.abs() + 2)) {
@@ -1085,7 +1084,6 @@ class SolvingMachine {
             ..addAll(holePath)
             ..addAll(numberPath);
         }
-        print('STATE ${element + 1}: ${currentBoard.printBoard()}');
       },
     );
     // } catch (e) {
@@ -1103,7 +1101,56 @@ class SolvingMachine {
     }
     directions.addAll(compressedPath);
 
-    return directions;
+    var resDirections = <PlayboardDirection>[];
+    directions.forEachIndexed((index, curr) {
+      bool skipPre() {
+        if (index == 0) return false;
+        final prev = directions[index - 1];
+        if (curr == PlayboardDirection.left &&
+            prev == PlayboardDirection.right) {
+          return true;
+        }
+        if (curr == PlayboardDirection.right &&
+            prev == PlayboardDirection.left) {
+          return true;
+        }
+        if (curr == PlayboardDirection.up && prev == PlayboardDirection.down) {
+          return true;
+        }
+        if (curr == PlayboardDirection.down && prev == PlayboardDirection.up) {
+          return true;
+        }
+        return false;
+      }
+
+      bool skipNext() {
+        if (index == directions.length - 1) return false;
+        final next = directions[index + 1];
+        if (curr == PlayboardDirection.left &&
+            next == PlayboardDirection.right) {
+          return true;
+        }
+        if (curr == PlayboardDirection.right &&
+            next == PlayboardDirection.left) {
+          return true;
+        }
+        if (curr == PlayboardDirection.up && next == PlayboardDirection.down) {
+          return true;
+        }
+        if (curr == PlayboardDirection.down && next == PlayboardDirection.up) {
+          return true;
+        }
+        return false;
+      }
+
+      bool _skipPre = skipPre();
+      bool _skipNext = skipNext();
+      if (!(_skipPre == true || _skipNext == true)) {
+        resDirections.add(curr);
+      }
+    });
+
+    return resDirections;
   }
 }
 
