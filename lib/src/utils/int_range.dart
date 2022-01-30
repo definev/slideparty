@@ -25,8 +25,7 @@ extension IntRange on int {
       iterate(this, limit, step, false);
 
   /// Returns [Iterable] of [int] excluding limit number
-  Iterable<int> till(int limit, [int step = 1]) =>
-      iterate(this, limit, step, true);
+  Iterable<int> till(int limit) => [for (int i = this; i < limit; i++) i];
 
   /// Syntetic ~salt~ sugar for `to()` with step set to one
   Iterable<int> operator [](int limit) => iterate(this, limit, 1, false);
