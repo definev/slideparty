@@ -292,14 +292,13 @@ void main() {
           await tester.timedDrag(
             find.byKey(const ValueKey('hole-tile')),
             _getOffset(direction),
-            const Duration(milliseconds: 100),
+            const Duration(milliseconds: 150),
             buttons: kTouchContact,
             warnIfMissed: false,
           );
           await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
           final newHoleLoc = holeLoc.move(boardSize, direction);
-          expect(newHoleLoc, isNotNull);
 
           final actualHoleLoc =
               state!.playboard.currentLoc(boardSize * boardSize - 1);

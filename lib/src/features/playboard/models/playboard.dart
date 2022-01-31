@@ -141,14 +141,10 @@ class Playboard {
     if (!isSolvable(size, currentBoard)) return null;
 
     if (size >= 4) {
-      return SolvingMachine.quickSolveSolution(
-        PlayboardSolverParams(currentBoard),
-      );
+      return SolvingMachine.quickSolveSolution(currentBoard);
     }
 
-    final _playboardNode = SolvingMachine.bestStepSolution(
-      PlayboardSolverParams(currentBoard),
-    );
+    final _playboardNode = SolvingMachine.bestStepSolution(currentBoard);
 
     if (_playboardNode == null) return null;
     return _playboardNode.directions;
@@ -229,22 +225,16 @@ class Playboard {
   }
 }
 
-class PlayboardSolverParams {
-  const PlayboardSolverParams(this.currentBoard);
-
-  final List<int> currentBoard;
-}
-
 @visibleForTesting
 class SolvingMachine {
   @visibleForTesting
-  static _PlayboardNode? bestStepSolution(PlayboardSolverParams params) {
+  static _PlayboardNode? bestStepSolution(List<int> currentBoard) {
     PriorityQueue<_PlayboardNode> queue = PriorityQueue<_PlayboardNode>();
     _PlayboardNode root = _PlayboardNode(
-      holeLoc: params.currentBoard.holeLoc,
-      board: params.currentBoard,
+      holeLoc: currentBoard.holeLoc,
+      board: currentBoard,
       finalBoard: List.generate(
-        params.currentBoard.size * params.currentBoard.size,
+        currentBoard.size * currentBoard.size,
         (index) => index,
       ),
       depth: 0,
@@ -302,20 +292,20 @@ class SolvingMachine {
     final dyDistance = holeLoc.dy - targetLoc.dy;
     if (dxDistance < 0) {
       horizontal.addAll(
-        List.generate(dxDistance.abs(), (_) => PlayboardDirection.right),
+        List.filled(dxDistance.abs(), PlayboardDirection.right),
       );
     } else {
       horizontal.addAll(
-        List.generate(dxDistance, (_) => PlayboardDirection.left),
+        List.filled(dxDistance, PlayboardDirection.left),
       );
     }
     if (dyDistance < 0) {
       vertical.addAll(
-        List.generate(dyDistance.abs(), (_) => PlayboardDirection.down),
+        List.filled(dyDistance.abs(), PlayboardDirection.down),
       );
     } else {
       vertical.addAll(
-        List.generate(dyDistance, (_) => PlayboardDirection.up),
+        List.filled(dyDistance, PlayboardDirection.up),
       );
     }
     directions.addAll(
@@ -400,11 +390,11 @@ class SolvingMachine {
           numberLoc.dy == size - 1
               ? PlayboardDirection.up
               : PlayboardDirection.down,
-          ...List.generate(dxDistance, (_) => PlayboardDirection.left),
+          ...List.filled(dxDistance, PlayboardDirection.left),
           numberLoc.dy == size - 1
               ? PlayboardDirection.down
               : PlayboardDirection.up,
-          ...List.generate(dxDistance, (_) => PlayboardDirection.right),
+          ...List.filled(dxDistance, PlayboardDirection.right),
         ]);
       }
       directions.add(numberLoc.dy == size - 1
@@ -416,11 +406,11 @@ class SolvingMachine {
 
       for (final i in 0.till(dyDistance - 1)) {
         directions.addAll([
-          ...List.generate(dyDistance, (_) => PlayboardDirection.up),
+          ...List.filled(dyDistance, PlayboardDirection.up),
           numberLoc.dx == size - 1
               ? PlayboardDirection.left
               : PlayboardDirection.right,
-          ...List.generate(dyDistance, (_) => PlayboardDirection.down),
+          ...List.filled(dyDistance, PlayboardDirection.down),
           numberLoc.dx == size - 1
               ? PlayboardDirection.right
               : PlayboardDirection.left,
@@ -431,10 +421,10 @@ class SolvingMachine {
       dxDistance = dxDistance.abs();
       for (final i in 0.till(dyDistance + dxDistance - 1)) {
         directions.addAll([
-          ...List.generate(dyDistance, (_) => PlayboardDirection.down),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.left),
-          ...List.generate(dyDistance, (_) => PlayboardDirection.up),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.right),
+          ...List.filled(dyDistance, PlayboardDirection.down),
+          ...List.filled(dxDistance, PlayboardDirection.left),
+          ...List.filled(dyDistance, PlayboardDirection.up),
+          ...List.filled(dxDistance, PlayboardDirection.right),
         ]);
       }
       directions.add(PlayboardDirection.down);
@@ -442,10 +432,10 @@ class SolvingMachine {
       dyDistance = dyDistance.abs();
       for (final i in 0.till(dyDistance + dxDistance - 1)) {
         directions.addAll([
-          ...List.generate(dyDistance, (_) => PlayboardDirection.up),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.right),
-          ...List.generate(dyDistance, (_) => PlayboardDirection.down),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.left),
+          ...List.filled(dyDistance, PlayboardDirection.up),
+          ...List.filled(dxDistance, PlayboardDirection.right),
+          ...List.filled(dyDistance, PlayboardDirection.down),
+          ...List.filled(dxDistance, PlayboardDirection.left),
         ]);
       }
       directions.add(PlayboardDirection.up);
@@ -455,10 +445,10 @@ class SolvingMachine {
 
       for (final i in 0.till(dxDistance + dyDistance - 1)) {
         directions.addAll([
-          ...List.generate(dyDistance, (_) => PlayboardDirection.up),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.left),
-          ...List.generate(dyDistance, (_) => PlayboardDirection.down),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.right),
+          ...List.filled(dyDistance, PlayboardDirection.up),
+          ...List.filled(dxDistance, PlayboardDirection.left),
+          ...List.filled(dyDistance, PlayboardDirection.down),
+          ...List.filled(dxDistance, PlayboardDirection.right),
         ]);
       }
       directions.add(PlayboardDirection.up);
@@ -467,10 +457,10 @@ class SolvingMachine {
       while (loop > 0) {
         loop--;
         directions.addAll([
-          ...List.generate(dyDistance, (_) => PlayboardDirection.down),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.right),
-          ...List.generate(dyDistance, (_) => PlayboardDirection.up),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.left),
+          ...List.filled(dyDistance, PlayboardDirection.down),
+          ...List.filled(dxDistance, PlayboardDirection.right),
+          ...List.filled(dyDistance, PlayboardDirection.up),
+          ...List.filled(dxDistance, PlayboardDirection.left),
         ]);
       }
       directions.add(PlayboardDirection.down);
@@ -480,11 +470,11 @@ class SolvingMachine {
           (numberLoc.dy == size - 1
               ? PlayboardDirection.up
               : PlayboardDirection.down),
-          ...List.generate(dxDistance, (_) => PlayboardDirection.right),
+          ...List.filled(dxDistance, PlayboardDirection.right),
           numberLoc.dy == size - 1
               ? PlayboardDirection.down
               : PlayboardDirection.up,
-          ...List.generate(dxDistance, (_) => PlayboardDirection.left),
+          ...List.filled(dxDistance, PlayboardDirection.left),
         ]);
       }
       currentBoard.moveDirections(directions);
@@ -494,11 +484,11 @@ class SolvingMachine {
     } else if (dxDistance == 0 && dyDistance > 0) {
       for (final i in 0.till(dyDistance - 1)) {
         directions.addAll([
-          ...List.generate(dyDistance, (_) => PlayboardDirection.down),
+          ...List.filled(dyDistance, PlayboardDirection.down),
           size - 1 == rightNumberLoc.dx
               ? PlayboardDirection.left
               : PlayboardDirection.right,
-          ...List.generate(dyDistance, (_) => PlayboardDirection.up),
+          ...List.filled(dyDistance, PlayboardDirection.up),
           size - 1 == rightNumberLoc.dx
               ? PlayboardDirection.right
               : PlayboardDirection.left,
@@ -613,16 +603,16 @@ class SolvingMachine {
 
     // [Case 0]
     if (dyDistance > 0 && dxDistance < 0) {
-      prePath.addAll(List.generate(dyDistance, (_) => PlayboardDirection.down));
+      prePath.addAll(List.filled(dyDistance, PlayboardDirection.down));
       _currentBoard = _currentBoard.moveDirections(prePath);
       // [Sub case 0]
       if (numberLoc.dy == 1) {
         for (final i in 0.till(dxDistance.abs() + 1)) {
           numberPath.addAll([
             PlayboardDirection.down,
-            ...List.generate(dxDistance.abs(), (_) => PlayboardDirection.left),
+            ...List.filled(dxDistance.abs(), PlayboardDirection.left),
             PlayboardDirection.up,
-            ...List.generate(dxDistance.abs(), (_) => PlayboardDirection.right),
+            ...List.filled(dxDistance.abs(), PlayboardDirection.right),
           ]);
         }
         numberPath.add(PlayboardDirection.up);
@@ -631,9 +621,9 @@ class SolvingMachine {
 
         for (final i in 0.till(dyDistance)) {
           holeToNumberPath.addAll([
-            ...List.generate(dyDistance + 1, (_) => PlayboardDirection.down),
+            ...List.filled(dyDistance + 1, PlayboardDirection.down),
             PlayboardDirection.right,
-            ...List.generate(dyDistance + 1, (_) => PlayboardDirection.up),
+            ...List.filled(dyDistance + 1, PlayboardDirection.up),
             PlayboardDirection.left,
           ]);
         }
@@ -645,19 +635,19 @@ class SolvingMachine {
         for (final i in 0.till(dxDistance.abs() + 1)) {
           numberPath.addAll([
             PlayboardDirection.up,
-            ...List.generate(dxDistance.abs(), (_) => PlayboardDirection.left),
+            ...List.filled(dxDistance.abs(), PlayboardDirection.left),
             PlayboardDirection.down,
-            ...List.generate(dxDistance.abs(), (_) => PlayboardDirection.right),
+            ...List.filled(dxDistance.abs(), PlayboardDirection.right),
           ]);
         }
         numberPath.addAll(
-          [...List.generate(dyDistance, (_) => PlayboardDirection.up)],
+          [...List.filled(dyDistance, PlayboardDirection.up)],
         );
         for (final i in 0.till(dyDistance - 1)) {
           numberPath.addAll([
-            ...List.generate(dyDistance, (_) => PlayboardDirection.down),
+            ...List.filled(dyDistance, PlayboardDirection.down),
             PlayboardDirection.right,
-            ...List.generate(dyDistance, (_) => PlayboardDirection.up),
+            ...List.filled(dyDistance, PlayboardDirection.up),
             PlayboardDirection.left,
           ]);
         }
@@ -667,7 +657,7 @@ class SolvingMachine {
     // [Case 1]
     else if (dyDistance < 0 && dxDistance > 0) {
       prePath.addAll(
-        List.generate(dxDistance, (_) => PlayboardDirection.right),
+        List.filled(dxDistance, PlayboardDirection.right),
       );
       _currentBoard = _currentBoard.moveDirections(prePath);
       // [Sub case 0]
@@ -675,9 +665,9 @@ class SolvingMachine {
         for (final i in 0.till(dyDistance.abs() + 1)) {
           numberPath.addAll([
             PlayboardDirection.right,
-            ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.up),
+            ...List.filled(dyDistance.abs(), PlayboardDirection.up),
             PlayboardDirection.left,
-            ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.down),
+            ...List.filled(dyDistance.abs(), PlayboardDirection.down),
           ]);
         }
         _currentBoard = _currentBoard.moveDirections(numberPath);
@@ -686,11 +676,9 @@ class SolvingMachine {
         for (final i in 0.till(dxDistance.abs() + 2)) {
           numberPath.addAll([
             PlayboardDirection.down,
-            ...List.generate(
-                dxDistance.abs() + 1, (_) => PlayboardDirection.right),
+            ...List.filled(dxDistance.abs() + 1, PlayboardDirection.right),
             PlayboardDirection.up,
-            ...List.generate(
-                dxDistance.abs() + 1, (_) => PlayboardDirection.left),
+            ...List.filled(dxDistance.abs() + 1, PlayboardDirection.left),
           ]);
         }
         numberPath.add(PlayboardDirection.down);
@@ -700,33 +688,33 @@ class SolvingMachine {
         for (final i in 0.till(dyDistance.abs() + 1)) {
           numberPath.addAll([
             PlayboardDirection.left,
-            ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.up),
+            ...List.filled(dyDistance.abs(), PlayboardDirection.up),
             PlayboardDirection.right,
-            ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.down),
+            ...List.filled(dyDistance.abs(), PlayboardDirection.down),
           ]);
           _currentBoard = _currentBoard.moveDirections([
             PlayboardDirection.left,
-            ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.up),
+            ...List.filled(dyDistance.abs(), PlayboardDirection.up),
             PlayboardDirection.right,
-            ...List.generate(dyDistance.abs(), (_) => PlayboardDirection.down),
+            ...List.filled(dyDistance.abs(), PlayboardDirection.down),
           ]);
         }
-        numberPath.addAll(
-            List.generate(dxDistance.abs(), (_) => PlayboardDirection.left));
+        numberPath
+            .addAll(List.filled(dxDistance.abs(), PlayboardDirection.left));
         _currentBoard = _currentBoard.moveDirections(
-            List.generate(dxDistance.abs(), (_) => PlayboardDirection.left));
+            List.filled(dxDistance.abs(), PlayboardDirection.left));
         for (final i in 0.till(dxDistance + 1)) {
           numberPath.addAll([
             PlayboardDirection.down,
-            ...List.generate(dxDistance, (_) => PlayboardDirection.right),
+            ...List.filled(dxDistance, PlayboardDirection.right),
             PlayboardDirection.up,
-            ...List.generate(dxDistance, (_) => PlayboardDirection.left),
+            ...List.filled(dxDistance, PlayboardDirection.left),
           ]);
           _currentBoard = _currentBoard.moveDirections([
             PlayboardDirection.down,
-            ...List.generate(dxDistance, (_) => PlayboardDirection.right),
+            ...List.filled(dxDistance, PlayboardDirection.right),
             PlayboardDirection.up,
-            ...List.generate(dxDistance, (_) => PlayboardDirection.left),
+            ...List.filled(dxDistance, PlayboardDirection.left),
           ]);
         }
         numberPath.add(PlayboardDirection.down);
@@ -801,28 +789,35 @@ class SolvingMachine {
     // [Case 1.1]
     if (numberLoc == const Loc(0, 1)) {
       prePath
+        ..addAll(
+          _holeToRightNumberLoc(
+            targetLoc: Loc(size - 2, 1),
+            currentBoard: _currentBoard,
+            verticalPriority: _currentBoard.holeLoc.dy == 0 ? true : false,
+          ),
+        )
         ..addAll([
-          ...List.generate(size - 2, (_) => PlayboardDirection.left),
+          ...List.filled(size - 2, PlayboardDirection.left),
           PlayboardDirection.down,
-          ...List.generate(size - 2, (_) => PlayboardDirection.right),
+          ...List.filled(size - 2, PlayboardDirection.right),
           PlayboardDirection.up,
         ])
         ..addAll([
           PlayboardDirection.right,
           PlayboardDirection.up,
-          ...List.generate(size - 1, (_) => PlayboardDirection.left),
+          ...List.filled(size - 1, PlayboardDirection.left),
           PlayboardDirection.down,
         ])
         ..addAll([
-          ...List.generate(size - 1, (_) => PlayboardDirection.right),
+          ...List.filled(size - 1, PlayboardDirection.right),
         ]);
       _currentBoard = _currentBoard.moveDirections(prePath);
       for (final i in 0.till(size)) {
         numberPath.addAll([
           PlayboardDirection.down,
-          ...List.generate(size - 1, (_) => PlayboardDirection.left),
+          ...List.filled(size - 1, PlayboardDirection.left),
           PlayboardDirection.up,
-          ...List.generate(size - 1, (_) => PlayboardDirection.right),
+          ...List.filled(size - 1, PlayboardDirection.right),
         ]);
       }
       _currentBoard = _currentBoard.moveDirections(numberPath);
@@ -833,14 +828,14 @@ class SolvingMachine {
       );
       _currentBoard = _currentBoard.moveDirections(holePath);
       _currentBoard = _currentBoard.moveDirections([
-        ...List.generate(size - 1, (_) => PlayboardDirection.right),
+        ...List.filled(size - 1, PlayboardDirection.right),
         PlayboardDirection.down,
       ]);
       numberPath
         ..add(PlayboardDirection.down)
         ..addAll(holePath)
         ..addAll([
-          ...List.generate(size - 1, (_) => PlayboardDirection.right),
+          ...List.filled(size - 1, PlayboardDirection.right),
           PlayboardDirection.down,
         ]);
     } else {
@@ -851,9 +846,9 @@ class SolvingMachine {
       prePath
         ..addAll(preHolePath)
         ..addAll([
-          ...List.generate(size - 1, (_) => PlayboardDirection.left),
+          ...List.filled(size - 1, PlayboardDirection.left),
           PlayboardDirection.down,
-          ...List.generate(size - 1, (_) => PlayboardDirection.right),
+          ...List.filled(size - 1, PlayboardDirection.right),
         ]);
       _currentBoard = _currentBoard.moveDirections(prePath);
       final numberLoc = _currentBoard.loc(size - 1);
@@ -870,7 +865,7 @@ class SolvingMachine {
       );
       _currentBoard = _currentBoard.moveDirections(holePath);
       finishPath = [
-        ...List.generate(size - 1, (_) => PlayboardDirection.right),
+        ...List.filled(size - 1, PlayboardDirection.right),
         PlayboardDirection.down,
       ];
     }
@@ -903,9 +898,9 @@ class SolvingMachine {
       if (dxDistance == 0) {
         for (final i in 0.till(dyDistance - 1)) {
           numberPath.addAll([
-            ...List.generate(dyDistance, (_) => PlayboardDirection.up),
+            ...List.filled(dyDistance, PlayboardDirection.up),
             PlayboardDirection.right,
-            ...List.generate(dyDistance, (_) => PlayboardDirection.down),
+            ...List.filled(dyDistance, PlayboardDirection.down),
             PlayboardDirection.left,
           ]);
         }
@@ -921,9 +916,9 @@ class SolvingMachine {
       } else if (dyDistance == 0) {
         for (final i in 0.till(dxDistance - 1)) {
           numberPath.addAll([
-            ...List.generate(dxDistance, (_) => PlayboardDirection.right),
+            ...List.filled(dxDistance, PlayboardDirection.right),
             PlayboardDirection.up,
-            ...List.generate(dxDistance, (_) => PlayboardDirection.left),
+            ...List.filled(dxDistance, PlayboardDirection.left),
             PlayboardDirection.down,
           ]);
         }
@@ -938,10 +933,10 @@ class SolvingMachine {
       } else {
         for (final i in 0.till(dxDistance + dyDistance - 1)) {
           numberPath.addAll([
-            ...List.generate(dyDistance, (_) => PlayboardDirection.up),
-            ...List.generate(dxDistance, (_) => PlayboardDirection.right),
-            ...List.generate(dyDistance, (_) => PlayboardDirection.down),
-            ...List.generate(dxDistance, (_) => PlayboardDirection.left),
+            ...List.filled(dyDistance, PlayboardDirection.up),
+            ...List.filled(dxDistance, PlayboardDirection.right),
+            ...List.filled(dyDistance, PlayboardDirection.down),
+            ...List.filled(dxDistance, PlayboardDirection.left),
           ]);
         }
         numberPath.add(PlayboardDirection.up);
@@ -957,8 +952,8 @@ class SolvingMachine {
 
     void _finishPath() {
       finishPath.addAll([
-        ...List.generate(size - 1, (_) => PlayboardDirection.left),
-        ...List.generate(size - 1, (_) => PlayboardDirection.down),
+        ...List.filled(size - 1, PlayboardDirection.left),
+        ...List.filled(size - 1, PlayboardDirection.down),
         PlayboardDirection.right,
       ]);
       _currentBoard = _currentBoard.moveDirections(finishPath);
@@ -966,25 +961,25 @@ class SolvingMachine {
 
     if (_currentBoard.loc(size * (size - 1)) == Loc(size - 1, 1)) {
       prePath = [
-        ...List.generate(size - 1, (_) => PlayboardDirection.right),
-        ...List.generate(size - 2, (_) => PlayboardDirection.up),
-        ...List.generate(size - 2, (_) => PlayboardDirection.left),
-        ...List.generate(size - 2, (_) => PlayboardDirection.down),
+        ...List.filled(size - 1, PlayboardDirection.right),
+        ...List.filled(size - 2, PlayboardDirection.up),
+        ...List.filled(size - 2, PlayboardDirection.left),
+        ...List.filled(size - 2, PlayboardDirection.down),
         PlayboardDirection.left,
-        ...List.generate(size - 1, (_) => PlayboardDirection.up),
-        ...List.generate(size - 1, (_) => PlayboardDirection.right),
-        ...List.generate(size - 1, (_) => PlayboardDirection.down),
-        ...List.generate(size - 2, (_) => PlayboardDirection.left),
+        ...List.filled(size - 1, PlayboardDirection.up),
+        ...List.filled(size - 1, PlayboardDirection.right),
+        ...List.filled(size - 1, PlayboardDirection.down),
+        ...List.filled(size - 2, PlayboardDirection.left),
       ];
       _currentBoard = _currentBoard.moveDirections(prePath);
       _numberPath();
       _finishPath();
     } else {
       prePath = [
-        ...List.generate(size - 1, (_) => PlayboardDirection.up),
-        ...List.generate(size - 1, (_) => PlayboardDirection.right),
-        ...List.generate(size - 1, (_) => PlayboardDirection.down),
-        ...List.generate(size - 2, (_) => PlayboardDirection.left),
+        ...List.filled(size - 1, PlayboardDirection.up),
+        ...List.filled(size - 1, PlayboardDirection.right),
+        ...List.filled(size - 1, PlayboardDirection.down),
+        ...List.filled(size - 2, PlayboardDirection.left),
       ];
       _currentBoard = _currentBoard.moveDirections(prePath);
       _numberPath();
@@ -1018,12 +1013,10 @@ class SolvingMachine {
   /// - Push all bottom number to up
   /// - Move `boardSize * (boardSize - 1)` number to Loc(boardSize - 1, 0)
   @visibleForTesting
-  static List<PlayboardDirection> quickSolveSolution(
-    PlayboardSolverParams params,
-  ) {
+  static List<PlayboardDirection> quickSolveSolution(List<int> board) {
+    var currentBoard = [...board];
     var directions = <PlayboardDirection>[];
-    var currentBoard = [...params.currentBoard];
-    final size = params.currentBoard.size;
+    final size = currentBoard.size;
     final _needToSolvePos = needToSolvePos(size);
 
     // try {
@@ -1091,13 +1084,12 @@ class SolvingMachine {
     // }
 
     final compressedBoard = currentBoard.transform();
-    final newParams = PlayboardSolverParams(compressedBoard);
     var compressedPath = <PlayboardDirection>[];
 
     if (size <= 4) {
-      compressedPath = bestStepSolution(newParams)?.directions ?? [];
+      compressedPath = bestStepSolution(compressedBoard)?.directions ?? [];
     } else {
-      compressedPath = quickSolveSolution(newParams);
+      compressedPath = quickSolveSolution(compressedBoard);
     }
     directions.addAll(compressedPath);
 
@@ -1227,7 +1219,7 @@ extension SolvingPuzzleExt on List<int> {
     for (final direction in directions) {
       final newHoleLoc = newList.holeLoc.move(size, direction);
       if (newHoleLoc == null) {
-        throw Exception('Cannot move direction: $printBoard()');
+        throw Exception('Cannot move direction: ${printBoard()}');
       }
       final holeIndex = newList.indexOf(hole);
       final newHoleIndex = newHoleLoc.index(size);
