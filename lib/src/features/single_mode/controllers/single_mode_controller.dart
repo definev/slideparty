@@ -56,7 +56,16 @@ class SingleModePlayboardController
     state = SinglePlayboardState(
       playboard: playboard,
       config: state.config,
-      bestStep: solve(playboard)?.length ?? -1,
+      bestStep: -1,
+    );
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      () => state = SinglePlayboardState(
+        playboard: state.playboard,
+        step: state.step,
+        bestStep: solve(state.playboard)?.length ?? 1,
+        config: state.config,
+      ),
     );
   }
 
@@ -110,13 +119,21 @@ class SingleModePlayboardController
     //   [22, 17, 20, 21, 24],
     // ].expand((e) => e).map((e) => e - 1).toList());
 
-    Future.microtask(() => solve(playboard)?.length).then((bestStep) {
-      state = SinglePlayboardState(
-        playboard: playboard,
+    state = SinglePlayboardState(
+      playboard: playboard,
+      bestStep: -1,
+      config: state.config,
+    );
+
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      () => state = SinglePlayboardState(
+        playboard: state.playboard,
         config: state.config,
-        bestStep: bestStep ?? -1,
-      );
-    });
+        step: state.step,
+        bestStep: solve(state.playboard)?.length ?? -1,
+      ),
+    );
 
     stopwatch
       ..stop()
