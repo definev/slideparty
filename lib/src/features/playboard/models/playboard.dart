@@ -1071,52 +1071,23 @@ class SolvingMachine {
         bool skipPre() {
           if (index == 0) return false;
           final prev = directions[index - 1];
-          if (curr == PlayboardDirection.left &&
-              prev == PlayboardDirection.right) {
-            return true;
-          }
-          if (curr == PlayboardDirection.right &&
-              prev == PlayboardDirection.left) {
-            return true;
-          }
-          if (curr == PlayboardDirection.up &&
-              prev == PlayboardDirection.down) {
-            return true;
-          }
-          if (curr == PlayboardDirection.down &&
-              prev == PlayboardDirection.up) {
-            return true;
-          }
+          if (prev == curr.opposite) return true;
           return false;
         }
 
         bool skipNext() {
           if (index == directions.length - 1) return false;
           final next = directions[index + 1];
-          if (curr == PlayboardDirection.left &&
-              next == PlayboardDirection.right) {
-            return true;
-          }
-          if (curr == PlayboardDirection.right &&
-              next == PlayboardDirection.left) {
-            return true;
-          }
-          if (curr == PlayboardDirection.up &&
-              next == PlayboardDirection.down) {
-            return true;
-          }
-          if (curr == PlayboardDirection.down &&
-              next == PlayboardDirection.up) {
-            return true;
-          }
+          if (next == curr.opposite) return true;
           return false;
         }
 
         bool _skipPre = skipPre();
         bool _skipNext = skipNext();
         if (!(_skipPre == true || _skipNext == true)) {
-          isOptimized = false;
           resDirections.add(curr);
+        } else {
+          isOptimized = false;
         }
       });
       directions = resDirections;
