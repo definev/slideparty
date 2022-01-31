@@ -1,12 +1,9 @@
-// ignore_for_file: unused_element, unused_local_variable
-
 import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:slideparty/src/utils/breakpoint.dart';
 import 'package:slideparty/src/utils/int_range.dart';
-import 'package:sprintf/sprintf.dart';
 
 import 'loc.dart';
 
@@ -63,16 +60,6 @@ class Playboard {
 
   int get hole => size * size - 1;
 
-  int get cost {
-    int cost = 0;
-    for (int i = 0; i < currentBoard.length; i++) {
-      if (currentBoard[i] != solvedBoard[i]) {
-        cost++;
-      }
-    }
-    return cost;
-  }
-
   static bool isSolvable(int size, List<int> board) {
     final inversion = board.inversion;
     if (size.isOdd) {
@@ -85,24 +72,6 @@ class Playboard {
         return !holeLoc.isInEvenRow(size);
       }
     }
-  }
-
-  @override
-  String toString() {
-    StringBuffer sb = StringBuffer();
-    for (int i = 0; i < size; i++) {
-      sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
-      sb.writeln(List.generate(size, (index) {
-            if (currentBoard[i * size + index] == size - 1) {
-              return '| X ';
-            }
-            return sprintf('|%3d', [currentBoard[i * size + index]]);
-          }).join() +
-          '|');
-    }
-    sb.writeln(List.generate(size * 4 + 1, (index) => '-').join());
-
-    return sb.toString();
   }
 
   void logPlayboard() => currentBoard.printBoard();
@@ -385,7 +354,7 @@ class SolvingMachine {
       return <PlayboardDirection>[];
     } else if (dxDistance < 0 && dyDistance == 0) {
       dxDistance = dxDistance.abs();
-      for (final i in 0.till(dxDistance + 1)) {
+      for (final _ in 0.till(dxDistance + 1)) {
         directions.addAll([
           numberLoc.dy == size - 1
               ? PlayboardDirection.up
@@ -404,7 +373,7 @@ class SolvingMachine {
     } else if (dxDistance == 0 && dyDistance < 0) {
       dyDistance = dyDistance.abs();
 
-      for (final i in 0.till(dyDistance - 1)) {
+      for (final _ in 0.till(dyDistance - 1)) {
         directions.addAll([
           ...List.filled(dyDistance, PlayboardDirection.up),
           numberLoc.dx == size - 1
@@ -419,7 +388,7 @@ class SolvingMachine {
       directions.add(PlayboardDirection.up);
     } else if (dxDistance < 0 && dyDistance > 0) {
       dxDistance = dxDistance.abs();
-      for (final i in 0.till(dyDistance + dxDistance - 1)) {
+      for (final _ in 0.till(dyDistance + dxDistance - 1)) {
         directions.addAll([
           ...List.filled(dyDistance, PlayboardDirection.down),
           ...List.filled(dxDistance, PlayboardDirection.left),
@@ -430,7 +399,7 @@ class SolvingMachine {
       directions.add(PlayboardDirection.down);
     } else if (dxDistance > 0 && dyDistance < 0) {
       dyDistance = dyDistance.abs();
-      for (final i in 0.till(dyDistance + dxDistance - 1)) {
+      for (final _ in 0.till(dyDistance + dxDistance - 1)) {
         directions.addAll([
           ...List.filled(dyDistance, PlayboardDirection.up),
           ...List.filled(dxDistance, PlayboardDirection.right),
@@ -443,7 +412,7 @@ class SolvingMachine {
       dxDistance = dxDistance.abs();
       dyDistance = dyDistance.abs();
 
-      for (final i in 0.till(dxDistance + dyDistance - 1)) {
+      for (final _ in 0.till(dxDistance + dyDistance - 1)) {
         directions.addAll([
           ...List.filled(dyDistance, PlayboardDirection.up),
           ...List.filled(dxDistance, PlayboardDirection.left),
@@ -465,7 +434,7 @@ class SolvingMachine {
       }
       directions.add(PlayboardDirection.down);
     } else if (dxDistance > 0 && dyDistance == 0) {
-      for (final i in 0.till(dxDistance + 1)) {
+      for (final _ in 0.till(dxDistance + 1)) {
         directions.addAll([
           (numberLoc.dy == size - 1
               ? PlayboardDirection.up
@@ -482,7 +451,7 @@ class SolvingMachine {
           ? PlayboardDirection.up
           : PlayboardDirection.down);
     } else if (dxDistance == 0 && dyDistance > 0) {
-      for (final i in 0.till(dyDistance - 1)) {
+      for (final _ in 0.till(dyDistance - 1)) {
         directions.addAll([
           ...List.filled(dyDistance, PlayboardDirection.down),
           size - 1 == rightNumberLoc.dx
@@ -607,7 +576,7 @@ class SolvingMachine {
       _currentBoard = _currentBoard.moveDirections(prePath);
       // [Sub case 0]
       if (numberLoc.dy == 1) {
-        for (final i in 0.till(dxDistance.abs() + 1)) {
+        for (final _ in 0.till(dxDistance.abs() + 1)) {
           numberPath.addAll([
             PlayboardDirection.down,
             ...List.filled(dxDistance.abs(), PlayboardDirection.left),
@@ -619,7 +588,7 @@ class SolvingMachine {
 
         _currentBoard = _currentBoard.moveDirections(numberPath);
 
-        for (final i in 0.till(dyDistance)) {
+        for (final _ in 0.till(dyDistance)) {
           holeToNumberPath.addAll([
             ...List.filled(dyDistance + 1, PlayboardDirection.down),
             PlayboardDirection.right,
@@ -632,7 +601,7 @@ class SolvingMachine {
       }
       // [Sub case 1]
       else {
-        for (final i in 0.till(dxDistance.abs() + 1)) {
+        for (final _ in 0.till(dxDistance.abs() + 1)) {
           numberPath.addAll([
             PlayboardDirection.up,
             ...List.filled(dxDistance.abs(), PlayboardDirection.left),
@@ -643,7 +612,7 @@ class SolvingMachine {
         numberPath.addAll(
           [...List.filled(dyDistance, PlayboardDirection.up)],
         );
-        for (final i in 0.till(dyDistance - 1)) {
+        for (final _ in 0.till(dyDistance - 1)) {
           numberPath.addAll([
             ...List.filled(dyDistance, PlayboardDirection.down),
             PlayboardDirection.right,
@@ -662,7 +631,7 @@ class SolvingMachine {
       _currentBoard = _currentBoard.moveDirections(prePath);
       // [Sub case 0]
       if (numberLoc.dx == 1) {
-        for (final i in 0.till(dyDistance.abs() + 1)) {
+        for (final _ in 0.till(dyDistance.abs() + 1)) {
           numberPath.addAll([
             PlayboardDirection.right,
             ...List.filled(dyDistance.abs(), PlayboardDirection.up),
@@ -673,7 +642,7 @@ class SolvingMachine {
         _currentBoard = _currentBoard.moveDirections(numberPath);
         _currentBoard = _currentBoard.moveDirections([PlayboardDirection.left]);
         numberPath.add(PlayboardDirection.left);
-        for (final i in 0.till(dxDistance.abs() + 2)) {
+        for (final _ in 0.till(dxDistance.abs() + 2)) {
           numberPath.addAll([
             PlayboardDirection.down,
             ...List.filled(dxDistance.abs() + 1, PlayboardDirection.right),
@@ -685,7 +654,7 @@ class SolvingMachine {
       }
       // [Sub case 1]
       else {
-        for (final i in 0.till(dyDistance.abs() + 1)) {
+        for (final _ in 0.till(dyDistance.abs() + 1)) {
           numberPath.addAll([
             PlayboardDirection.left,
             ...List.filled(dyDistance.abs(), PlayboardDirection.up),
@@ -703,7 +672,7 @@ class SolvingMachine {
             .addAll(List.filled(dxDistance.abs(), PlayboardDirection.left));
         _currentBoard = _currentBoard.moveDirections(
             List.filled(dxDistance.abs(), PlayboardDirection.left));
-        for (final i in 0.till(dxDistance + 1)) {
+        for (final _ in 0.till(dxDistance + 1)) {
           numberPath.addAll([
             PlayboardDirection.down,
             ...List.filled(dxDistance, PlayboardDirection.right),
@@ -812,7 +781,7 @@ class SolvingMachine {
           ...List.filled(size - 1, PlayboardDirection.right),
         ]);
       _currentBoard = _currentBoard.moveDirections(prePath);
-      for (final i in 0.till(size)) {
+      for (final _ in 0.till(size)) {
         numberPath.addAll([
           PlayboardDirection.down,
           ...List.filled(size - 1, PlayboardDirection.left),
@@ -896,7 +865,7 @@ class SolvingMachine {
       final dyDistance = (numberLoc.dy - holeLoc.dy).abs();
 
       if (dxDistance == 0) {
-        for (final i in 0.till(dyDistance - 1)) {
+        for (final _ in 0.till(dyDistance - 1)) {
           numberPath.addAll([
             ...List.filled(dyDistance, PlayboardDirection.up),
             PlayboardDirection.right,
@@ -914,7 +883,7 @@ class SolvingMachine {
         numberPath.addAll(holeToRightNumberPath);
         _currentBoard = _currentBoard.moveDirections(holeToRightNumberPath);
       } else if (dyDistance == 0) {
-        for (final i in 0.till(dxDistance - 1)) {
+        for (final _ in 0.till(dxDistance - 1)) {
           numberPath.addAll([
             ...List.filled(dxDistance, PlayboardDirection.right),
             PlayboardDirection.up,
@@ -931,7 +900,7 @@ class SolvingMachine {
         numberPath.addAll(holeToRightNumberPath);
         _currentBoard = _currentBoard.moveDirections(holeToRightNumberPath);
       } else {
-        for (final i in 0.till(dxDistance + dyDistance - 1)) {
+        for (final _ in 0.till(dxDistance + dyDistance - 1)) {
           numberPath.addAll([
             ...List.filled(dyDistance, PlayboardDirection.up),
             ...List.filled(dxDistance, PlayboardDirection.right),
@@ -1094,53 +1063,64 @@ class SolvingMachine {
     directions.addAll(compressedPath);
 
     var resDirections = <PlayboardDirection>[];
-    directions.forEachIndexed((index, curr) {
-      bool skipPre() {
-        if (index == 0) return false;
-        final prev = directions[index - 1];
-        if (curr == PlayboardDirection.left &&
-            prev == PlayboardDirection.right) {
-          return true;
+    bool isOptimized = true;
+    do {
+      isOptimized = true;
+      resDirections = [];
+      directions.forEachIndexed((index, curr) {
+        bool skipPre() {
+          if (index == 0) return false;
+          final prev = directions[index - 1];
+          if (curr == PlayboardDirection.left &&
+              prev == PlayboardDirection.right) {
+            return true;
+          }
+          if (curr == PlayboardDirection.right &&
+              prev == PlayboardDirection.left) {
+            return true;
+          }
+          if (curr == PlayboardDirection.up &&
+              prev == PlayboardDirection.down) {
+            return true;
+          }
+          if (curr == PlayboardDirection.down &&
+              prev == PlayboardDirection.up) {
+            return true;
+          }
+          return false;
         }
-        if (curr == PlayboardDirection.right &&
-            prev == PlayboardDirection.left) {
-          return true;
-        }
-        if (curr == PlayboardDirection.up && prev == PlayboardDirection.down) {
-          return true;
-        }
-        if (curr == PlayboardDirection.down && prev == PlayboardDirection.up) {
-          return true;
-        }
-        return false;
-      }
 
-      bool skipNext() {
-        if (index == directions.length - 1) return false;
-        final next = directions[index + 1];
-        if (curr == PlayboardDirection.left &&
-            next == PlayboardDirection.right) {
-          return true;
+        bool skipNext() {
+          if (index == directions.length - 1) return false;
+          final next = directions[index + 1];
+          if (curr == PlayboardDirection.left &&
+              next == PlayboardDirection.right) {
+            return true;
+          }
+          if (curr == PlayboardDirection.right &&
+              next == PlayboardDirection.left) {
+            return true;
+          }
+          if (curr == PlayboardDirection.up &&
+              next == PlayboardDirection.down) {
+            return true;
+          }
+          if (curr == PlayboardDirection.down &&
+              next == PlayboardDirection.up) {
+            return true;
+          }
+          return false;
         }
-        if (curr == PlayboardDirection.right &&
-            next == PlayboardDirection.left) {
-          return true;
-        }
-        if (curr == PlayboardDirection.up && next == PlayboardDirection.down) {
-          return true;
-        }
-        if (curr == PlayboardDirection.down && next == PlayboardDirection.up) {
-          return true;
-        }
-        return false;
-      }
 
-      bool _skipPre = skipPre();
-      bool _skipNext = skipNext();
-      if (!(_skipPre == true || _skipNext == true)) {
-        resDirections.add(curr);
-      }
-    });
+        bool _skipPre = skipPre();
+        bool _skipNext = skipNext();
+        if (!(_skipPre == true || _skipNext == true)) {
+          isOptimized = false;
+          resDirections.add(curr);
+        }
+      });
+      directions = resDirections;
+    } while (!isOptimized);
 
     return resDirections;
   }
@@ -1350,9 +1330,6 @@ class _PlayboardNode implements Comparable<_PlayboardNode> {
     }
     return locs.reversed.toList();
   }
-
-  @override
-  String toString() => 'Playboard { cost = $cost, depth = $depth }';
 
   @override
   int compareTo(_PlayboardNode other) =>
