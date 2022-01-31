@@ -159,11 +159,16 @@ class SingleModePlayboardController
     timer?.cancel();
     timer = null;
     final playboard = Playboard.random(state.playboard.size);
-    Future.microtask(() => solve(playboard)?.length).then((bestStep) {
+    state = SinglePlayboardState(
+      playboard: playboard,
+      config: state.config,
+      bestStep: -1,
+    );
+    Future.delayed(const Duration(milliseconds: 500), () {
       state = SinglePlayboardState(
-        playboard: playboard,
+        playboard: state.playboard,
+        bestStep: solve(state.playboard)?.length ?? -1,
         config: state.config,
-        bestStep: bestStep ?? -1,
       );
     });
     _read(counterProvider.notifier).state = const Duration(seconds: 0);

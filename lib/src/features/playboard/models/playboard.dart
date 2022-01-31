@@ -1226,7 +1226,9 @@ extension SolvingPuzzleExt on List<int> {
 
     for (final direction in directions) {
       final newHoleLoc = newList.holeLoc.move(size, direction);
-      if (newHoleLoc == null) throw Exception('Cannot move direction');
+      if (newHoleLoc == null) {
+        throw Exception('Cannot move direction: $printBoard()');
+      }
       final holeIndex = newList.indexOf(hole);
       final newHoleIndex = newHoleLoc.index(size);
       final temp = newList[holeIndex];
