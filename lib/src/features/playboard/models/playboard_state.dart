@@ -57,6 +57,7 @@ class SinglePlayboardState extends PlayboardState {
 
 class MultiplePlayboardState extends PlayboardState {
   MultiplePlayboardState({
+    required this.boardSize,
     required int playerCount,
     List<SinglePlayboardState>? playerStates,
   }) : super(
@@ -67,7 +68,7 @@ class MultiplePlayboardState extends PlayboardState {
             ),
           ),
         ) {
-    assert(playerCount > 0 && playerCount <= 4);
+    assert(playerCount >= 0 && playerCount <= 4);
     assert(playerStates == null || playerStates.length == playerCount);
     _playerStates = playerStates ??
         List.generate(
@@ -75,7 +76,7 @@ class MultiplePlayboardState extends PlayboardState {
           (index) {
             final singleConfig =
                 (config as MultiplePlayboardConfig).configs[index];
-            final playboard = Playboard.random(3);
+            final playboard = Playboard.random(boardSize);
 
             return SinglePlayboardState(
               playboard: playboard,
@@ -86,6 +87,7 @@ class MultiplePlayboardState extends PlayboardState {
         );
   }
 
+  final int boardSize;
   int get playerCount => _playerStates.length;
   late final List<SinglePlayboardState> _playerStates;
 
@@ -94,6 +96,7 @@ class MultiplePlayboardState extends PlayboardState {
   MultiplePlayboardState setState(int index, SinglePlayboardState state) {
     return MultiplePlayboardState(
       playerCount: playerCount,
+      boardSize: boardSize,
       playerStates: List.from(_playerStates)..[index] = state,
     );
   }
@@ -136,5 +139,4 @@ class OnlinePlayboardState extends PlayboardState {
 extension OnlinePlayboardExt on OnlinePlayboardState {
   int get boardSize =>
       (state as RoomData).players.values.first.currentBoard.size;
-
 }
