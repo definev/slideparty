@@ -189,14 +189,14 @@ class SingleModePlayboardController
   // *Keyboard control helper*
 
   @override
-  PlayboardKeyboardControl get playboardKeyboardControl => defaultArrowControl;
+  PlayboardKeyboardControl get playboardKeyboardControl => arrowControl;
 
   @override
-  Playboard? moveByKeyboard(LogicalKeyboardKey pressedKey) {
-    if (_read(singleModeSettingProvider)) return null;
-    if (state.playboard.isSolved) return null;
+  void moveByKeyboard(LogicalKeyboardKey pressedKey) {
+    if (_read(singleModeSettingProvider)) return;
+    if (state.playboard.isSolved) return;
     final newBoard = defaultMoveByKeyboard(
-      this,
+      playboardKeyboardControl,
       pressedKey,
       state.playboard,
     );
@@ -205,8 +205,6 @@ class SingleModePlayboardController
       _read(buttonAudioControllerProvider).clickSound();
       updatePlayboardState(newBoard);
     }
-
-    return newBoard;
   }
 
   // *Auto solve helper*

@@ -1,10 +1,15 @@
+import 'dart:math';
+
 import 'package:flextras/flextras.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
+import 'package:slideparty/src/features/playboard/widgets/keyboard_guide.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
+import 'package:slideparty/src/utils/app_infos/app_infos.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 
 class MultipleModePage extends ConsumerWidget {
@@ -128,7 +133,7 @@ class _NoPlayerPage extends HookConsumerWidget {
   }
 }
 
-class _MultiplePlayerPage extends ConsumerWidget {
+class _MultiplePlayerPage extends HookConsumerWidget {
   const _MultiplePlayerPage({
     Key? key,
     required this.playerCount,
@@ -136,68 +141,152 @@ class _MultiplePlayerPage extends ConsumerWidget {
 
   final int playerCount;
 
-  int get columnLength => playerCount ~/ 2 + (playerCount % 2 == 1 ? 1 : 0);
+  int get axisLength => playerCount ~/ 2 + (playerCount % 2 == 1 ? 1 : 0);
 
-  Widget _multiplePlayerView(BuildContext context) {
+  int _flexSpace(int index, double ratio) {
+    if (ratio <= 1.3) return 1;
+    if (index == axisLength - 1 && playerCount % 2 == 1) {
+      return 1;
+    } else {
+      return 2;
+    }
+  }
+
+  Axis _getDirectionOfParent(
+    int index, {
+    required bool preferVertical,
+    required double ratio,
+  }) {
+    return preferVertical ? Axis.horizontal : Axis.vertical;
+  }
+
+  Axis _getDirectionOfChild(
+    int index, {
+    required bool preferVertical,
+    required double ratio,
+  }) {
+    if (preferVertical) {
+      if (ratio > 1.3) return Axis.vertical;
+      return Axis.horizontal;
+    } else {
+      if (ratio > 1.3) return Axis.horizontal;
+      return Axis.vertical;
+    }
+  }
+
+  Widget _multiplePlayerView(
+    BuildContext context, {
+    required bool preferVertical,
+    required double ratio,
+  }) {
     switch (playerCount) {
       case 2:
-        return Row(
-          children: [
-            ...List.generate(
-              playerCount,
-              (index) => Expanded(
-                child: _PlayerPlayboardView(playerIndex: index),
-              ),
+        final children = List.generate(
+          playerCount,
+          (index) => Expanded(
+            child: _PlayerPlayboardView(
+              playerIndex: index,
+              ratio: ratio,
             ),
-          ],
+          ),
+        );
+        return Flex(
+          direction: preferVertical ? Axis.vertical : Axis.horizontal,
+          children: children,
         );
       default:
-        return Column(
-          children: [
-            ...List.generate(
-                columnLength,
-                (index) => Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                ...List.generate(
-                                  playerCount % 2 == 1 &&
-                                          index == columnLength - 1
-                                      ? 1
-                                      : 2,
-                                  (colorIndex) => Expanded(
-                                    child: _PlayerPlayboardView(
-                                      playerIndex: index * 2 + colorIndex,
-                                    ),
-                                  ),
+        return Flex(
+          direction: preferVertical ? Axis.vertical : Axis.horizontal,
+          children: List.generate(
+              axisLength,
+              (index) => Flexible(
+                    flex: _flexSpace(index, ratio),
+                    child: Flex(
+                      direction: _getDirectionOfParent(
+                        index,
+                        preferVertical: preferVertical,
+                        ratio: ratio,
+                      ),
+                      children: [
+                        Expanded(
+                          child: Flex(
+                            direction: _getDirectionOfChild(
+                              index,
+                              preferVertical: preferVertical,
+                              ratio: ratio,
+                            ),
+                            children: List.generate(
+                              playerCount % 2 == 1 && index == axisLength - 1
+                                  ? 1
+                                  : 2,
+                              (colorIndex) => Expanded(
+                                child: _PlayerPlayboardView(
+                                  playerIndex: index * 2 + colorIndex,
+                                  ratio: ratio,
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                    )),
-          ],
+                        ),
+                      ],
+                    ),
+                  )),
         );
     }
   }
 
+  void _showWinningDialog(BuildContext context) {}
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(playboardControllerProvider.notifier)
+        as MultipleModeController;
+    ref.listen<int?>(
+      playboardControllerProvider
+          .select((value) => (value as MultiplePlayboardState).whoWin),
+      (_, who) {
+        if (who != null) {
+          _showWinningDialog(context);
+        }
+      },
+    );
+    final focusNode = useFocusNode();
+
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _multiplePlayerView(context),
+      body: RawKeyboardListener(
+        focusNode: focusNode,
+        autofocus: true,
+        onKey: (event) {
+          if (event is RawKeyDownEvent) {
+            controller.moveByKeyboard(event.logicalKey);
+          }
+        },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            bool preferVertical = constraints.maxWidth < constraints.maxHeight;
+            return _multiplePlayerView(
+              context,
+              preferVertical: preferVertical,
+              ratio: constraints.biggest.longestSide /
+                  constraints.biggest.shortestSide,
+            );
+          },
+        ),
+      ),
     );
   }
 }
 
 class _PlayerPlayboardView extends ConsumerWidget {
-  const _PlayerPlayboardView({Key? key, required this.playerIndex})
-      : super(key: key);
+  const _PlayerPlayboardView({
+    Key? key,
+    required this.playerIndex,
+    required this.ratio,
+  }) : super(key: key);
 
   final int playerIndex;
+  final double ratio;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -206,44 +295,128 @@ class _PlayerPlayboardView extends ConsumerWidget {
         (value) => (value as MultiplePlayboardState).boardSize,
       ),
     );
+    final controller = ref.watch(playboardControllerProvider.notifier)
+        as MultipleModeController;
 
-    return Theme(
+    final view = Theme(
       data: Theme.of(context).colorScheme.brightness == Brightness.light
           ? ButtonColors.values[playerIndex].lightTheme
           : ButtonColors.values[playerIndex].darkTheme,
-      child: LayoutBuilder(builder: (context, constraints) {
-        return TweenAnimationBuilder<double>(
-          duration: const Duration(milliseconds: 500),
-          tween: Tween<double>(begin: 0, end: 1),
-          curve: Curves.easeInOutCubicEmphasized,
-          child: Scaffold(
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: PlayboardView(
-                  boardSize: boardSize,
-                  size: constraints.biggest.shortestSide - 32,
-                  playerIndex: playerIndex,
-                  onPressed: (_) {},
-                  clipBehavior: Clip.none,
+      child: Center(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 500),
+              tween: Tween<double>(begin: 0, end: 1),
+              curve: Curves.easeInOutCubicEmphasized,
+              child: Scaffold(
+                body: Stack(
+                  children: [
+                    if (ratio > 1.3) ...[
+                      Align(
+                        alignment: constraints.biggest.aspectRatio > 1
+                            ? Alignment.centerLeft
+                            : Alignment.topCenter,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            left:
+                                constraints.biggest.longestSide / boardSize / 5,
+                          ),
+                          child: Text(
+                            '${playerIndex + 1}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline1!
+                                .copyWith(
+                                  fontSize: constraints.biggest.longestSide /
+                                      boardSize,
+                                  color: Theme.of(context).colorScheme.surface,
+                                ),
+                          ),
+                        ),
+                      ),
+                      if (AppInfos.screenType == ScreenTypes.mouse ||
+                          AppInfos.screenType ==
+                              ScreenTypes.touchscreenAndMouse)
+                        Align(
+                          alignment: constraints.biggest.aspectRatio > 1
+                              ? Alignment.centerRight
+                              : Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: KeyboardGuide(
+                              controller.playerControl(playerIndex),
+                              size: constraints.biggest.shortestSide / 8,
+                            ),
+                          ),
+                        ),
+                    ],
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: PlayboardView(
+                          boardSize: boardSize,
+                          size: min(constraints.biggest.shortestSide - 32, 425),
+                          playerIndex: playerIndex,
+                          holeWidget: ratio > 1.3
+                              ? null
+                              : Center(
+                                  child: LayoutBuilder(builder: (context, cs) {
+                                    return Container(
+                                      height: cs.maxHeight / 2,
+                                      width: cs.maxHeight / 2,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                          child: Text('P.${playerIndex + 1}')),
+                                    );
+                                  }),
+                                ),
+                          onPressed: (number) =>
+                              controller.move(playerIndex, number),
+                          clipBehavior: Clip.none,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-          builder: (context, value, child) => Stack(
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: SizedBox(
-                  height: constraints.biggest.height * value,
-                  width: constraints.biggest.width * value,
-                  child: child,
-                ),
+              builder: (context, value, child) => Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      height: constraints.biggest.height * value,
+                      width: constraints.biggest.width * value,
+                      child: child,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      }),
+            );
+          },
+        ),
+      ),
     );
+
+    if (AppInfos.screenType == ScreenTypes.touchscreen ||
+        AppInfos.screenType == ScreenTypes.touchscreenAndMouse) {
+      return SwipeDetector(
+        onSwipeLeft: () =>
+            controller.moveByGesture(playerIndex, PlayboardDirection.left),
+        onSwipeRight: () =>
+            controller.moveByGesture(playerIndex, PlayboardDirection.right),
+        onSwipeUp: () =>
+            controller.moveByGesture(playerIndex, PlayboardDirection.up),
+        onSwipeDown: () =>
+            controller.moveByGesture(playerIndex, PlayboardDirection.down),
+        child: view,
+      );
+    }
+    return view;
   }
 }

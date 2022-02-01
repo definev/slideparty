@@ -18,6 +18,8 @@ class PlayboardView extends HookConsumerWidget {
     required this.size,
     required this.onPressed,
     required this.clipBehavior,
+    this.holeWidget,
+    this.reduceMotion = false,
     this.duration = const Duration(milliseconds: 500),
   }) : super(key: key);
 
@@ -28,6 +30,8 @@ class PlayboardView extends HookConsumerWidget {
   final Function(int index) onPressed;
   final Clip clipBehavior;
   final Duration duration;
+  final Widget? holeWidget;
+  final bool reduceMotion;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -117,6 +121,23 @@ class PlayboardView extends HookConsumerWidget {
         final config = ref.watch(
           playboardControllerProvider.select((value) => value.config),
         );
+        final tile = _getTileWithConfig(
+          loc: loc,
+          size: size,
+          index: index,
+          config: config,
+          animationType: animationType,
+          animateValue: animateValue,
+        );
+
+        if (reduceMotion) {
+          return Positioned(
+            top: loc.dy * size / boardSize,
+            left: loc.dx * size / boardSize,
+            child: tile,
+          );
+        }
+
         return TweenAnimationBuilder<Size?>(
           duration: duration,
           curve: Curves.easeOutBack,
@@ -130,14 +151,7 @@ class PlayboardView extends HookConsumerWidget {
           builder: (context, pos, child) => Positioned(
             top: (pos?.height ?? loc.dy) * size / boardSize,
             left: (pos?.width ?? loc.dx) * size / boardSize,
-            child: _getTileWithConfig(
-              loc: loc,
-              size: size,
-              index: index,
-              config: config,
-              animationType: animationType,
-              animateValue: animateValue,
-            ),
+            child: tile,
           ),
         );
       },
@@ -154,9 +168,10 @@ class PlayboardView extends HookConsumerWidget {
   }) {
     if (index == boardSize * boardSize - 1) {
       return SizedBox(
+        key: const ValueKey('hole-tile'),
         height: size / boardSize,
         width: size / boardSize,
-        key: const ValueKey('hole-tile'),
+        child: holeWidget,
       );
     }
     if (config is NumberPlayboardConfig) {

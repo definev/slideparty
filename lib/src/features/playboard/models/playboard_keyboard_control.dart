@@ -21,14 +21,28 @@ class PlayboardKeyboardControl {
         );
 }
 
-final defaultWASDControl = PlayboardKeyboardControl(
+final wasdControl = PlayboardKeyboardControl(
   up: LogicalKeyboardKey.keyW,
   left: LogicalKeyboardKey.keyA,
   down: LogicalKeyboardKey.keyS,
   right: LogicalKeyboardKey.keyD,
 );
 
-final defaultArrowControl = PlayboardKeyboardControl(
+final tfghControl = PlayboardKeyboardControl(
+  up: LogicalKeyboardKey.keyT,
+  left: LogicalKeyboardKey.keyF,
+  down: LogicalKeyboardKey.keyG,
+  right: LogicalKeyboardKey.keyH,
+);
+
+final ijklControl = PlayboardKeyboardControl(
+  up: LogicalKeyboardKey.keyI,
+  left: LogicalKeyboardKey.keyJ,
+  down: LogicalKeyboardKey.keyK,
+  right: LogicalKeyboardKey.keyL,
+);
+
+final arrowControl = PlayboardKeyboardControl(
   up: LogicalKeyboardKey.arrowUp,
   left: LogicalKeyboardKey.arrowLeft,
   down: LogicalKeyboardKey.arrowDown,

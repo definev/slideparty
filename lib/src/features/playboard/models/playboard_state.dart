@@ -3,6 +3,7 @@ import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/utils/display_party_types.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
+import 'package:dartx/dartx.dart';
 
 import 'playboard_config.dart';
 import 'playboard.dart';
@@ -92,6 +93,14 @@ class MultiplePlayboardState extends PlayboardState {
   late final List<SinglePlayboardState> _playerStates;
 
   SinglePlayboardState currentState(int index) => _playerStates[index];
+
+  int? get whoWin {
+    int? res;
+    _playerStates.forEachIndexed((state, index) {
+      if (state.playboard.isSolved) res = index;
+    });
+    return res;
+  }
 
   MultiplePlayboardState setState(int index, SinglePlayboardState state) {
     return MultiplePlayboardState(

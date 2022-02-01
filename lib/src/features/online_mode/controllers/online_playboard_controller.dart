@@ -73,12 +73,12 @@ class OnlinePlayboardController
   }
 
   @override
-  PlayboardKeyboardControl get playboardKeyboardControl => defaultArrowControl;
+  PlayboardKeyboardControl get playboardKeyboardControl => arrowControl;
 
   @override
-  Playboard? moveByKeyboard(LogicalKeyboardKey pressedKey) {
+  void moveByKeyboard(LogicalKeyboardKey pressedKey) {
     final newBoard = defaultMoveByKeyboard(
-        this,
+        playboardKeyboardControl,
         pressedKey,
         Playboard(
           size: state.boardSize,

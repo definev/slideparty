@@ -6,24 +6,24 @@ mixin PlayboardKeyboardControlHelper {
   PlayboardKeyboardControl get playboardKeyboardControl => throw UnimplementedError(
       'PlayboardKeyboardControlHelper must override playboardKeyboardControl getter');
 
-  Playboard? moveByKeyboard(LogicalKeyboardKey pressedKey);
+  void moveByKeyboard(LogicalKeyboardKey pressedKey);
 }
 
 Playboard? defaultMoveByKeyboard(
-  PlayboardKeyboardControlHelper helper,
+  PlayboardKeyboardControl playboardKeyboardControl,
   LogicalKeyboardKey pressedKey,
   Playboard board,
 ) {
-  if (pressedKey == helper.playboardKeyboardControl.up) {
+  if (pressedKey == playboardKeyboardControl.up) {
     return board.moveHole(PlayboardDirection.up);
   }
-  if (pressedKey == helper.playboardKeyboardControl.down) {
+  if (pressedKey == playboardKeyboardControl.down) {
     return board.moveHole(PlayboardDirection.down);
   }
-  if (pressedKey == helper.playboardKeyboardControl.left) {
+  if (pressedKey == playboardKeyboardControl.left) {
     return board.moveHole(PlayboardDirection.left);
   }
-  if (pressedKey == helper.playboardKeyboardControl.right) {
+  if (pressedKey == playboardKeyboardControl.right) {
     return board.moveHole(PlayboardDirection.right);
   }
 }
