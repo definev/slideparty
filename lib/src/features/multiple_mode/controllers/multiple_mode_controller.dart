@@ -9,6 +9,7 @@ import 'package:slideparty/src/features/playboard/models/playboard_keyboard_cont
 import 'package:dartx/dartx.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
+import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:slideparty_socket/slideparty_socket.dart';
 
 final multipleModeControllerProvider =
@@ -143,7 +144,15 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
               return;
             }
             if (state.currentAction(index).isNotEmpty) {
-              state = state.setActions(index, []);
+              final configs = state.config as MultiplePlayboardConfig;
+              state = state.setActions(
+                index,
+                [],
+                configs.changeConfig(
+                  index,
+                  NumberPlayboardConfig(ButtonColors.values[index]),
+                ),
+              );
               openSkillNotifier.state = openSkillState.copyWith(
                 usedActions: {
                   ...openSkillState.usedActions,

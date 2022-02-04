@@ -102,14 +102,15 @@ class MultiplePlayboardState extends PlayboardState {
   List<SlidepartyActions> currentAction(int index) => _actions[index];
   MultiplePlayboardState setActions(
     int index,
-    List<SlidepartyActions> actions,
-  ) =>
+    List<SlidepartyActions> actions, [
+    MultiplePlayboardConfig? stateConfig,
+  ]) =>
       MultiplePlayboardState(
         boardSize: boardSize,
         playerCount: playerCount,
         playerStates: _playerStates,
         actions: [..._actions]..[index] = actions,
-        stateConfig: config as MultiplePlayboardConfig,
+        stateConfig: stateConfig ?? config as MultiplePlayboardConfig,
       );
 
   int? get whoWin {
