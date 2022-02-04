@@ -39,6 +39,7 @@ class _NoPlayerPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
     final color = ref
         .watch(playboardInfoControllerProvider.select((value) => value.color));
     final controller = ref.watch(playboardControllerProvider.notifier)
@@ -56,16 +57,16 @@ class _NoPlayerPage extends HookConsumerWidget {
               children: [
                 Text(
                   'Multiple Mode',
-                  style: Theme.of(context).textTheme.headline5!.copyWith(
-                        color: color.primaryColor,
-                      ),
+                  style: themeData.textTheme.headline5!.copyWith(
+                    color: color.primaryColor,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Number of players',
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style: themeData.textTheme.subtitle1,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -93,7 +94,7 @@ class _NoPlayerPage extends HookConsumerWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Board size',
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style: themeData.textTheme.subtitle1,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -301,6 +302,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
     final boardSize = ref.watch(
       playboardControllerProvider.select(
         (value) => (value as MultiplePlayboardState).boardSize,
@@ -315,7 +317,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
         as MultipleModeController;
 
     final view = Theme(
-      data: Theme.of(context).colorScheme.brightness == Brightness.light
+      data: themeData.colorScheme.brightness == Brightness.light
           ? ButtonColors.values[playerIndex].lightTheme
           : ButtonColors.values[playerIndex].darkTheme,
       child: Center(
@@ -344,17 +346,12 @@ class _PlayerPlayboardView extends ConsumerWidget {
                               ),
                               child: Text(
                                 '${playerIndex + 1}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline1!
-                                    .copyWith(
-                                      fontSize:
-                                          (constraints.biggest.longestSide -
-                                                  _playboardSize(constraints)) /
-                                              4,
-                                      color:
-                                          Theme.of(context).colorScheme.surface,
-                                    ),
+                                style: themeData.textTheme.headline1!.copyWith(
+                                  fontSize: (constraints.biggest.longestSide -
+                                          _playboardSize(constraints)) /
+                                      4,
+                                  color: themeData.colorScheme.surface,
+                                ),
                               ),
                             ),
                           ),
@@ -383,7 +380,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
                     ],
                     Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Consumer(builder: (context, ref, _) {
+                      child: HookConsumer(builder: (context, ref, _) {
                         final affectedActions = ref.watch(
                           playboardControllerProvider.select(
                             (value) => (value as MultiplePlayboardState)
@@ -392,6 +389,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
                         );
                         bool isPause =
                             affectedActions.contains(SlidepartyActions.pause);
+                        final openMenu = useState(false);
 
                         return Stack(
                           children: [
@@ -402,40 +400,36 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                 playerIndex: playerIndex,
                                 holeWidget: isLargeScreen(constraints)
                                     ? null
-                                    : Center(
-                                        child: LayoutBuilder(
-                                          builder: (context, cs) => Container(
-                                            height: cs.maxHeight / 2,
-                                            width: cs.maxHeight / 2,
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surface,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              'P.${playerIndex + 1}',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyText2!
-                                                  .copyWith(
-                                                    fontSize: cs.maxHeight / 10,
-                                                  ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                    : _holeMenu(themeData, openMenu),
                                 onPressed: (number) =>
                                     controller.move(playerIndex, number),
                                 clipBehavior: Clip.none,
                               ),
                             ),
+                            if (openMenu.value == true &&
+                                !isLargeScreen(constraints))
+                              Center(
+                                child: ColoredBox(
+                                  color: themeData.scaffoldBackgroundColor
+                                      .withOpacity(0.3),
+                                  child: SizedBox(
+                                    width: _playboardSize(constraints) + 32,
+                                    height: _playboardSize(constraints) + 32,
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'Skill',
+                                          style: themeData.textTheme.headline6,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                             if (isPause)
                               Center(
                                 child: ColoredBox(
-                                  color: Theme.of(context)
-                                      .scaffoldBackgroundColor
+                                  color: themeData.scaffoldBackgroundColor
                                       .withOpacity(0.3),
                                   child: SizedBox(
                                     width: _playboardSize(constraints) + 32,
@@ -443,8 +437,8 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                     child: Center(
                                       child: DecoratedBox(
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .scaffoldBackgroundColor,
+                                          color:
+                                              themeData.scaffoldBackgroundColor,
                                           shape: BoxShape.circle,
                                           boxShadow: const [BoxShadow()],
                                         ),
@@ -501,5 +495,32 @@ class _PlayerPlayboardView extends ConsumerWidget {
       );
     }
     return view;
+  }
+
+  Widget _holeMenu(ThemeData themeData, ValueNotifier<bool> openMenu) {
+    return Center(
+      child: LayoutBuilder(
+        builder: (context, cs) => InkWell(
+          borderRadius: BorderRadius.circular(100),
+          onTap: () => openMenu.value = !openMenu.value,
+          child: Container(
+            height: cs.maxHeight / 2,
+            width: cs.maxHeight / 2,
+            decoration: BoxDecoration(
+              color: themeData.colorScheme.surface,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                'P.${playerIndex + 1}',
+                style: themeData.textTheme.bodyText2!.copyWith(
+                  fontSize: cs.maxHeight / 10,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
