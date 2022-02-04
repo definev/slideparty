@@ -1,38 +1,30 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
 
-abstract class PlayboardConfig extends Equatable {
-  const PlayboardConfig();
+part 'playboard_config.freezed.dart';
+
+@freezed
+class PlayboardConfig with _$PlayboardConfig {
+  const factory PlayboardConfig.blind(ButtonColors color) =
+      BlindPlayboardConfig;
+  const factory PlayboardConfig.number(ButtonColors color) =
+      NumberPlayboardConfig;
+  const factory PlayboardConfig.multiple(List<PlayboardConfig> configs) =
+      MultiplePlayboardConfig;
+  const factory PlayboardConfig.online(
+      [@Default({
+        PlayerColors.blue: ButtonColors.blue,
+        PlayerColors.red: ButtonColors.red,
+        PlayerColors.yellow: ButtonColors.yellow,
+        PlayerColors.green: ButtonColors.green,
+      })
+          Map<PlayerColors, ButtonColors> configs]) = OnlinePlayboardConfig;
 }
 
-class NumberPlayboardConfig extends PlayboardConfig {
-  const NumberPlayboardConfig(this.color);
-
-  final ButtonColors color;
-
-  @override
-  List<Object?> get props => [color];
-}
-
-class MultiplePlayboardConfig extends PlayboardConfig {
-  final List<PlayboardConfig> configs;
-  const MultiplePlayboardConfig(this.configs);
-
-  @override
-  List<Object?> get props => [configs];
-}
-
-class OnlinePlayboardConfig extends PlayboardConfig {
-  const OnlinePlayboardConfig();
-
-  final Map<PlayerColors, ButtonColors> configs = const {
-    PlayerColors.red: ButtonColors.red,
-    PlayerColors.blue: ButtonColors.blue,
-    PlayerColors.green: ButtonColors.green,
-    PlayerColors.yellow: ButtonColors.yellow,
-  };
-
-  @override
-  List<Object?> get props => [configs];
+extension EditMultipleConfig on MultiplePlayboardConfig {
+  MultiplePlayboardConfig changeConfig(int index, PlayboardConfig config) =>
+      MultiplePlayboardConfig(
+        [...configs]..[index] = config,
+      );
 }

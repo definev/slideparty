@@ -41,7 +41,6 @@ class OnlinePlayboardController
 
   @override
   void dispose() {
-    debugPrint('Online playboard controller disposed');
     _sub.cancel();
     _ssk.close();
     super.dispose();
@@ -70,6 +69,7 @@ class OnlinePlayboardController
     if (player.currentBoard.isSolved) return null;
     final playboard = player.currentBoard.moveDirection(direction);
     if (playboard != null) updatePlayboardState(playboard);
+    return null;
   }
 
   @override

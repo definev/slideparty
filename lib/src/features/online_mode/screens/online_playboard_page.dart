@@ -66,6 +66,7 @@ class OnlinePlayboardPage extends ConsumerWidget {
               builder: (context) {
                 useEffect(() {
                   controller.initController();
+                  return null;
                 });
 
                 return const Center(child: CircularProgressIndicator());

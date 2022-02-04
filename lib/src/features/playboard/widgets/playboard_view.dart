@@ -72,7 +72,7 @@ class PlayboardView extends HookConsumerWidget {
                 clipBehavior: clipBehavior,
                 children: List.generate(
                   boardSize * boardSize,
-                  (index) => _numberTile(
+                  (index) => _puzzleTile(
                     index: index,
                     size: size,
                     animationType: PlayboardAnimationTypes.heartScaleFade,
@@ -87,7 +87,7 @@ class PlayboardView extends HookConsumerWidget {
     );
   }
 
-  Widget _numberTile({
+  Widget _puzzleTile({
     required int index,
     required double size,
     required PlayboardAnimationTypes animationType,
@@ -174,6 +174,7 @@ class PlayboardView extends HookConsumerWidget {
         child: holeWidget,
       );
     }
+
     if (config is NumberPlayboardConfig) {
       return Transform.scale(
         scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
@@ -225,28 +226,22 @@ class PlayboardView extends HookConsumerWidget {
     }
 
     if (config is MultiplePlayboardConfig) {
-      final tileConfig =
-          (config.configs[playerIndex!] as NumberPlayboardConfig);
-      return Transform.scale(
-        scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
-        child: Opacity(
-          opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
-          child: Consumer(builder: (context, ref, child) {
-            return NumberTile(
-              key: ValueKey('number-tile-${loc.index(boardSize)}'),
-              index: index,
-              boardSize: boardSize,
-              playboardSize: size,
-              color: tileConfig.color,
-              onPressed: onPressed,
-              child: Transform.rotate(
-                angle: (pi + pi / 4 - pi / 2) * animateValue,
-                origin: const Offset(0.5, 0.5),
-                child: Text('${index + 1}'),
-              ),
-            );
-          }),
-        ),
+      final tileConfig = config.configs[playerIndex!];
+
+      return NumberTile(
+        key: ValueKey('number-tile-${loc.index(boardSize)}'),
+        index: index,
+        boardSize: boardSize,
+        playboardSize: size,
+        color: tileConfig.mapOrNull(
+          number: (c) => c.color,
+          blind: (c) => c.color,
+        )!,
+        onPressed: onPressed,
+        child: tileConfig.mapOrNull<Widget?>(
+          number: (c) => Text('${index + 1}'),
+          blind: (c) => const SizedBox(),
+        )!,
       );
     }
 

@@ -27,7 +27,6 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  collection: ^1.15.0
   cupertino_icons: ^1.0.2
   dartx: ^1.0.0
   equatable: ^2.0.3
@@ -41,6 +40,7 @@ dependencies:
   flutter_styled_toast: ^2.0.0
   flutter_svg: ^1.0.3
   fpdart: ^0.0.12
+  freezed_annotation: ^1.1.0
   go_router: ^3.0.0
   hive: ^2.0.5
   hive_flutter: ^1.1.0
@@ -48,17 +48,16 @@ dependencies:
   intl: ^0.17.0
   just_audio: ^0.9.18
   line_icons: ^2.0.1
-  multiavatar: ^0.1.5
-  simple_animations: ^4.0.1
   slideparty_socket:
     git:
       url: https://github.com/definev/slideparty_socket.git
       ref: main
-  sprintf: ^6.0.0
   universal_platform: ^1.0.0+1
   uuid: ^3.0.5
 
 dev_dependencies:
+  freezed: ^1.1.0
+  json_serializable: ^6.1.4
   build_runner: ^2.1.7
   fast_i18n: ^5.7.0
   flutter_lints: ^1.0.0

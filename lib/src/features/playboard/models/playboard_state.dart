@@ -61,14 +61,9 @@ class MultiplePlayboardState extends PlayboardState {
     required this.boardSize,
     required int playerCount,
     List<SinglePlayboardState>? playerStates,
-  }) : super(
-          config: MultiplePlayboardConfig(
-            List.generate(
-              ButtonColors.values.length,
-              (index) => NumberPlayboardConfig(ButtonColors.values[index]),
-            ),
-          ),
-        ) {
+    List<List<SlidepartyActions>>? actions,
+    MultiplePlayboardConfig stateConfig = defaultConfig,
+  }) : super(config: stateConfig) {
     assert(playerCount >= 0 && playerCount <= 4);
     assert(playerStates == null || playerStates.length == playerCount);
     _playerStates = playerStates ??
@@ -86,13 +81,36 @@ class MultiplePlayboardState extends PlayboardState {
             );
           },
         );
+    _actions = actions ?? List.generate(playerCount, (index) => []);
   }
 
-  final int boardSize;
-  int get playerCount => _playerStates.length;
-  late final List<SinglePlayboardState> _playerStates;
+  static const defaultConfig = MultiplePlayboardConfig(
+    [
+      NumberPlayboardConfig(ButtonColors.blue),
+      NumberPlayboardConfig(ButtonColors.green),
+      NumberPlayboardConfig(ButtonColors.red),
+      NumberPlayboardConfig(ButtonColors.yellow),
+    ],
+  );
 
-  SinglePlayboardState currentState(int index) => _playerStates[index];
+  final int boardSize;
+  late final List<SinglePlayboardState> _playerStates;
+  int get playerCount => _playerStates.length;
+
+  late final List<List<SlidepartyActions>> _actions;
+
+  List<SlidepartyActions> currentAction(int index) => _actions[index];
+  MultiplePlayboardState setActions(
+    int index,
+    List<SlidepartyActions> actions,
+  ) =>
+      MultiplePlayboardState(
+        boardSize: boardSize,
+        playerCount: playerCount,
+        playerStates: _playerStates,
+        actions: [..._actions]..[index] = actions,
+        stateConfig: config as MultiplePlayboardConfig,
+      );
 
   int? get whoWin {
     int? res;
@@ -102,16 +120,29 @@ class MultiplePlayboardState extends PlayboardState {
     return res;
   }
 
+  SinglePlayboardState currentState(int index) => _playerStates[index];
   MultiplePlayboardState setState(int index, SinglePlayboardState state) {
     return MultiplePlayboardState(
       playerCount: playerCount,
       boardSize: boardSize,
-      playerStates: List.from(_playerStates)..[index] = state,
+      playerStates: [..._playerStates]..[index] = state,
+      actions: _actions,
+      stateConfig: config as MultiplePlayboardConfig,
     );
   }
 
+  MultiplePlayboardState setConfig(int index, PlayboardConfig _config) =>
+      MultiplePlayboardState(
+        boardSize: boardSize,
+        playerCount: playerCount,
+        actions: _actions,
+        playerStates: _playerStates,
+        stateConfig:
+            (config as MultiplePlayboardConfig).changeConfig(index, _config),
+      );
+
   @override
-  List<Object?> get props => [_playerStates];
+  List<Object?> get props => [_playerStates, _actions, config];
 }
 
 class OnlinePlayboardState extends PlayboardState {

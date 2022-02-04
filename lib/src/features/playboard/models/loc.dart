@@ -36,18 +36,22 @@ class Loc extends Equatable {
 
   Loc? up(int size) {
     if (dy > 0 && dy < size) return Loc(dx, dy - 1);
+    return null;
   }
 
   Loc? down(int size) {
     if (dy < size - 1) return Loc(dx, dy + 1);
+    return null;
   }
 
   Loc? left(int size) {
     if (dx > 0 && dx < size) return Loc(dx - 1, dy);
+    return null;
   }
 
   Loc? right(int size) {
     if (dx < size - 1) return Loc(dx + 1, dy);
+    return null;
   }
 
   bool relate(Loc other) {

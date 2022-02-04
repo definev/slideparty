@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:line_icons/line_icon.dart';
 import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
-import 'package:slideparty/src/features/playboard/widgets/keyboard_guide.dart';
+import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
 import 'package:slideparty/src/utils/app_infos/app_infos.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
+import 'package:slideparty_socket/slideparty_socket.dart';
 
 class MultipleModePage extends ConsumerWidget {
   const MultipleModePage({Key? key}) : super(key: key);
@@ -254,24 +256,24 @@ class _MultiplePlayerPage extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: RawKeyboardListener(
-        focusNode: focusNode,
-        autofocus: true,
-        onKey: (event) {
-          if (event is RawKeyDownEvent) {
-            controller.moveByKeyboard(event.logicalKey);
-          }
-        },
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            bool preferVertical = constraints.maxWidth < constraints.maxHeight;
-            return _multiplePlayerView(
+      body: Focus(
+        onKey: (FocusNode node, RawKeyEvent event) => KeyEventResult.handled,
+        child: RawKeyboardListener(
+          focusNode: focusNode,
+          autofocus: true,
+          onKey: (event) {
+            if (event is RawKeyDownEvent) {
+              controller.moveByKeyboard(event.logicalKey);
+            }
+          },
+          child: LayoutBuilder(
+            builder: (context, constraints) => _multiplePlayerView(
               context,
-              preferVertical: preferVertical,
+              preferVertical: constraints.maxWidth < constraints.maxHeight,
               ratio: constraints.biggest.longestSide /
                   constraints.biggest.shortestSide,
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
@@ -288,11 +290,25 @@ class _PlayerPlayboardView extends ConsumerWidget {
   final int playerIndex;
   final double ratio;
 
+  double _playboardSize(BoxConstraints constraints) =>
+      min(constraints.biggest.shortestSide - 32, 425);
+
+  double _textPadding(BoxConstraints constraints) =>
+      3 * (constraints.biggest.longestSide - _playboardSize(constraints)) / 64;
+
+  bool isLargeScreen(BoxConstraints constraints) =>
+      ratio > 1.3 && constraints.biggest.longestSide > 750;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final boardSize = ref.watch(
       playboardControllerProvider.select(
         (value) => (value as MultiplePlayboardState).boardSize,
+      ),
+    );
+    final playerCount = ref.watch(
+      playboardControllerProvider.select(
+        (value) => (value as MultiplePlayboardState).playerCount,
       ),
     );
     final controller = ref.watch(playboardControllerProvider.notifier)
@@ -312,26 +328,35 @@ class _PlayerPlayboardView extends ConsumerWidget {
               child: Scaffold(
                 body: Stack(
                   children: [
-                    if (ratio > 1.3) ...[
+                    if (isLargeScreen(constraints)) ...[
                       Align(
                         alignment: constraints.biggest.aspectRatio > 1
                             ? Alignment.centerLeft
                             : Alignment.topCenter,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            left:
-                                constraints.biggest.longestSide / boardSize / 5,
-                          ),
-                          child: Text(
-                            '${playerIndex + 1}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline1!
-                                .copyWith(
-                                  fontSize: constraints.biggest.longestSide /
-                                      boardSize,
-                                  color: Theme.of(context).colorScheme.surface,
-                                ),
+                        child: SizedBox.square(
+                          dimension: (constraints.biggest.longestSide -
+                                  _playboardSize(constraints)) /
+                              2,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: _textPadding(constraints),
+                              ),
+                              child: Text(
+                                '${playerIndex + 1}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline1!
+                                    .copyWith(
+                                      fontSize:
+                                          (constraints.biggest.longestSide -
+                                                  _playboardSize(constraints)) /
+                                              4,
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                    ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -344,43 +369,101 @@ class _PlayerPlayboardView extends ConsumerWidget {
                               : Alignment.bottomCenter,
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
-                            child: KeyboardGuide(
+                            child: SkillKeyboard(
                               controller.playerControl(playerIndex),
-                              size: constraints.biggest.shortestSide / 8,
+                              index: playerIndex,
+                              playerCount: playerCount,
+                              size: (constraints.biggest.longestSide -
+                                      _playboardSize(constraints) -
+                                      32) /
+                                  8,
                             ),
                           ),
                         ),
                     ],
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: PlayboardView(
-                          boardSize: boardSize,
-                          size: min(constraints.biggest.shortestSide - 32, 425),
-                          playerIndex: playerIndex,
-                          holeWidget: ratio > 1.3
-                              ? null
-                              : Center(
-                                  child: LayoutBuilder(builder: (context, cs) {
-                                    return Container(
-                                      height: cs.maxHeight / 2,
-                                      width: cs.maxHeight / 2,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .surface,
-                                        shape: BoxShape.circle,
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Consumer(builder: (context, ref, _) {
+                        final affectedActions = ref.watch(
+                          playboardControllerProvider.select(
+                            (value) => (value as MultiplePlayboardState)
+                                .currentAction(playerIndex),
+                          ),
+                        );
+                        bool isPause =
+                            affectedActions.contains(SlidepartyActions.pause);
+
+                        return Stack(
+                          children: [
+                            Center(
+                              child: PlayboardView(
+                                boardSize: boardSize,
+                                size: _playboardSize(constraints),
+                                playerIndex: playerIndex,
+                                holeWidget: isLargeScreen(constraints)
+                                    ? null
+                                    : Center(
+                                        child: LayoutBuilder(
+                                          builder: (context, cs) => Container(
+                                            height: cs.maxHeight / 2,
+                                            width: cs.maxHeight / 2,
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surface,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              'P.${playerIndex + 1}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyText2!
+                                                  .copyWith(
+                                                    fontSize: cs.maxHeight / 10,
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                      child: Center(
-                                          child: Text('P.${playerIndex + 1}')),
-                                    );
-                                  }),
+                                onPressed: (number) =>
+                                    controller.move(playerIndex, number),
+                                clipBehavior: Clip.none,
+                              ),
+                            ),
+                            if (isPause)
+                              Center(
+                                child: ColoredBox(
+                                  color: Theme.of(context)
+                                      .scaffoldBackgroundColor
+                                      .withOpacity(0.3),
+                                  child: SizedBox(
+                                    width: _playboardSize(constraints) + 32,
+                                    height: _playboardSize(constraints) + 32,
+                                    child: Center(
+                                      child: DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                          shape: BoxShape.circle,
+                                          boxShadow: const [BoxShadow()],
+                                        ),
+                                        child: SizedBox(
+                                          height: 64,
+                                          width: 64,
+                                          child: Center(
+                                            child: LineIcon.pauseCircleAlt(
+                                                size: 32),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                          onPressed: (number) =>
-                              controller.move(playerIndex, number),
-                          clipBehavior: Clip.none,
-                        ),
-                      ),
+                              ),
+                          ],
+                        );
+                      }),
                     ),
                   ],
                 ),

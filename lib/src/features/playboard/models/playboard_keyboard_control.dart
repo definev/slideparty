@@ -19,6 +19,25 @@ class PlayboardKeyboardControl {
               down != right &&
               left != right,
         );
+
+  T? onKeyDown<T>(
+    LogicalKeyboardKey key, {
+    T Function()? onUp,
+    T Function()? onDown,
+    T Function()? onLeft,
+    T Function()? onRight,
+  }) {
+    if (key == up) {
+      return onUp?.call();
+    } else if (key == down) {
+      return onDown?.call();
+    } else if (key == left) {
+      return onLeft?.call();
+    } else if (key == right) {
+      return onRight?.call();
+    }
+    return null;
+  }
 }
 
 final wasdControl = PlayboardKeyboardControl(

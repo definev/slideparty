@@ -26,4 +26,5 @@ Playboard? defaultMoveByKeyboard(
   if (pressedKey == playboardKeyboardControl.right) {
     return board.moveHole(PlayboardDirection.right);
   }
+  return null;
 }

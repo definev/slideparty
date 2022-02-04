@@ -47,3 +47,4 @@ app.*.map.json
 
 pubspec.lock
 .packages
+/.fvm/flutter_sdk

@@ -185,12 +185,14 @@ class Playboard {
         if (numberLoc != null) return swap(holeLoc, numberLoc);
         break;
     }
+    return null;
   }
 
   Playboard? moveHoleExact(PlayboardDirection direction) {
     final holeLoc = currentLoc(hole);
     final numberLoc = holeLoc.move(size, direction);
     if (numberLoc != null) return swap(holeLoc, numberLoc);
+    return null;
   }
 }
 
@@ -1154,6 +1156,7 @@ extension SolvingPuzzleExt on List<int> {
       swap(holeLoc, numberLoc);
       return this;
     }
+    return null;
   }
 
   List<int>? moveDirection(PlayboardDirection direction) {
@@ -1162,6 +1165,7 @@ extension SolvingPuzzleExt on List<int> {
       swap(holeLoc, numberLoc);
       return this;
     }
+    return null;
   }
 
   List<int> moveDirections(List<PlayboardDirection> directions) {
