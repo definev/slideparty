@@ -76,7 +76,7 @@ class MultiplePlayboardState extends PlayboardState {
 
             return SinglePlayboardState(
               playboard: playboard,
-              bestStep: playboard.autoSolve()?.length ?? 0,
+              bestStep: -1,
               config: singleConfig,
             );
           },
