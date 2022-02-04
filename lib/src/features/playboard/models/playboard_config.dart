@@ -14,12 +14,12 @@ class PlayboardConfig with _$PlayboardConfig {
       MultiplePlayboardConfig;
   const factory PlayboardConfig.online(
       [@Default({
-        PlayerColors.blue: ButtonColors.blue,
-        PlayerColors.red: ButtonColors.red,
-        PlayerColors.yellow: ButtonColors.yellow,
-        PlayerColors.green: ButtonColors.green,
+        PlayerColors.blue: NumberPlayboardConfig(ButtonColors.blue),
+        PlayerColors.red: NumberPlayboardConfig(ButtonColors.red),
+        PlayerColors.yellow: NumberPlayboardConfig(ButtonColors.yellow),
+        PlayerColors.green: NumberPlayboardConfig(ButtonColors.green),
       })
-          Map<PlayerColors, ButtonColors> configs]) = OnlinePlayboardConfig;
+          Map<PlayerColors, PlayboardConfig> configs]) = OnlinePlayboardConfig;
 }
 
 extension EditMultipleConfig on MultiplePlayboardConfig {

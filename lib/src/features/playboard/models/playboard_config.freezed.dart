@@ -36,11 +36,11 @@ class _$PlayboardConfigTearOff {
   }
 
   OnlinePlayboardConfig online(
-      [Map<PlayerColors, ButtonColors> configs = const {
-        PlayerColors.blue: ButtonColors.blue,
-        PlayerColors.red: ButtonColors.red,
-        PlayerColors.yellow: ButtonColors.yellow,
-        PlayerColors.green: ButtonColors.green
+      [Map<PlayerColors, PlayboardConfig> configs = const {
+        PlayerColors.blue: NumberPlayboardConfig(ButtonColors.blue),
+        PlayerColors.red: NumberPlayboardConfig(ButtonColors.red),
+        PlayerColors.yellow: NumberPlayboardConfig(ButtonColors.yellow),
+        PlayerColors.green: NumberPlayboardConfig(ButtonColors.green)
       }]) {
     return OnlinePlayboardConfig(
       configs,
@@ -58,7 +58,8 @@ mixin _$PlayboardConfig {
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, ButtonColors> configs) online,
+    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
+        online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -66,7 +67,7 @@ mixin _$PlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -74,7 +75,7 @@ mixin _$PlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -191,7 +192,8 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, ButtonColors> configs) online,
+    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
+        online,
   }) {
     return blind(color);
   }
@@ -202,7 +204,7 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) {
     return blind?.call(color);
   }
@@ -213,7 +215,7 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) {
     if (blind != null) {
@@ -339,7 +341,8 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, ButtonColors> configs) online,
+    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
+        online,
   }) {
     return number(color);
   }
@@ -350,7 +353,7 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) {
     return number?.call(color);
   }
@@ -361,7 +364,7 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) {
     if (number != null) {
@@ -487,7 +490,8 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, ButtonColors> configs) online,
+    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
+        online,
   }) {
     return multiple(configs);
   }
@@ -498,7 +502,7 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) {
     return multiple?.call(configs);
   }
@@ -509,7 +513,7 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) {
     if (multiple != null) {
@@ -571,7 +575,7 @@ abstract class $OnlinePlayboardConfigCopyWith<$Res> {
   factory $OnlinePlayboardConfigCopyWith(OnlinePlayboardConfig value,
           $Res Function(OnlinePlayboardConfig) then) =
       _$OnlinePlayboardConfigCopyWithImpl<$Res>;
-  $Res call({Map<PlayerColors, ButtonColors> configs});
+  $Res call({Map<PlayerColors, PlayboardConfig> configs});
 }
 
 /// @nodoc
@@ -593,7 +597,7 @@ class _$OnlinePlayboardConfigCopyWithImpl<$Res>
       configs == freezed
           ? _value.configs
           : configs // ignore: cast_nullable_to_non_nullable
-              as Map<PlayerColors, ButtonColors>,
+              as Map<PlayerColors, PlayboardConfig>,
     ));
   }
 }
@@ -603,15 +607,15 @@ class _$OnlinePlayboardConfigCopyWithImpl<$Res>
 class _$OnlinePlayboardConfig implements OnlinePlayboardConfig {
   const _$OnlinePlayboardConfig(
       [this.configs = const {
-        PlayerColors.blue: ButtonColors.blue,
-        PlayerColors.red: ButtonColors.red,
-        PlayerColors.yellow: ButtonColors.yellow,
-        PlayerColors.green: ButtonColors.green
+        PlayerColors.blue: NumberPlayboardConfig(ButtonColors.blue),
+        PlayerColors.red: NumberPlayboardConfig(ButtonColors.red),
+        PlayerColors.yellow: NumberPlayboardConfig(ButtonColors.yellow),
+        PlayerColors.green: NumberPlayboardConfig(ButtonColors.green)
       }]);
 
   @JsonKey()
   @override
-  final Map<PlayerColors, ButtonColors> configs;
+  final Map<PlayerColors, PlayboardConfig> configs;
 
   @override
   String toString() {
@@ -642,7 +646,8 @@ class _$OnlinePlayboardConfig implements OnlinePlayboardConfig {
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, ButtonColors> configs) online,
+    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
+        online,
   }) {
     return online(configs);
   }
@@ -653,7 +658,7 @@ class _$OnlinePlayboardConfig implements OnlinePlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) {
     return online?.call(configs);
   }
@@ -664,7 +669,7 @@ class _$OnlinePlayboardConfig implements OnlinePlayboardConfig {
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, ButtonColors> configs)? online,
+    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) {
     if (online != null) {
@@ -713,9 +718,9 @@ class _$OnlinePlayboardConfig implements OnlinePlayboardConfig {
 
 abstract class OnlinePlayboardConfig implements PlayboardConfig {
   const factory OnlinePlayboardConfig(
-      [Map<PlayerColors, ButtonColors> configs]) = _$OnlinePlayboardConfig;
+      [Map<PlayerColors, PlayboardConfig> configs]) = _$OnlinePlayboardConfig;
 
-  Map<PlayerColors, ButtonColors> get configs;
+  Map<PlayerColors, PlayboardConfig> get configs;
   @JsonKey(ignore: true)
   $OnlinePlayboardConfigCopyWith<OnlinePlayboardConfig> get copyWith =>
       throw _privateConstructorUsedError;
