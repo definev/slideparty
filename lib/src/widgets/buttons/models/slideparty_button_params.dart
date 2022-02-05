@@ -61,6 +61,9 @@ extension ColorSchemeExt on ButtonColors {
 }
 
 extension ThemeBaseOnColor on ButtonColors {
+  ThemeData adaptiveTheme(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light ? lightTheme : darkTheme;
+
   ThemeData get lightTheme => FlexColorScheme.light(
         fontFamily: 'kenvector_future',
         primary: primaryColor,

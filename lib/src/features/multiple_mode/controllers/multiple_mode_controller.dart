@@ -33,6 +33,13 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
   PlayboardSkillKeyboardControl playerControl(int index) =>
       _keyboardControls[index];
 
+  void restart() {
+    state = MultiplePlayboardState(
+      boardSize: state.boardSize,
+      playerCount: state.playerCount,
+    );
+  }
+
   void startGame(int player, int boardSize) {
     switch (player) {
       case 2:

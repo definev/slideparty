@@ -8,11 +8,15 @@ class SlidepartyDialog extends StatelessWidget {
     required this.title,
     required this.content,
     required this.actions,
+    this.height,
+    this.width,
   }) : super(key: key);
 
   final String title;
   final Widget content;
   final List<Widget> actions;
+  final double? height;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +30,8 @@ class SlidepartyDialog extends StatelessWidget {
           color: Theme.of(context).scaffoldBackgroundColor,
         ),
         child: SizedBox(
-          height: 200,
-          width: double.maxFinite,
+          height: height ?? 200,
+          width: width ?? double.maxFinite,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
@@ -39,8 +43,8 @@ class SlidepartyDialog extends StatelessWidget {
                       child: Text(
                     title,
                     style: Theme.of(context).textTheme.headline6!.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                   )),
                   Expanded(child: Center(child: content)),
                   Row(

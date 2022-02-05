@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:line_icons/line_icon.dart';
 import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
+import 'package:slideparty/src/features/multiple_mode/widgets/win_dialog.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
@@ -115,7 +116,20 @@ class MultiplePlayground extends HookConsumerWidget {
     }
   }
 
-  void _showWinningDialog(BuildContext context) {}
+  void _showWinningDialog(
+    BuildContext context,
+    int whoWin,
+    MultipleModeController controller,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => WinDialog(
+        whoWin: whoWin,
+        controller: controller,
+      ),
+      barrierDismissible: false,
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,7 +140,7 @@ class MultiplePlayground extends HookConsumerWidget {
           .select((value) => (value as MultiplePlayboardState).whoWin),
       (_, who) {
         if (who != null) {
-          _showWinningDialog(context);
+          _showWinningDialog(context, who, controller);
         }
       },
     );
@@ -200,6 +214,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
       child: Center(
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final themeData = Theme.of(context);
             return TweenAnimationBuilder<double>(
               duration: const Duration(milliseconds: 500),
               tween: Tween<double>(begin: 0, end: 1),
