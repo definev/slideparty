@@ -107,6 +107,97 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     );
   }
 
+  void pickAction(int index, SlidepartyActions action) {
+    final openSkillState = _read(skillStateProvider(index));
+    final openSkillNotifier = _read(skillStateProvider(index).notifier);
+    if (openSkillState.usedActions[action] == true) return;
+
+    switch (action) {
+      case SlidepartyActions.clear:
+        if (state.currentAction(index).isNotEmpty) {
+          final configs = state.config as MultiplePlayboardConfig;
+          state = state.setActions(
+            index,
+            [],
+            configs.changeConfig(
+              index,
+              NumberPlayboardConfig(ButtonColors.values[index]),
+            ),
+          );
+          openSkillNotifier.state = openSkillState.copyWith(
+            show: false,
+            usedActions: {
+              ...openSkillState.usedActions,
+              SlidepartyActions.clear: true,
+            },
+          );
+          return;
+        }
+        break;
+      default:
+        openSkillNotifier.state = openSkillState.copyWith(queuedAction: action);
+    }
+  }
+
+  void doAction(int index, int target) {
+    _flushAction(index, target);
+    _removeQueuedAction(index, target);
+  }
+
+  void _removeQueuedAction(int index, int target) {
+    final openSkillState = _read(skillStateProvider(index));
+    final openSkillNotifier = _read(skillStateProvider(index).notifier);
+    final queuedAction = openSkillState.queuedAction!;
+
+    state = state.setActions(
+      target,
+      [...state.currentAction(target), queuedAction],
+    );
+    if (queuedAction == SlidepartyActions.blind) {
+      state = state.setConfig(
+        target,
+        BlindPlayboardConfig(
+          (state.config as MultiplePlayboardConfig).configs[target].mapOrNull(
+                blind: (c) => c.color,
+                number: (c) => c.color,
+              )!,
+        ),
+      );
+      Future.delayed(
+        const Duration(seconds: 10),
+        () => state = state.setConfig(
+          target,
+          NumberPlayboardConfig(
+            (state.config as MultiplePlayboardConfig).configs[target].mapOrNull(
+                  blind: (c) => c.color,
+                  number: (c) => c.color,
+                )!,
+          ),
+        ),
+      );
+    }
+    openSkillNotifier.state = openSkillState.copyWith(
+      queuedAction: null,
+      show: false,
+      usedActions: {
+        ...openSkillState.usedActions,
+        queuedAction: true,
+      },
+    );
+  }
+
+  void _flushAction(int index, int target) {
+    final openSkillState = _read(skillStateProvider(index));
+    final queuedAction = openSkillState.queuedAction!;
+
+    Future.delayed(const Duration(seconds: 10), () {
+      state = state.setActions(
+        target,
+        [...state.currentAction(target)]..remove(queuedAction),
+      );
+    });
+  }
+
   bool handleSkillKey(
     PlayboardSkillKeyboardControl control,
     int index,
@@ -114,9 +205,10 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
   ) {
     final openSkillState = _read(skillStateProvider(index));
     final openSkillNotifier = _read(skillStateProvider(index).notifier);
-    final otherPlayersIndex =
-        List.generate(state.playerCount, (index) => index) //
-          ..remove(index);
+    final otherPlayersIndex = [
+      for (int i = 0; i < state.playerCount; i++)
+        if (i == index) i
+    ];
 
     if (openSkillState.show) {
       if (control.activeSkillKey == pressedKey) {
@@ -171,74 +263,21 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
           },
         );
       } else {
-        final queuedAction = openSkillState.queuedAction!;
-        void _removeQueuedAction(int index) {
-          state = state.setActions(
-            index,
-            [...state.currentAction(index), queuedAction],
-          );
-          if (queuedAction == SlidepartyActions.blind) {
-            state = state.setConfig(
-              index,
-              BlindPlayboardConfig(
-                (state.config as MultiplePlayboardConfig)
-                    .configs[index]
-                    .mapOrNull(
-                      blind: (c) => c.color,
-                      number: (c) => c.color,
-                    )!,
-              ),
-            );
-            Future.delayed(
-              const Duration(seconds: 10),
-              () => state = state.setConfig(
-                index,
-                NumberPlayboardConfig(
-                  (state.config as MultiplePlayboardConfig)
-                      .configs[index]
-                      .mapOrNull(
-                        blind: (c) => c.color,
-                        number: (c) => c.color,
-                      )!,
-                ),
-              ),
-            );
-          }
-          openSkillNotifier.state = openSkillState.copyWith(
-            queuedAction: null,
-            show: false,
-            usedActions: {
-              ...openSkillState.usedActions,
-              queuedAction: true,
-            },
-          );
-        }
-
-        void _flushAction(int index) {
-          Future.delayed(const Duration(seconds: 10), () {
-            state = state.setActions(
-              otherPlayersIndex[index],
-              [...state.currentAction(otherPlayersIndex[index])]
-                ..remove(queuedAction),
-            );
-          });
-        }
-
         control.control.onKeyDown(
           pressedKey,
           onLeft: () {
-            _removeQueuedAction(otherPlayersIndex[0]);
-            _flushAction(0);
+            _flushAction(index, otherPlayersIndex[0]);
+            _removeQueuedAction(index, otherPlayersIndex[0]);
           },
           onDown: () {
             if (otherPlayersIndex.length < 2) return;
-            _removeQueuedAction(otherPlayersIndex[1]);
-            _flushAction(1);
+            _flushAction(index, otherPlayersIndex[1]);
+            _removeQueuedAction(index, otherPlayersIndex[1]);
           },
           onRight: () {
             if (otherPlayersIndex.length < 3) return;
-            _removeQueuedAction(otherPlayersIndex[2]);
-            _flushAction(2);
+            _flushAction(index, otherPlayersIndex[2]);
+            _removeQueuedAction(index, otherPlayersIndex[2]);
           },
         );
       }
