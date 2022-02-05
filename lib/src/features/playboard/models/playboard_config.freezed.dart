@@ -17,6 +17,10 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$PlayboardConfigTearOff {
   const _$PlayboardConfigTearOff();
 
+  NonePlayboardConfig none() {
+    return const NonePlayboardConfig();
+  }
+
   BlindPlayboardConfig blind(ButtonColors color) {
     return BlindPlayboardConfig(
       color,
@@ -34,18 +38,6 @@ class _$PlayboardConfigTearOff {
       configs,
     );
   }
-
-  OnlinePlayboardConfig online(
-      [Map<PlayerColors, PlayboardConfig> configs = const {
-        PlayerColors.blue: NumberPlayboardConfig(ButtonColors.blue),
-        PlayerColors.red: NumberPlayboardConfig(ButtonColors.red),
-        PlayerColors.yellow: NumberPlayboardConfig(ButtonColors.yellow),
-        PlayerColors.green: NumberPlayboardConfig(ButtonColors.green)
-      }]) {
-    return OnlinePlayboardConfig(
-      configs,
-    );
-  }
 }
 
 /// @nodoc
@@ -55,52 +47,51 @@ const $PlayboardConfig = _$PlayboardConfigTearOff();
 mixin _$PlayboardConfig {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
-        online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
+    required TResult Function(NonePlayboardConfig value) none,
     required TResult Function(BlindPlayboardConfig value) blind,
     required TResult Function(NumberPlayboardConfig value) number,
     required TResult Function(MultiplePlayboardConfig value) multiple,
-    required TResult Function(OnlinePlayboardConfig value) online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
     TResult Function(BlindPlayboardConfig value)? blind,
     TResult Function(NumberPlayboardConfig value)? number,
     TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
     TResult Function(BlindPlayboardConfig value)? blind,
     TResult Function(NumberPlayboardConfig value)? number,
     TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -121,6 +112,123 @@ class _$PlayboardConfigCopyWithImpl<$Res>
   final PlayboardConfig _value;
   // ignore: unused_field
   final $Res Function(PlayboardConfig) _then;
+}
+
+/// @nodoc
+abstract class $NonePlayboardConfigCopyWith<$Res> {
+  factory $NonePlayboardConfigCopyWith(
+          NonePlayboardConfig value, $Res Function(NonePlayboardConfig) then) =
+      _$NonePlayboardConfigCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$NonePlayboardConfigCopyWithImpl<$Res>
+    extends _$PlayboardConfigCopyWithImpl<$Res>
+    implements $NonePlayboardConfigCopyWith<$Res> {
+  _$NonePlayboardConfigCopyWithImpl(
+      NonePlayboardConfig _value, $Res Function(NonePlayboardConfig) _then)
+      : super(_value, (v) => _then(v as NonePlayboardConfig));
+
+  @override
+  NonePlayboardConfig get _value => super._value as NonePlayboardConfig;
+}
+
+/// @nodoc
+
+class _$NonePlayboardConfig implements NonePlayboardConfig {
+  const _$NonePlayboardConfig();
+
+  @override
+  String toString() {
+    return 'PlayboardConfig.none()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is NonePlayboardConfig);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() none,
+    required TResult Function(ButtonColors color) blind,
+    required TResult Function(ButtonColors color) number,
+    required TResult Function(List<PlayboardConfig> configs) multiple,
+  }) {
+    return none();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? none,
+    TResult Function(ButtonColors color)? blind,
+    TResult Function(ButtonColors color)? number,
+    TResult Function(List<PlayboardConfig> configs)? multiple,
+  }) {
+    return none?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? none,
+    TResult Function(ButtonColors color)? blind,
+    TResult Function(ButtonColors color)? number,
+    TResult Function(List<PlayboardConfig> configs)? multiple,
+    required TResult orElse(),
+  }) {
+    if (none != null) {
+      return none();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(NonePlayboardConfig value) none,
+    required TResult Function(BlindPlayboardConfig value) blind,
+    required TResult Function(NumberPlayboardConfig value) number,
+    required TResult Function(MultiplePlayboardConfig value) multiple,
+  }) {
+    return none(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
+    TResult Function(BlindPlayboardConfig value)? blind,
+    TResult Function(NumberPlayboardConfig value)? number,
+    TResult Function(MultiplePlayboardConfig value)? multiple,
+  }) {
+    return none?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
+    TResult Function(BlindPlayboardConfig value)? blind,
+    TResult Function(NumberPlayboardConfig value)? number,
+    TResult Function(MultiplePlayboardConfig value)? multiple,
+    required TResult orElse(),
+  }) {
+    if (none != null) {
+      return none(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class NonePlayboardConfig implements PlayboardConfig {
+  const factory NonePlayboardConfig() = _$NonePlayboardConfig;
 }
 
 /// @nodoc
@@ -189,11 +297,10 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
-        online,
   }) {
     return blind(color);
   }
@@ -201,10 +308,10 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) {
     return blind?.call(color);
   }
@@ -212,10 +319,10 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) {
     if (blind != null) {
@@ -227,10 +334,10 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
+    required TResult Function(NonePlayboardConfig value) none,
     required TResult Function(BlindPlayboardConfig value) blind,
     required TResult Function(NumberPlayboardConfig value) number,
     required TResult Function(MultiplePlayboardConfig value) multiple,
-    required TResult Function(OnlinePlayboardConfig value) online,
   }) {
     return blind(this);
   }
@@ -238,10 +345,10 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
     TResult Function(BlindPlayboardConfig value)? blind,
     TResult Function(NumberPlayboardConfig value)? number,
     TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
   }) {
     return blind?.call(this);
   }
@@ -249,10 +356,10 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
     TResult Function(BlindPlayboardConfig value)? blind,
     TResult Function(NumberPlayboardConfig value)? number,
     TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
     required TResult orElse(),
   }) {
     if (blind != null) {
@@ -338,11 +445,10 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
-        online,
   }) {
     return number(color);
   }
@@ -350,10 +456,10 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) {
     return number?.call(color);
   }
@@ -361,10 +467,10 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) {
     if (number != null) {
@@ -376,10 +482,10 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
+    required TResult Function(NonePlayboardConfig value) none,
     required TResult Function(BlindPlayboardConfig value) blind,
     required TResult Function(NumberPlayboardConfig value) number,
     required TResult Function(MultiplePlayboardConfig value) multiple,
-    required TResult Function(OnlinePlayboardConfig value) online,
   }) {
     return number(this);
   }
@@ -387,10 +493,10 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
     TResult Function(BlindPlayboardConfig value)? blind,
     TResult Function(NumberPlayboardConfig value)? number,
     TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
   }) {
     return number?.call(this);
   }
@@ -398,10 +504,10 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
     TResult Function(BlindPlayboardConfig value)? blind,
     TResult Function(NumberPlayboardConfig value)? number,
     TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
     required TResult orElse(),
   }) {
     if (number != null) {
@@ -487,11 +593,10 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
     required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
-        online,
   }) {
     return multiple(configs);
   }
@@ -499,10 +604,10 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
   }) {
     return multiple?.call(configs);
   }
@@ -510,10 +615,10 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
     TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
     required TResult orElse(),
   }) {
     if (multiple != null) {
@@ -525,10 +630,10 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
+    required TResult Function(NonePlayboardConfig value) none,
     required TResult Function(BlindPlayboardConfig value) blind,
     required TResult Function(NumberPlayboardConfig value) number,
     required TResult Function(MultiplePlayboardConfig value) multiple,
-    required TResult Function(OnlinePlayboardConfig value) online,
   }) {
     return multiple(this);
   }
@@ -536,10 +641,10 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
     TResult Function(BlindPlayboardConfig value)? blind,
     TResult Function(NumberPlayboardConfig value)? number,
     TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
   }) {
     return multiple?.call(this);
   }
@@ -547,10 +652,10 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
+    TResult Function(NonePlayboardConfig value)? none,
     TResult Function(BlindPlayboardConfig value)? blind,
     TResult Function(NumberPlayboardConfig value)? number,
     TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
     required TResult orElse(),
   }) {
     if (multiple != null) {
@@ -567,161 +672,5 @@ abstract class MultiplePlayboardConfig implements PlayboardConfig {
   List<PlayboardConfig> get configs;
   @JsonKey(ignore: true)
   $MultiplePlayboardConfigCopyWith<MultiplePlayboardConfig> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $OnlinePlayboardConfigCopyWith<$Res> {
-  factory $OnlinePlayboardConfigCopyWith(OnlinePlayboardConfig value,
-          $Res Function(OnlinePlayboardConfig) then) =
-      _$OnlinePlayboardConfigCopyWithImpl<$Res>;
-  $Res call({Map<PlayerColors, PlayboardConfig> configs});
-}
-
-/// @nodoc
-class _$OnlinePlayboardConfigCopyWithImpl<$Res>
-    extends _$PlayboardConfigCopyWithImpl<$Res>
-    implements $OnlinePlayboardConfigCopyWith<$Res> {
-  _$OnlinePlayboardConfigCopyWithImpl(
-      OnlinePlayboardConfig _value, $Res Function(OnlinePlayboardConfig) _then)
-      : super(_value, (v) => _then(v as OnlinePlayboardConfig));
-
-  @override
-  OnlinePlayboardConfig get _value => super._value as OnlinePlayboardConfig;
-
-  @override
-  $Res call({
-    Object? configs = freezed,
-  }) {
-    return _then(OnlinePlayboardConfig(
-      configs == freezed
-          ? _value.configs
-          : configs // ignore: cast_nullable_to_non_nullable
-              as Map<PlayerColors, PlayboardConfig>,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$OnlinePlayboardConfig implements OnlinePlayboardConfig {
-  const _$OnlinePlayboardConfig(
-      [this.configs = const {
-        PlayerColors.blue: NumberPlayboardConfig(ButtonColors.blue),
-        PlayerColors.red: NumberPlayboardConfig(ButtonColors.red),
-        PlayerColors.yellow: NumberPlayboardConfig(ButtonColors.yellow),
-        PlayerColors.green: NumberPlayboardConfig(ButtonColors.green)
-      }]);
-
-  @JsonKey()
-  @override
-  final Map<PlayerColors, PlayboardConfig> configs;
-
-  @override
-  String toString() {
-    return 'PlayboardConfig.online(configs: $configs)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is OnlinePlayboardConfig &&
-            const DeepCollectionEquality().equals(other.configs, configs));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(configs));
-
-  @JsonKey(ignore: true)
-  @override
-  $OnlinePlayboardConfigCopyWith<OnlinePlayboardConfig> get copyWith =>
-      _$OnlinePlayboardConfigCopyWithImpl<OnlinePlayboardConfig>(
-          this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(ButtonColors color) blind,
-    required TResult Function(ButtonColors color) number,
-    required TResult Function(List<PlayboardConfig> configs) multiple,
-    required TResult Function(Map<PlayerColors, PlayboardConfig> configs)
-        online,
-  }) {
-    return online(configs);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ButtonColors color)? blind,
-    TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
-  }) {
-    return online?.call(configs);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(ButtonColors color)? blind,
-    TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
-    TResult Function(Map<PlayerColors, PlayboardConfig> configs)? online,
-    required TResult orElse(),
-  }) {
-    if (online != null) {
-      return online(configs);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(BlindPlayboardConfig value) blind,
-    required TResult Function(NumberPlayboardConfig value) number,
-    required TResult Function(MultiplePlayboardConfig value) multiple,
-    required TResult Function(OnlinePlayboardConfig value) online,
-  }) {
-    return online(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(BlindPlayboardConfig value)? blind,
-    TResult Function(NumberPlayboardConfig value)? number,
-    TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
-  }) {
-    return online?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(BlindPlayboardConfig value)? blind,
-    TResult Function(NumberPlayboardConfig value)? number,
-    TResult Function(MultiplePlayboardConfig value)? multiple,
-    TResult Function(OnlinePlayboardConfig value)? online,
-    required TResult orElse(),
-  }) {
-    if (online != null) {
-      return online(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class OnlinePlayboardConfig implements PlayboardConfig {
-  const factory OnlinePlayboardConfig(
-      [Map<PlayerColors, PlayboardConfig> configs]) = _$OnlinePlayboardConfig;
-
-  Map<PlayerColors, PlayboardConfig> get configs;
-  @JsonKey(ignore: true)
-  $OnlinePlayboardConfigCopyWith<OnlinePlayboardConfig> get copyWith =>
       throw _privateConstructorUsedError;
 }

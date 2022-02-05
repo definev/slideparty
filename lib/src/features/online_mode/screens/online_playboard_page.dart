@@ -4,10 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
-import 'package:slideparty/src/utils/display_party_types.dart';
-
-import 'display_modes/online_playboard.dart';
-
 class OnlinePlayboardPage extends ConsumerWidget {
   const OnlinePlayboardPage({Key? key}) : super(key: key);
 
@@ -35,26 +31,11 @@ class OnlinePlayboardPage extends ConsumerWidget {
           ),
           roomData: (data) => LayoutBuilder(
             builder: (context, constraints) {
-              if (constraints.biggest.shortestSide < 450) {
-                controller.changeDisplayMode(DisplayModes.bubbles);
-              }
+              if (constraints.biggest.shortestSide < 450) {}
 
               return Consumer(
                 builder: (context, ref, child) {
-                  final displayMode = ref.watch(
-                    playboardControllerProvider.select(
-                        (value) => (value as OnlinePlayboardState).displayMode),
-                  );
-                  switch (displayMode) {
-                    case DisplayModes.bubbles:
-                      return const OnlineBubblesPlayboard();
-                    case DisplayModes.grid:
-                      return const OnlineGridPlayboard();
-                    case DisplayModes.column:
-                      return const OnlineColumnPlayboard();
-                    case DisplayModes.row:
-                      return const OnlineRowPlayboard();
-                  }
+                  return const SizedBox();
                 },
               );
             },

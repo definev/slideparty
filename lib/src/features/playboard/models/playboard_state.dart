@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
-import 'package:slideparty/src/utils/display_party_types.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
 import 'package:dartx/dartx.dart';
@@ -150,31 +149,23 @@ class OnlinePlayboardState extends PlayboardState {
   const OnlinePlayboardState({
     required this.playerId,
     required this.state,
-    this.displayMode = DisplayModes.bubbles,
-  }) : super(config: const OnlinePlayboardConfig());
+  }) : super(config: const NonePlayboardConfig());
 
   final String playerId;
   final ServerState state;
-  final DisplayModes displayMode;
 
   OnlinePlayboardState initPlayerId(String playerId) => OnlinePlayboardState(
         playerId: playerId,
         state: state,
-        displayMode: displayMode,
       );
 
-  OnlinePlayboardState copyWith({
-    ServerState? state,
-    DisplayModes? displayMode,
-  }) =>
-      OnlinePlayboardState(
+  OnlinePlayboardState copyWith({ServerState? state}) => OnlinePlayboardState(
         playerId: playerId,
         state: state ?? this.state,
-        displayMode: displayMode ?? this.displayMode,
       );
 
   @override
-  List<Object?> get props => [playerId, state, displayMode];
+  List<Object?> get props => [playerId, state];
 }
 
 extension OnlinePlayboardExt on OnlinePlayboardState {

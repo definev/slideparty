@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
-import 'package:slideparty/src/utils/display_party_types.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
 
 final onlinePlayboardControlllerProvider = StateNotifierProvider.autoDispose
@@ -45,11 +44,6 @@ class OnlinePlayboardController
     super.dispose();
   }
 
-  void changeDisplayMode(DisplayModes displayMode) {
-    if (state.displayMode != displayMode) {
-      state = state.copyWith(displayMode: displayMode);
-    }
-  }
 
   void move(int index) {
     final player = (state.state as RoomData).players[state.playerId]!;

@@ -62,60 +62,43 @@ class MultiplePlayground extends HookConsumerWidget {
     required bool preferVertical,
     required double ratio,
   }) {
-    switch (playerCount) {
-      case 2:
-        final children = List.generate(
-          playerCount,
-          (index) => Expanded(
-            child: _PlayerPlayboardView(
-              playerIndex: index,
-              ratio: ratio,
-            ),
-          ),
-        );
-        return Flex(
-          direction: preferVertical ? Axis.vertical : Axis.horizontal,
-          children: children,
-        );
-      default:
-        return Flex(
-          direction: preferVertical ? Axis.vertical : Axis.horizontal,
-          children: List.generate(
-              axisLength,
-              (index) => Flexible(
-                    flex: _flexSpace(index, ratio),
-                    child: Flex(
-                      direction: _getDirectionOfParent(
-                        index,
-                        preferVertical: preferVertical,
-                        ratio: ratio,
-                      ),
-                      children: [
-                        Expanded(
-                          child: Flex(
-                            direction: _getDirectionOfChild(
-                              index,
-                              preferVertical: preferVertical,
+    return Flex(
+      direction: preferVertical ? Axis.vertical : Axis.horizontal,
+      children: List.generate(
+          axisLength,
+          (index) => Flexible(
+                flex: _flexSpace(index, ratio),
+                child: Flex(
+                  direction: _getDirectionOfParent(
+                    index,
+                    preferVertical: preferVertical,
+                    ratio: ratio,
+                  ),
+                  children: [
+                    Expanded(
+                      child: Flex(
+                        direction: _getDirectionOfChild(
+                          index,
+                          preferVertical: preferVertical,
+                          ratio: ratio,
+                        ),
+                        children: List.generate(
+                          playerCount % 2 == 1 && index == axisLength - 1
+                              ? 1
+                              : 2,
+                          (colorIndex) => Expanded(
+                            child: _PlayerPlayboardView(
+                              playerIndex: index * 2 + colorIndex,
                               ratio: ratio,
-                            ),
-                            children: List.generate(
-                              playerCount % 2 == 1 && index == axisLength - 1
-                                  ? 1
-                                  : 2,
-                              (colorIndex) => Expanded(
-                                child: _PlayerPlayboardView(
-                                  playerIndex: index * 2 + colorIndex,
-                                  ratio: ratio,
-                                ),
-                              ),
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  )),
-        );
-    }
+                  ],
+                ),
+              )),
+    );
   }
 
   void _showWinningDialog(

@@ -196,39 +196,6 @@ class PlayboardView extends HookConsumerWidget {
         ),
       );
     }
-    if (config is OnlinePlayboardConfig) {
-      return Transform.scale(
-        scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
-        child: Opacity(
-          opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
-          child: Consumer(
-            builder: (context, ref, child) {
-              final oConfig =
-                  ref.watch(playboardControllerProvider.select((value) {
-                value = value as OnlinePlayboardState;
-                return config.configs[
-                    (value.state as RoomData).players[playerId]!.color]!;
-              }));
-              return NumberTile(
-                key: ValueKey('number-tile-${loc.index(boardSize)}'),
-                index: index,
-                boardSize: boardSize,
-                playboardSize: size,
-                color: oConfig.mapOrNull(
-                  blind: (c) => c.color,
-                  number: (c) => c.color,
-                )!,
-                onPressed: onPressed,
-                child: oConfig.mapOrNull(
-                  blind: (c) => const SizedBox(),
-                  number: (c) => Text('${index + 1}'),
-                )!,
-              );
-            },
-          ),
-        ),
-      );
-    }
 
     if (config is MultiplePlayboardConfig) {
       final tileConfig = config.configs[playerIndex!];
