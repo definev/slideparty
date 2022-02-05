@@ -153,6 +153,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
                 ),
               );
               openSkillNotifier.state = openSkillState.copyWith(
+                show: false,
                 usedActions: {
                   ...openSkillState.usedActions,
                   SlidepartyActions.clear: true,
