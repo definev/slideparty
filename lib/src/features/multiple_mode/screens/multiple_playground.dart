@@ -339,12 +339,22 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                     skillStateProvider(playerIndex)
                                         .select((value) => value.show),
                                   );
-                                  if (!show) return const SizedBox();
+
                                   return Center(
-                                    child: SmallSkillMenu(
-                                      size: _playboardSize(constraints) + 32,
-                                      playerIndex: playerIndex,
-                                      playerCount: playerCount,
+                                    child: IgnorePointer(
+                                      ignoring: !show,
+                                      child: AnimatedOpacity(
+                                        duration:
+                                            const Duration(milliseconds: 100),
+                                        curve: Curves.easeInOutCubic,
+                                        opacity: show ? 1 : 0,
+                                        child: SmallSkillMenu(
+                                          size:
+                                              _playboardSize(constraints) + 32,
+                                          playerIndex: playerIndex,
+                                          playerCount: playerCount,
+                                        ),
+                                      ),
                                     ),
                                   );
                                 },
@@ -475,6 +485,7 @@ class SmallSkillMenu extends HookConsumerWidget {
           show: false,
           queuedAction: null,
         );
+        pickedPlayer.value = null;
       },
       child: ColoredBox(
         color: themeData.scaffoldBackgroundColor.withOpacity(0.3),
@@ -544,6 +555,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                 customSize: const Size(49 * 3 + 16, 49),
                 onPressed: () {
                   controller.doAction(playerIndex, pickedPlayer.value!);
+                  pickedPlayer.value = null;
                 },
                 child: const Text('Apply skill'),
               ),

@@ -207,7 +207,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     final openSkillNotifier = _read(skillStateProvider(index).notifier);
     final otherPlayersIndex = [
       for (int i = 0; i < state.playerCount; i++)
-        if (i == index) i
+        if (i != index) i
     ];
 
     if (openSkillState.show) {
