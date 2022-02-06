@@ -247,66 +247,72 @@ class _PlayerPlayboardView extends ConsumerWidget {
                               controller.playerControl(playerIndex),
                               index: playerIndex,
                               playerCount: playerCount,
-                              size: (constraints.biggest.longestSide -
-                                      _playboardSize(constraints) -
-                                      32) /
-                                  8,
+                              size: min(
+                                (constraints.biggest.longestSide -
+                                        _playboardSize(constraints) -
+                                        32) /
+                                    8,
+                                constraints.biggest.shortestSide / 6,
+                              ),
                             ),
                           ),
                         ),
                     ],
                     Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Consumer(builder: (context, ref, _) {
-                        final affectedActions = ref.watch(
-                          playboardControllerProvider.select(
-                            (value) => (value as MultiplePlayboardState)
-                                .currentAction(playerIndex),
-                          ),
-                        );
-                        bool isPause =
-                            affectedActions.contains(SlidepartyActions.pause);
-
-                        return Stack(
-                          children: [
-                            Center(
-                              child: PlayboardView(
-                                boardSize: boardSize,
-                                size: _playboardSize(constraints),
-                                playerIndex: playerIndex,
-                                holeWidget: !isLargeScreen(constraints) ||
-                                        AppInfos.screenType ==
-                                            ScreenTypes.touchscreen
-                                    ? _holeMenu(themeData)
-                                    : null,
-                                onPressed: (number) =>
-                                    controller.move(playerIndex, number),
-                                clipBehavior: Clip.none,
-                              ),
+                      child: Consumer(
+                        builder: (context, ref, _) {
+                          final affectedActions = ref.watch(
+                            playboardControllerProvider.select(
+                              (value) => (value as MultiplePlayboardState)
+                                  .currentAction(playerIndex),
                             ),
-                            if (isPause)
+                          );
+                          bool isPause =
+                              affectedActions.contains(SlidepartyActions.pause);
+
+                          return Stack(
+                            children: [
                               Center(
-                                child: IgnorePointer(
-                                  child: ColoredBox(
-                                    color: themeData.scaffoldBackgroundColor
-                                        .withOpacity(0.3),
-                                    child: SizedBox(
-                                      width: _playboardSize(constraints) + 32,
-                                      height: _playboardSize(constraints) + 32,
-                                      child: Center(
-                                        child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            color: themeData
-                                                .scaffoldBackgroundColor,
-                                            shape: BoxShape.circle,
-                                            boxShadow: const [BoxShadow()],
-                                          ),
-                                          child: SizedBox(
-                                            height: 64,
-                                            width: 64,
-                                            child: Center(
-                                              child: LineIcon.pauseCircleAlt(
-                                                  size: 32),
+                                child: PlayboardView(
+                                  boardSize: boardSize,
+                                  size: _playboardSize(constraints),
+                                  playerIndex: playerIndex,
+                                  holeWidget: !isLargeScreen(constraints) ||
+                                          AppInfos.screenType ==
+                                              ScreenTypes.touchscreen
+                                      ? HoleMenu(playerIndex: playerIndex)
+                                      : null,
+                                  onPressed: (number) =>
+                                      controller.move(playerIndex, number),
+                                  clipBehavior: Clip.none,
+                                ),
+                              ),
+                              if (isPause)
+                                Center(
+                                  child: IgnorePointer(
+                                    child: ColoredBox(
+                                      color: themeData.scaffoldBackgroundColor
+                                          .withOpacity(0.3),
+                                      child: SizedBox(
+                                        width: _playboardSize(constraints) + 32,
+                                        height:
+                                            _playboardSize(constraints) + 32,
+                                        child: Center(
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              color: themeData
+                                                  .scaffoldBackgroundColor,
+                                              shape: BoxShape.circle,
+                                              boxShadow: const [BoxShadow()],
+                                            ),
+                                            child: SizedBox(
+                                              height: 64,
+                                              width: 64,
+                                              child: Center(
+                                                child: LineIcon.pauseCircleAlt(
+                                                    size: 32),
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -314,37 +320,37 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                     ),
                                   ),
                                 ),
-                              ),
-                            if (!isLargeScreen(constraints))
-                              Consumer(
-                                builder: (context, ref, child) {
-                                  final show = ref.watch(
-                                    skillStateProvider(playerIndex)
-                                        .select((value) => value.show),
-                                  );
+                              if (!isLargeScreen(constraints))
+                                Consumer(
+                                  builder: (context, ref, child) {
+                                    final show = ref.watch(
+                                      skillStateProvider(playerIndex)
+                                          .select((value) => value.show),
+                                    );
 
-                                  return Center(
-                                    child: IgnorePointer(
-                                      ignoring: !show,
-                                      child: AnimatedOpacity(
-                                        duration:
-                                            const Duration(milliseconds: 100),
-                                        curve: Curves.easeInOutCubic,
-                                        opacity: show ? 1 : 0,
-                                        child: SmallSkillMenu(
-                                          size:
-                                              _playboardSize(constraints) + 32,
-                                          playerIndex: playerIndex,
-                                          playerCount: playerCount,
+                                    return Center(
+                                      child: IgnorePointer(
+                                        ignoring: !show,
+                                        child: AnimatedOpacity(
+                                          duration:
+                                              const Duration(milliseconds: 100),
+                                          curve: Curves.easeInOutCubic,
+                                          opacity: show ? 1 : 0,
+                                          child: SmallSkillMenu(
+                                            size: _playboardSize(constraints) +
+                                                32,
+                                            playerIndex: playerIndex,
+                                            playerCount: playerCount,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              ),
-                          ],
-                        );
-                      }),
+                                    );
+                                  },
+                                ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -383,8 +389,18 @@ class _PlayerPlayboardView extends ConsumerWidget {
     }
     return view;
   }
+}
 
-  Widget _holeMenu(ThemeData themeData) {
+class HoleMenu extends StatelessWidget {
+  const HoleMenu({
+    Key? key,
+    required this.playerIndex,
+  }) : super(key: key);
+
+  final int playerIndex;
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: LayoutBuilder(
         builder: (context, cs) => Consumer(
@@ -402,13 +418,13 @@ class _PlayerPlayboardView extends ConsumerWidget {
             height: cs.maxHeight / 2,
             width: cs.maxHeight / 2,
             decoration: BoxDecoration(
-              color: themeData.colorScheme.surface,
+              color: Theme.of(context).colorScheme.surface,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 'P.${playerIndex + 1}',
-                style: themeData.textTheme.bodyText2!.copyWith(
+                style: Theme.of(context).textTheme.bodyText2!.copyWith(
                   fontSize: cs.maxHeight / 10,
                 ),
               ),
@@ -473,8 +489,8 @@ class SmallSkillMenu extends HookConsumerWidget {
       child: ColoredBox(
         color: themeData.scaffoldBackgroundColor.withOpacity(0.3),
         child: SizedBox(
-          height: size,
-          width: size,
+          height: double.maxFinite,
+          width: double.maxFinite,
           child: SeparatedColumn(
             separatorBuilder: () => const SizedBox(height: 16),
             mainAxisAlignment: MainAxisAlignment.center,

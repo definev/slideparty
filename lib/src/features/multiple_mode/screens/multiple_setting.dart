@@ -25,7 +25,7 @@ class MultipleSetting extends HookConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 425),
+            constraints: const BoxConstraints(maxWidth: 300),
             child: LayoutBuilder(builder: (context, constraints) {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,

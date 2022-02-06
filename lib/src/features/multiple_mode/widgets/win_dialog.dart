@@ -27,7 +27,7 @@ class WinDialog extends StatelessWidget {
             width: 313,
             title: 'Winner !!!',
             content: Text(
-              'Player $whoWin solved the puzzle!',
+              'Player ${whoWin + 1} solved the puzzle!',
               textAlign: TextAlign.center,
             ),
             actions: [

@@ -23,7 +23,7 @@ class OnlineModePage extends HookConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 425),
+            constraints: const BoxConstraints(maxWidth: 300),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
