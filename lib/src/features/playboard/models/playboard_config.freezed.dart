@@ -33,7 +33,7 @@ class _$PlayboardConfigTearOff {
     );
   }
 
-  MultiplePlayboardConfig multiple(List<PlayboardConfig> configs) {
+  MultiplePlayboardConfig multiple(Map<String, PlayboardConfig> configs) {
     return MultiplePlayboardConfig(
       configs,
     );
@@ -50,7 +50,7 @@ mixin _$PlayboardConfig {
     required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
-    required TResult Function(List<PlayboardConfig> configs) multiple,
+    required TResult Function(Map<String, PlayboardConfig> configs) multiple,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -58,7 +58,7 @@ mixin _$PlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -66,7 +66,7 @@ mixin _$PlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -158,7 +158,7 @@ class _$NonePlayboardConfig implements NonePlayboardConfig {
     required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
-    required TResult Function(List<PlayboardConfig> configs) multiple,
+    required TResult Function(Map<String, PlayboardConfig> configs) multiple,
   }) {
     return none();
   }
@@ -169,7 +169,7 @@ class _$NonePlayboardConfig implements NonePlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
   }) {
     return none?.call();
   }
@@ -180,7 +180,7 @@ class _$NonePlayboardConfig implements NonePlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
     required TResult orElse(),
   }) {
     if (none != null) {
@@ -300,7 +300,7 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
     required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
-    required TResult Function(List<PlayboardConfig> configs) multiple,
+    required TResult Function(Map<String, PlayboardConfig> configs) multiple,
   }) {
     return blind(color);
   }
@@ -311,7 +311,7 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
   }) {
     return blind?.call(color);
   }
@@ -322,7 +322,7 @@ class _$BlindPlayboardConfig implements BlindPlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
     required TResult orElse(),
   }) {
     if (blind != null) {
@@ -448,7 +448,7 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
     required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
-    required TResult Function(List<PlayboardConfig> configs) multiple,
+    required TResult Function(Map<String, PlayboardConfig> configs) multiple,
   }) {
     return number(color);
   }
@@ -459,7 +459,7 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
   }) {
     return number?.call(color);
   }
@@ -470,7 +470,7 @@ class _$NumberPlayboardConfig implements NumberPlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
     required TResult orElse(),
   }) {
     if (number != null) {
@@ -532,7 +532,7 @@ abstract class $MultiplePlayboardConfigCopyWith<$Res> {
   factory $MultiplePlayboardConfigCopyWith(MultiplePlayboardConfig value,
           $Res Function(MultiplePlayboardConfig) then) =
       _$MultiplePlayboardConfigCopyWithImpl<$Res>;
-  $Res call({List<PlayboardConfig> configs});
+  $Res call({Map<String, PlayboardConfig> configs});
 }
 
 /// @nodoc
@@ -554,7 +554,7 @@ class _$MultiplePlayboardConfigCopyWithImpl<$Res>
       configs == freezed
           ? _value.configs
           : configs // ignore: cast_nullable_to_non_nullable
-              as List<PlayboardConfig>,
+              as Map<String, PlayboardConfig>,
     ));
   }
 }
@@ -565,7 +565,7 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
   const _$MultiplePlayboardConfig(this.configs);
 
   @override
-  final List<PlayboardConfig> configs;
+  final Map<String, PlayboardConfig> configs;
 
   @override
   String toString() {
@@ -596,7 +596,7 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
     required TResult Function() none,
     required TResult Function(ButtonColors color) blind,
     required TResult Function(ButtonColors color) number,
-    required TResult Function(List<PlayboardConfig> configs) multiple,
+    required TResult Function(Map<String, PlayboardConfig> configs) multiple,
   }) {
     return multiple(configs);
   }
@@ -607,7 +607,7 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
   }) {
     return multiple?.call(configs);
   }
@@ -618,7 +618,7 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
     TResult Function()? none,
     TResult Function(ButtonColors color)? blind,
     TResult Function(ButtonColors color)? number,
-    TResult Function(List<PlayboardConfig> configs)? multiple,
+    TResult Function(Map<String, PlayboardConfig> configs)? multiple,
     required TResult orElse(),
   }) {
     if (multiple != null) {
@@ -666,10 +666,10 @@ class _$MultiplePlayboardConfig implements MultiplePlayboardConfig {
 }
 
 abstract class MultiplePlayboardConfig implements PlayboardConfig {
-  const factory MultiplePlayboardConfig(List<PlayboardConfig> configs) =
+  const factory MultiplePlayboardConfig(Map<String, PlayboardConfig> configs) =
       _$MultiplePlayboardConfig;
 
-  List<PlayboardConfig> get configs;
+  Map<String, PlayboardConfig> get configs;
   @JsonKey(ignore: true)
   $MultiplePlayboardConfigCopyWith<MultiplePlayboardConfig> get copyWith =>
       throw _privateConstructorUsedError;

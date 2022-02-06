@@ -198,7 +198,7 @@ class PlayboardView extends HookConsumerWidget {
     }
 
     if (config is MultiplePlayboardConfig) {
-      final tileConfig = config.configs[playerIndex!];
+      final tileConfig = config.configs[playerIndex!.toString()]!;
 
       return NumberTile(
         key: ValueKey('number-tile-${loc.index(boardSize)}'),

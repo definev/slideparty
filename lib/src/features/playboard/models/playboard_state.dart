@@ -70,13 +70,13 @@ class MultiplePlayboardState extends PlayboardState {
           playerCount,
           (index) {
             final singleConfig =
-                (config as MultiplePlayboardConfig).configs[index];
+                (config as MultiplePlayboardConfig).configs[index.toString()];
             final playboard = Playboard.random(boardSize);
 
             return SinglePlayboardState(
               playboard: playboard,
               bestStep: -1,
-              config: singleConfig,
+              config: singleConfig!,
             );
           },
         );
@@ -84,12 +84,12 @@ class MultiplePlayboardState extends PlayboardState {
   }
 
   static const defaultConfig = MultiplePlayboardConfig(
-    [
-      NumberPlayboardConfig(ButtonColors.blue),
-      NumberPlayboardConfig(ButtonColors.green),
-      NumberPlayboardConfig(ButtonColors.red),
-      NumberPlayboardConfig(ButtonColors.yellow),
-    ],
+    {
+      '0': NumberPlayboardConfig(ButtonColors.blue),
+      '1': NumberPlayboardConfig(ButtonColors.green),
+      '2': NumberPlayboardConfig(ButtonColors.red),
+      '3': NumberPlayboardConfig(ButtonColors.yellow),
+    },
   );
 
   final int boardSize;
@@ -137,8 +137,10 @@ class MultiplePlayboardState extends PlayboardState {
         playerCount: playerCount,
         actions: _actions,
         playerStates: _playerStates,
-        stateConfig:
-            (config as MultiplePlayboardConfig).changeConfig(index, _config),
+        stateConfig: (config as MultiplePlayboardConfig).changeConfig(
+          index.toString(),
+          _config,
+        ),
       );
 
   @override
@@ -153,6 +155,18 @@ class OnlinePlayboardState extends PlayboardState {
 
   final String playerId;
   final ServerState state;
+  MultiplePlayboardState? get multiplePlayboardState {
+    return state.mapOrNull(
+      roomData: (roomData) {
+        final playerCount = roomData.players.length;
+
+        return MultiplePlayboardState(
+          boardSize: boardSize,
+          playerCount: playerCount,
+        );
+      },
+    );
+  }
 
   OnlinePlayboardState initPlayerId(String playerId) => OnlinePlayboardState(
         playerId: playerId,

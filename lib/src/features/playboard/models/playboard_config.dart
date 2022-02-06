@@ -10,13 +10,11 @@ class PlayboardConfig with _$PlayboardConfig {
       BlindPlayboardConfig;
   const factory PlayboardConfig.number(ButtonColors color) =
       NumberPlayboardConfig;
-  const factory PlayboardConfig.multiple(List<PlayboardConfig> configs) =
+  const factory PlayboardConfig.multiple(Map<String, PlayboardConfig> configs) =
       MultiplePlayboardConfig;
 }
 
 extension EditMultipleConfig on MultiplePlayboardConfig {
-  MultiplePlayboardConfig changeConfig(int index, PlayboardConfig config) =>
-      MultiplePlayboardConfig(
-        [...configs]..[index] = config,
-      );
+  MultiplePlayboardConfig changeConfig(String id, PlayboardConfig config) =>
+      MultiplePlayboardConfig({...configs}..[id] = config);
 }

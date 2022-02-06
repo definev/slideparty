@@ -120,7 +120,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
             index,
             [],
             configs.changeConfig(
-              index,
+              index.toString(),
               NumberPlayboardConfig(ButtonColors.values[index]),
             ),
           );
@@ -157,7 +157,9 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
       state = state.setConfig(
         target,
         BlindPlayboardConfig(
-          (state.config as MultiplePlayboardConfig).configs[target].mapOrNull(
+          (state.config as MultiplePlayboardConfig)
+              .configs[target.toString()]!
+              .mapOrNull(
                 blind: (c) => c.color,
                 number: (c) => c.color,
               )!,
@@ -168,7 +170,9 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
         () => state = state.setConfig(
           target,
           NumberPlayboardConfig(
-            (state.config as MultiplePlayboardConfig).configs[target].mapOrNull(
+            (state.config as MultiplePlayboardConfig)
+                .configs[target.toString()]!
+                .mapOrNull(
                   blind: (c) => c.color,
                   number: (c) => c.color,
                 )!,
@@ -247,7 +251,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
                 index,
                 [],
                 configs.changeConfig(
-                  index,
+                  index.toString(),
                   NumberPlayboardConfig(ButtonColors.values[index]),
                 ),
               );
