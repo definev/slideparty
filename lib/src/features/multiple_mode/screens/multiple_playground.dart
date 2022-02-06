@@ -35,33 +35,52 @@ class MultiplePlayground extends HookConsumerWidget {
     }
   }
 
-  Axis _getDirectionOfParent(
-    int index, {
-    required bool preferVertical,
-    required double ratio,
-  }) {
-    return preferVertical ? Axis.horizontal : Axis.vertical;
-  }
+  Axis _getDirectionOfParent(int index, {required bool preferVertical}) =>
+      preferVertical ? Axis.horizontal : Axis.vertical;
 
   Axis _getDirectionOfChild(
     int index, {
+    required BoxConstraints constraints,
     required bool preferVertical,
-    required double ratio,
   }) {
     if (preferVertical) {
-      if (ratio > 1.3) return Axis.vertical;
-      return Axis.horizontal;
-    } else {
-      if (ratio > 1.3) return Axis.horizontal;
+      if (constraints.biggest.shortestSide > 600) {
+        final ratio = constraints.maxHeight / constraints.maxWidth;
+        if (ratio > 1.3) {
+          return Axis.vertical;
+        } else {
+          return Axis.horizontal;
+        }
+      }
+      if (constraints.biggest.height / playerCount <
+          constraints.biggest.width / 2) {
+        return Axis.horizontal;
+      }
       return Axis.vertical;
+    } else {
+      if (constraints.maxHeight > 600) {
+        final ratio = constraints.maxWidth / constraints.maxHeight;
+        if (ratio > 1.3) {
+          return Axis.horizontal;
+        } else {
+          return Axis.vertical;
+        }
+      }
+      if (constraints.biggest.width / playerCount <
+          constraints.biggest.height / 2) {
+        return Axis.vertical;
+      }
+      return Axis.horizontal;
     }
   }
 
   Widget _multiplePlayerView(
     BuildContext context, {
     required bool preferVertical,
-    required double ratio,
+    required BoxConstraints constraints,
   }) {
+    final ratio =
+        constraints.biggest.longestSide / constraints.biggest.shortestSide;
     return Flex(
       direction: preferVertical ? Axis.vertical : Axis.horizontal,
       children: List.generate(
@@ -72,15 +91,14 @@ class MultiplePlayground extends HookConsumerWidget {
                   direction: _getDirectionOfParent(
                     index,
                     preferVertical: preferVertical,
-                    ratio: ratio,
                   ),
                   children: [
                     Expanded(
                       child: Flex(
                         direction: _getDirectionOfChild(
                           index,
+                          constraints: constraints,
                           preferVertical: preferVertical,
-                          ratio: ratio,
                         ),
                         children: List.generate(
                           playerCount % 2 == 1 && index == axisLength - 1
@@ -147,8 +165,7 @@ class MultiplePlayground extends HookConsumerWidget {
             builder: (context, constraints) => _multiplePlayerView(
               context,
               preferVertical: constraints.maxWidth < constraints.maxHeight,
-              ratio: constraints.biggest.longestSide /
-                  constraints.biggest.shortestSide,
+              constraints: constraints,
             ),
           ),
         ),
@@ -425,8 +442,8 @@ class HoleMenu extends StatelessWidget {
               child: Text(
                 'P.${playerIndex + 1}',
                 style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                  fontSize: cs.maxHeight / 10,
-                ),
+                      fontSize: cs.maxHeight / 10,
+                    ),
               ),
             ),
           ),
