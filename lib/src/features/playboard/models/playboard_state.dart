@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
-import 'package:dartx/dartx.dart';
 
 import 'playboard_config.dart';
 import 'playboard.dart';
@@ -59,28 +58,25 @@ class MultiplePlayboardState extends PlayboardState {
   MultiplePlayboardState({
     required this.boardSize,
     required int playerCount,
-    List<SinglePlayboardState>? playerStates,
-    List<List<SlidepartyActions>>? actions,
+    Map<String, SinglePlayboardState>? playerStates,
+    Map<String, List<SlidepartyActions>>? actions,
     MultiplePlayboardConfig stateConfig = defaultConfig,
   }) : super(config: stateConfig) {
     assert(playerCount >= 0 && playerCount <= 4);
     assert(playerStates == null || playerStates.length == playerCount);
     _playerStates = playerStates ??
-        List.generate(
-          playerCount,
-          (index) {
-            final singleConfig =
-                (config as MultiplePlayboardConfig).configs[index.toString()];
-            final playboard = Playboard.random(boardSize);
-
-            return SinglePlayboardState(
-              playboard: playboard,
+        {
+          for (var index = 0; index < playerCount; index++)
+            '$index': SinglePlayboardState(
+              playboard: Playboard.random(boardSize),
+              config: stateConfig.configs[index.toString()]!,
               bestStep: -1,
-              config: singleConfig!,
-            );
-          },
-        );
-    _actions = actions ?? List.generate(playerCount, (index) => []);
+            ),
+        };
+    _actions = actions ??
+        {
+          for (var index = 0; index < playerCount; index++) '$index': [],
+        };
   }
 
   static const defaultConfig = MultiplePlayboardConfig(
@@ -93,12 +89,13 @@ class MultiplePlayboardState extends PlayboardState {
   );
 
   final int boardSize;
-  late final List<SinglePlayboardState> _playerStates;
+  late final Map<String, SinglePlayboardState> _playerStates;
   int get playerCount => _playerStates.length;
 
-  late final List<List<SlidepartyActions>> _actions;
+  late final Map<String, List<SlidepartyActions>> _actions;
 
-  List<SlidepartyActions> currentAction(int index) => _actions[index];
+  List<SlidepartyActions> currentAction(int index) =>
+      _actions[index.toString()]!;
   MultiplePlayboardState setActions(
     int index,
     List<SlidepartyActions> actions, [
@@ -108,24 +105,25 @@ class MultiplePlayboardState extends PlayboardState {
         boardSize: boardSize,
         playerCount: playerCount,
         playerStates: _playerStates,
-        actions: [..._actions]..[index] = actions,
+        actions: {..._actions}..[index.toString()] = actions,
         stateConfig: stateConfig ?? config as MultiplePlayboardConfig,
       );
 
-  int? get whoWin {
-    int? res;
-    _playerStates.forEachIndexed((state, index) {
-      if (state.playboard.isSolved) res = index;
+  String? get whoWin {
+    String? res;
+    _playerStates.forEach((key, state) {
+      if (state.playboard.isSolved) res = key;
     });
     return res;
   }
 
-  SinglePlayboardState currentState(int index) => _playerStates[index];
+  SinglePlayboardState currentState(int index) =>
+      _playerStates[index.toString()]!;
   MultiplePlayboardState setState(int index, SinglePlayboardState state) {
     return MultiplePlayboardState(
       playerCount: playerCount,
       boardSize: boardSize,
-      playerStates: [..._playerStates]..[index] = state,
+      playerStates: {..._playerStates}..[index.toString()] = state,
       actions: _actions,
       stateConfig: config as MultiplePlayboardConfig,
     );

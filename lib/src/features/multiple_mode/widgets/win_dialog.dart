@@ -12,28 +12,30 @@ class WinDialog extends StatelessWidget {
     required this.controller,
   }) : super(key: key);
 
-  final int whoWin;
+  final String whoWin;
   final MultipleModeController controller;
 
   @override
   Widget build(BuildContext context) {
+    final _whoWin = int.parse(whoWin);
+    
     return Center(
       child: Material(
         color: Colors.transparent,
         child: Theme(
-          data: ButtonColors.values[whoWin].adaptiveTheme(context),
+          data: ButtonColors.values[_whoWin].adaptiveTheme(context),
           child: SlidepartyDialog(
             height: 250,
             width: 313,
             title: 'Winner !!!',
             content: Text(
-              'Player ${whoWin + 1} solved the puzzle!',
+              'Player ${_whoWin + 1} solved the puzzle!',
               textAlign: TextAlign.center,
             ),
             actions: [
               SlidepartyButton(
                 key: const Key('play-again-button'),
-                color: ButtonColors.values[whoWin],
+                color: ButtonColors.values[_whoWin],
                 size: ButtonSize.square,
                 style: SlidepartyButtonStyle.invert,
                 child: LineIcon.syncIcon(),
@@ -44,7 +46,7 @@ class WinDialog extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               SlidepartyButton(
-                color: ButtonColors.values[whoWin],
+                color: ButtonColors.values[_whoWin],
                 child: const Text('Go Home'),
                 onPressed: () {
                   context.go('/');

@@ -21,7 +21,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
       : super(
           MultiplePlayboardState(
             playerCount: 0,
-            playerStates: const [],
+            playerStates: const {},
             boardSize: 3,
           ),
         );
@@ -96,14 +96,6 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     state = MultiplePlayboardState(
       playerCount: player,
       boardSize: boardSize,
-      playerStates: List.generate(
-        player,
-        (i) => SinglePlayboardState(
-          playboard: Playboard.random(boardSize),
-          bestStep: -1,
-          config: state.config,
-        ),
-      ),
     );
   }
 

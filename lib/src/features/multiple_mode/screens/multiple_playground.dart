@@ -121,7 +121,7 @@ class MultiplePlayground extends HookConsumerWidget {
 
   void _showWinningDialog(
     BuildContext context,
-    int whoWin,
+    String whoWin,
     MultipleModeController controller,
   ) {
     showDialog(
@@ -138,7 +138,7 @@ class MultiplePlayground extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(playboardControllerProvider.notifier)
         as MultipleModeController;
-    ref.listen<int?>(
+    ref.listen<String?>(
       playboardControllerProvider
           .select((value) => (value as MultiplePlayboardState).whoWin),
       (_, who) {
