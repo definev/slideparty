@@ -9,6 +9,7 @@ import 'package:line_icons/line_icon.dart';
 
 import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
 import 'package:slideparty/src/features/multiple_mode/widgets/win_dialog.dart';
+import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
@@ -106,8 +107,10 @@ class MultiplePlayground extends HookConsumerWidget {
                               : 2,
                           (colorIndex) => Expanded(
                             child: _PlayerPlayboardView(
-                              playerIndex: index * 2 + colorIndex,
+                              playerId: (index * 2 + colorIndex).toString(),
                               ratio: ratio,
+                              color:
+                                  ButtonColors.values[index * 2 + colorIndex],
                             ),
                           ),
                         ),
@@ -122,25 +125,36 @@ class MultiplePlayground extends HookConsumerWidget {
   void _showWinningDialog(
     BuildContext context,
     String whoWin,
-    MultipleModeController controller,
+    StateNotifier<PlayboardState> controller,
   ) {
-    showDialog(
-      context: context,
-      builder: (context) => WinDialog(
-        whoWin: whoWin,
-        controller: controller,
-      ),
-      barrierDismissible: false,
-    );
+    if (controller is MultipleModeController) {
+      showDialog(
+        context: context,
+        builder: (context) => MultipleModeWinDialog(
+          whoWin: whoWin,
+          controller: controller,
+        ),
+        barrierDismissible: false,
+      );
+    }
+    if (controller is OnlineModeController) {}
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as MultipleModeController;
+    final controller = ref.watch(playboardControllerProvider.notifier);
     ref.listen<String?>(
-      playboardControllerProvider
-          .select((value) => (value as MultiplePlayboardState).whoWin),
+      playboardControllerProvider.select(
+        (value) {
+          if (value is MultiplePlayboardState) {
+            return value.whoWin;
+          }
+          if (value is OnlinePlayboardState) {
+            return value.multiplePlayboardState!.whoWin;
+          }
+          return null;
+        },
+      ),
       (_, who) {
         if (who != null) {
           _showWinningDialog(context, who, controller);
@@ -158,7 +172,12 @@ class MultiplePlayground extends HookConsumerWidget {
           autofocus: true,
           onKey: (event) {
             if (event is RawKeyDownEvent) {
-              controller.moveByKeyboard(event.logicalKey);
+              if (controller is MultipleModeController) {
+                controller.moveByKeyboard(event.logicalKey);
+              }
+              if (controller is OnlineModeController) {
+                controller.moveByKeyboard(event.logicalKey);
+              }
             }
           },
           child: LayoutBuilder(
@@ -177,11 +196,13 @@ class MultiplePlayground extends HookConsumerWidget {
 class _PlayerPlayboardView extends ConsumerWidget {
   const _PlayerPlayboardView({
     Key? key,
-    required this.playerIndex,
+    required this.playerId,
+    required this.color,
     required this.ratio,
   }) : super(key: key);
 
-  final int playerIndex;
+  final String playerId;
+  final ButtonColors color;
   final double ratio;
 
   double _playboardSize(BoxConstraints constraints) =>
@@ -211,8 +232,8 @@ class _PlayerPlayboardView extends ConsumerWidget {
 
     final view = Theme(
       data: themeData.colorScheme.brightness == Brightness.light
-          ? ButtonColors.values[playerIndex].lightTheme
-          : ButtonColors.values[playerIndex].darkTheme,
+          ? color.lightTheme
+          : color.darkTheme,
       child: Center(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -239,7 +260,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                 left: _textPadding(constraints),
                               ),
                               child: Text(
-                                '${playerIndex + 1}',
+                                playerId,
                                 style: themeData.textTheme.headline1!.copyWith(
                                   fontSize: (constraints.biggest.longestSide -
                                           _playboardSize(constraints)) /
@@ -261,8 +282,8 @@ class _PlayerPlayboardView extends ConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: SkillKeyboard(
-                              controller.playerControl(playerIndex),
-                              index: playerIndex,
+                              controller.playerControl(playerId),
+                              playerId: playerId,
                               playerCount: playerCount,
                               size: min(
                                 (constraints.biggest.longestSide -
@@ -271,6 +292,10 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                     8,
                                 constraints.biggest.shortestSide / 6,
                               ),
+                              otherPlayersIndex: [
+                                for (var i = 0; i < playerCount; i++)
+                                  if (i.toString() != playerId) i.toString()
+                              ],
                             ),
                           ),
                         ),
@@ -282,7 +307,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
                           final affectedActions = ref.watch(
                             playboardControllerProvider.select(
                               (value) => (value as MultiplePlayboardState)
-                                  .currentAction(playerIndex),
+                                  .currentAction(playerId),
                             ),
                           );
                           bool isPause =
@@ -294,14 +319,14 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                 child: PlayboardView(
                                   boardSize: boardSize,
                                   size: _playboardSize(constraints),
-                                  playerIndex: playerIndex,
+                                  playerId: playerId,
                                   holeWidget: !isLargeScreen(constraints) ||
                                           AppInfos.screenType ==
                                               ScreenTypes.touchscreen
-                                      ? HoleMenu(playerIndex: playerIndex)
+                                      ? HoleMenu(playerId: playerId)
                                       : null,
                                   onPressed: (number) =>
-                                      controller.move(playerIndex, number),
+                                      controller.move(playerId, number),
                                   clipBehavior: Clip.none,
                                 ),
                               ),
@@ -341,7 +366,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                 Consumer(
                                   builder: (context, ref, child) {
                                     final show = ref.watch(
-                                      skillStateProvider(playerIndex)
+                                      multipleSkillStateProvider(playerId)
                                           .select((value) => value.show),
                                     );
 
@@ -356,8 +381,16 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                           child: SmallSkillMenu(
                                             size: _playboardSize(constraints) +
                                                 32,
-                                            playerIndex: playerIndex,
-                                            playerCount: playerCount,
+                                            playerId: playerId,
+                                            color: ButtonColors
+                                                .values[int.parse(playerId)],
+                                            otherPlayersIndex: [
+                                              for (var i = 0;
+                                                  i < playerCount;
+                                                  i++)
+                                                if (i.toString() != playerId)
+                                                  i.toString()
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -394,13 +427,13 @@ class _PlayerPlayboardView extends ConsumerWidget {
         AppInfos.screenType == ScreenTypes.touchscreenAndMouse) {
       return SwipeDetector(
         onSwipeLeft: () =>
-            controller.moveByGesture(playerIndex, PlayboardDirection.left),
+            controller.moveByGesture(playerId, PlayboardDirection.left),
         onSwipeRight: () =>
-            controller.moveByGesture(playerIndex, PlayboardDirection.right),
+            controller.moveByGesture(playerId, PlayboardDirection.right),
         onSwipeUp: () =>
-            controller.moveByGesture(playerIndex, PlayboardDirection.up),
+            controller.moveByGesture(playerId, PlayboardDirection.up),
         onSwipeDown: () =>
-            controller.moveByGesture(playerIndex, PlayboardDirection.down),
+            controller.moveByGesture(playerId, PlayboardDirection.down),
         child: view,
       );
     }
@@ -411,10 +444,10 @@ class _PlayerPlayboardView extends ConsumerWidget {
 class HoleMenu extends StatelessWidget {
   const HoleMenu({
     Key? key,
-    required this.playerIndex,
+    required this.playerId,
   }) : super(key: key);
 
-  final int playerIndex;
+  final String playerId;
 
   @override
   Widget build(BuildContext context) {
@@ -423,7 +456,7 @@ class HoleMenu extends StatelessWidget {
         builder: (context, cs) => Consumer(
           builder: (context, ref, child) {
             final skillStateNotifier =
-                ref.watch(skillStateProvider(playerIndex).notifier);
+                ref.watch(multipleSkillStateProvider(playerId).notifier);
             return InkWell(
               onTap: () => skillStateNotifier.state = skillStateNotifier.state
                   .copyWith(show: !skillStateNotifier.state.show),
@@ -440,7 +473,7 @@ class HoleMenu extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'P.${playerIndex + 1}',
+                'P.$playerId',
                 style: Theme.of(context).textTheme.bodyText2!.copyWith(
                       fontSize: cs.maxHeight / 10,
                     ),
@@ -457,13 +490,15 @@ class SmallSkillMenu extends HookConsumerWidget {
   const SmallSkillMenu({
     Key? key,
     required this.size,
-    required this.playerIndex,
-    required this.playerCount,
+    required this.playerId,
+    required this.otherPlayersIndex,
+    required this.color,
   }) : super(key: key);
 
   final double size;
-  final int playerIndex;
-  final int playerCount;
+  final String playerId;
+  final List<String> otherPlayersIndex;
+  final ButtonColors color;
 
   Widget _actionIcon(
     BuildContext context,
@@ -484,16 +519,10 @@ class SmallSkillMenu extends HookConsumerWidget {
     final themeData = Theme.of(context);
     final controller = ref.watch(playboardControllerProvider.notifier)
         as MultipleModeController;
-    final openSkill = ref.watch(skillStateProvider(playerIndex));
+    final openSkill = ref.watch(multipleSkillStateProvider(playerId));
     final openSkillNotifier =
-        ref.watch(skillStateProvider(playerIndex).notifier);
-    final otherPlayersIndex = useMemoized(
-        () => [
-              for (int i = 0; i < playerCount; i++)
-                if (i != playerIndex) i
-            ],
-        []);
-    final pickedPlayer = useState<int?>(null);
+        ref.watch(multipleSkillStateProvider(playerId).notifier);
+    final pickedPlayer = useState<String?>(null);
 
     return GestureDetector(
       onTap: () {
@@ -521,7 +550,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                       duration: const Duration(milliseconds: 200),
                       scale: openSkill.queuedAction == action ? 1.1 : 1,
                       child: SlidepartyButton(
-                        color: ButtonColors.values[playerIndex],
+                        color: color,
                         style: openSkill.queuedAction != null &&
                                 openSkill.queuedAction != action
                             ? SlidepartyButtonStyle.invert
@@ -533,7 +562,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                             Navigator.pop(context);
                             return;
                           }
-                          controller.pickAction(playerIndex, action);
+                          controller.pickAction(playerId, action);
                         },
                         size: ButtonSize.square,
                         child: _actionIcon(context, action),
@@ -550,27 +579,27 @@ class SmallSkillMenu extends HookConsumerWidget {
                       duration: const Duration(milliseconds: 200),
                       scale: pickedPlayer.value == otherPlayerIndex ? 1.1 : 1,
                       child: SlidepartyButton(
-                        color: ButtonColors.values[playerIndex],
+                        color: color,
                         onPressed: () => pickedPlayer.value = otherPlayerIndex,
                         size: ButtonSize.square,
                         style: pickedPlayer.value == otherPlayerIndex ||
                                 pickedPlayer.value == null
                             ? SlidepartyButtonStyle.normal
                             : SlidepartyButtonStyle.invert,
-                        child: Text('P.${otherPlayerIndex + 1}'),
+                        child: Text('P.$otherPlayerIndex'),
                       ),
                     ),
                 ],
               ),
               SlidepartyButton(
-                color: ButtonColors.values[playerIndex],
+                color: color,
                 style:
                     pickedPlayer.value == null || openSkill.queuedAction == null
                         ? SlidepartyButtonStyle.invert
                         : SlidepartyButtonStyle.normal,
                 customSize: const Size(49 * 3 + 16, 49),
                 onPressed: () {
-                  controller.doAction(playerIndex, pickedPlayer.value!);
+                  controller.doAction(playerId, pickedPlayer.value!);
                   pickedPlayer.value = null;
                 },
                 child: const Text('Apply skill'),
