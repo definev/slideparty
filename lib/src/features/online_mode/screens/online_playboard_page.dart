@@ -11,10 +11,10 @@ class OnlinePlayboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(
       playboardControllerProvider
-          .select((value) => (value as OnlinePlayboardState).state),
+          .select((value) => (value as OnlinePlayboardState).serverState),
     );
     final controller = ref.watch(playboardControllerProvider.notifier)
-        as OnlinePlayboardController;
+        as OnlineModeController;
 
     return WillPopScope(
       onWillPop: () async {

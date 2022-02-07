@@ -5,7 +5,6 @@ import 'package:slideparty/src/features/playboard/helpers/helpers.dart';
 import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
-import 'package:dartx/dartx.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
@@ -28,10 +27,10 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
 
   final Reader _read;
 
-  List<PlayboardSkillKeyboardControl> _keyboardControls = [];
+  Map<String, PlayboardSkillKeyboardControl> _keyboardControls = {};
 
-  PlayboardSkillKeyboardControl playerControl(int index) =>
-      _keyboardControls[index];
+  PlayboardSkillKeyboardControl playerControl(String index) =>
+      _keyboardControls[index]!;
 
   void restart() {
     state = MultiplePlayboardState(
@@ -43,52 +42,52 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
   void startGame(int player, int boardSize) {
     switch (player) {
       case 2:
-        _keyboardControls = [
-          PlayboardSkillKeyboardControl(
+        _keyboardControls = {
+          '0': PlayboardSkillKeyboardControl(
             control: wasdControl,
             activeSkillKey: LogicalKeyboardKey.keyX,
           ),
-          PlayboardSkillKeyboardControl(
+          '1': PlayboardSkillKeyboardControl(
             control: arrowControl,
             activeSkillKey: LogicalKeyboardKey.space,
           ),
-        ];
+        };
         break;
       case 3:
-        _keyboardControls = [
-          PlayboardSkillKeyboardControl(
+        _keyboardControls = {
+          '0': PlayboardSkillKeyboardControl(
             control: wasdControl,
             activeSkillKey: LogicalKeyboardKey.keyX,
           ),
-          PlayboardSkillKeyboardControl(
+          '1': PlayboardSkillKeyboardControl(
             control: ijklControl,
             activeSkillKey: LogicalKeyboardKey.keyM,
           ),
-          PlayboardSkillKeyboardControl(
+          '2': PlayboardSkillKeyboardControl(
             control: arrowControl,
             activeSkillKey: LogicalKeyboardKey.space,
           ),
-        ];
+        };
         break;
       case 4:
-        _keyboardControls = [
-          PlayboardSkillKeyboardControl(
+        _keyboardControls = {
+          '0': PlayboardSkillKeyboardControl(
             control: wasdControl,
             activeSkillKey: LogicalKeyboardKey.keyX,
           ),
-          PlayboardSkillKeyboardControl(
+          '1': PlayboardSkillKeyboardControl(
             control: tfghControl,
             activeSkillKey: LogicalKeyboardKey.keyB,
           ),
-          PlayboardSkillKeyboardControl(
+          '2': PlayboardSkillKeyboardControl(
             control: ijklControl,
             activeSkillKey: LogicalKeyboardKey.keyM,
           ),
-          PlayboardSkillKeyboardControl(
+          '3': PlayboardSkillKeyboardControl(
             control: arrowControl,
             activeSkillKey: LogicalKeyboardKey.space,
           ),
-        ];
+        };
         break;
       default:
     }
@@ -99,9 +98,9 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     );
   }
 
-  void pickAction(int index, SlidepartyActions action) {
-    final openSkillState = _read(skillStateProvider(index));
-    final openSkillNotifier = _read(skillStateProvider(index).notifier);
+  void pickAction(String index, SlidepartyActions action) {
+    final openSkillState = _read(multipleSkillStateProvider(index));
+    final openSkillNotifier = _read(multipleSkillStateProvider(index).notifier);
     if (openSkillState.usedActions[action] == true) return;
 
     switch (action) {
@@ -113,7 +112,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
             [],
             configs.changeConfig(
               index.toString(),
-              NumberPlayboardConfig(ButtonColors.values[index]),
+              NumberPlayboardConfig(ButtonColors.values[int.parse(index)]),
             ),
           );
           openSkillNotifier.state = openSkillState.copyWith(
@@ -131,14 +130,14 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     }
   }
 
-  void doAction(int index, int target) {
+  void doAction(String index, String target) {
     _flushAction(index, target);
     _removeQueuedAction(index, target);
   }
 
-  void _removeQueuedAction(int index, int target) {
-    final openSkillState = _read(skillStateProvider(index));
-    final openSkillNotifier = _read(skillStateProvider(index).notifier);
+  void _removeQueuedAction(String index, String target) {
+    final openSkillState = _read(multipleSkillStateProvider(index));
+    final openSkillNotifier = _read(multipleSkillStateProvider(index).notifier);
     final queuedAction = openSkillState.queuedAction!;
 
     state = state.setActions(
@@ -182,8 +181,8 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     );
   }
 
-  void _flushAction(int index, int target) {
-    final openSkillState = _read(skillStateProvider(index));
+  void _flushAction(String index, String target) {
+    final openSkillState = _read(multipleSkillStateProvider(index));
     final queuedAction = openSkillState.queuedAction!;
 
     Future.delayed(const Duration(seconds: 10), () {
@@ -196,14 +195,14 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
 
   bool handleSkillKey(
     PlayboardSkillKeyboardControl control,
-    int index,
+    String index,
     LogicalKeyboardKey pressedKey,
   ) {
-    final openSkillState = _read(skillStateProvider(index));
-    final openSkillNotifier = _read(skillStateProvider(index).notifier);
+    final openSkillState = _read(multipleSkillStateProvider(index));
+    final openSkillNotifier = _read(multipleSkillStateProvider(index).notifier);
     final otherPlayersIndex = [
       for (int i = 0; i < state.playerCount; i++)
-        if (i != index) i
+        if (i.toString() != index) i.toString()
     ];
 
     if (openSkillState.show) {
@@ -244,7 +243,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
                 [],
                 configs.changeConfig(
                   index.toString(),
-                  NumberPlayboardConfig(ButtonColors.values[index]),
+                  NumberPlayboardConfig(ButtonColors.values[int.parse(index)]),
                 ),
               );
               openSkillNotifier.state = openSkillState.copyWith(
@@ -290,7 +289,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
 
   bool handleKeyboardControl(
     PlayboardSkillKeyboardControl control,
-    int index,
+    String index,
     LogicalKeyboardKey pressedKey,
   ) {
     final singleState = state.currentState(index);
@@ -310,7 +309,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     return false;
   }
 
-  bool willBlockControl(int index) {
+  bool willBlockControl(String index) {
     final singleState = state.currentAction(index);
     return singleState.contains(SlidepartyActions.pause);
   }
@@ -318,8 +317,8 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
   @override
   void moveByKeyboard(LogicalKeyboardKey pressedKey) {
     if (state.whoWin != null) return;
-    _keyboardControls.forEachIndexed(
-      (control, index) {
+    _keyboardControls.forEach(
+      (index, control) {
         final handled = handleSkillKey(control, index, pressedKey);
         if (willBlockControl(index)) return;
         if (!handled) handleKeyboardControl(control, index, pressedKey);
@@ -327,7 +326,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     );
   }
 
-  void move(int index, int number) {
+  void move(String index, int number) {
     if (state.whoWin != null) return;
     if (willBlockControl(index)) return;
     final singleState = state.currentState(index);
@@ -337,7 +336,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     }
   }
 
-  void moveByGesture(int index, PlayboardDirection direction) {
+  void moveByGesture(String index, PlayboardDirection direction) {
     if (state.whoWin != null) return;
     if (willBlockControl(index)) return;
     final singleState = state.currentState(index);

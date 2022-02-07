@@ -14,7 +14,16 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 SkillKeyboardState _$SkillKeyboardStateFromJson(Map<String, dynamic> json) {
-  return SkillInGameState.fromJson(json);
+  switch (json['runtimeType']) {
+    case 'inGame':
+      return SkillInGameState.fromJson(json);
+    case 'online':
+      return SkillOnlineState.fromJson(json);
+
+    default:
+      throw CheckedFromJsonException(json, 'runtimeType', 'SkillKeyboardState',
+          'Invalid union type "${json['runtimeType']}"!');
+  }
 }
 
 /// @nodoc
@@ -22,13 +31,25 @@ class _$SkillKeyboardStateTearOff {
   const _$SkillKeyboardStateTearOff();
 
   SkillInGameState inGame(
-      {required int playerIndex,
+      {required String playerId,
       bool show = false,
       Map<SlidepartyActions, bool> usedActions =
           const <SlidepartyActions, bool>{},
       SlidepartyActions? queuedAction}) {
     return SkillInGameState(
-      playerIndex: playerIndex,
+      playerId: playerId,
+      show: show,
+      usedActions: usedActions,
+      queuedAction: queuedAction,
+    );
+  }
+
+  SkillOnlineState online(
+      {bool show = false,
+      Map<SlidepartyActions, bool> usedActions =
+          const <SlidepartyActions, bool>{},
+      SlidepartyActions? queuedAction}) {
+    return SkillOnlineState(
       show: show,
       usedActions: usedActions,
       queuedAction: queuedAction,
@@ -45,7 +66,6 @@ const $SkillKeyboardState = _$SkillKeyboardStateTearOff();
 
 /// @nodoc
 mixin _$SkillKeyboardState {
-  int get playerIndex => throw _privateConstructorUsedError;
   bool get show => throw _privateConstructorUsedError;
   Map<SlidepartyActions, bool> get usedActions =>
       throw _privateConstructorUsedError;
@@ -54,47 +74,61 @@ mixin _$SkillKeyboardState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            int playerIndex,
+            String playerId,
             bool show,
             Map<SlidepartyActions, bool> usedActions,
             SlidepartyActions? queuedAction)
         inGame,
+    required TResult Function(
+            bool show,
+            Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)
+        online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(
-            int playerIndex,
+            String playerId,
             bool show,
             Map<SlidepartyActions, bool> usedActions,
             SlidepartyActions? queuedAction)?
         inGame,
+    TResult Function(bool show, Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)?
+        online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(
-            int playerIndex,
+            String playerId,
             bool show,
             Map<SlidepartyActions, bool> usedActions,
             SlidepartyActions? queuedAction)?
         inGame,
+    TResult Function(bool show, Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)?
+        online,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(SkillInGameState value) inGame,
+    required TResult Function(SkillOnlineState value) online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(SkillInGameState value)? inGame,
+    TResult Function(SkillOnlineState value)? online,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(SkillInGameState value)? inGame,
+    TResult Function(SkillOnlineState value)? online,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -110,8 +144,7 @@ abstract class $SkillKeyboardStateCopyWith<$Res> {
           SkillKeyboardState value, $Res Function(SkillKeyboardState) then) =
       _$SkillKeyboardStateCopyWithImpl<$Res>;
   $Res call(
-      {int playerIndex,
-      bool show,
+      {bool show,
       Map<SlidepartyActions, bool> usedActions,
       SlidepartyActions? queuedAction});
 }
@@ -127,16 +160,11 @@ class _$SkillKeyboardStateCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? playerIndex = freezed,
     Object? show = freezed,
     Object? usedActions = freezed,
     Object? queuedAction = freezed,
   }) {
     return _then(_value.copyWith(
-      playerIndex: playerIndex == freezed
-          ? _value.playerIndex
-          : playerIndex // ignore: cast_nullable_to_non_nullable
-              as int,
       show: show == freezed
           ? _value.show
           : show // ignore: cast_nullable_to_non_nullable
@@ -161,7 +189,7 @@ abstract class $SkillInGameStateCopyWith<$Res>
       _$SkillInGameStateCopyWithImpl<$Res>;
   @override
   $Res call(
-      {int playerIndex,
+      {String playerId,
       bool show,
       Map<SlidepartyActions, bool> usedActions,
       SlidepartyActions? queuedAction});
@@ -180,16 +208,16 @@ class _$SkillInGameStateCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? playerIndex = freezed,
+    Object? playerId = freezed,
     Object? show = freezed,
     Object? usedActions = freezed,
     Object? queuedAction = freezed,
   }) {
     return _then(SkillInGameState(
-      playerIndex: playerIndex == freezed
-          ? _value.playerIndex
-          : playerIndex // ignore: cast_nullable_to_non_nullable
-              as int,
+      playerId: playerId == freezed
+          ? _value.playerId
+          : playerId // ignore: cast_nullable_to_non_nullable
+              as String,
       show: show == freezed
           ? _value.show
           : show // ignore: cast_nullable_to_non_nullable
@@ -209,17 +237,19 @@ class _$SkillInGameStateCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$SkillInGameState implements SkillInGameState {
-  _$SkillInGameState(
-      {required this.playerIndex,
+  const _$SkillInGameState(
+      {required this.playerId,
       this.show = false,
       this.usedActions = const <SlidepartyActions, bool>{},
-      this.queuedAction});
+      this.queuedAction,
+      String? $type})
+      : $type = $type ?? 'inGame';
 
   factory _$SkillInGameState.fromJson(Map<String, dynamic> json) =>
       _$$SkillInGameStateFromJson(json);
 
   @override
-  final int playerIndex;
+  final String playerId;
   @JsonKey()
   @override
   final bool show;
@@ -229,9 +259,12 @@ class _$SkillInGameState implements SkillInGameState {
   @override
   final SlidepartyActions? queuedAction;
 
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
   @override
   String toString() {
-    return 'SkillKeyboardState.inGame(playerIndex: $playerIndex, show: $show, usedActions: $usedActions, queuedAction: $queuedAction)';
+    return 'SkillKeyboardState.inGame(playerId: $playerId, show: $show, usedActions: $usedActions, queuedAction: $queuedAction)';
   }
 
   @override
@@ -239,8 +272,7 @@ class _$SkillInGameState implements SkillInGameState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is SkillInGameState &&
-            const DeepCollectionEquality()
-                .equals(other.playerIndex, playerIndex) &&
+            const DeepCollectionEquality().equals(other.playerId, playerId) &&
             const DeepCollectionEquality().equals(other.show, show) &&
             const DeepCollectionEquality()
                 .equals(other.usedActions, usedActions) &&
@@ -251,7 +283,7 @@ class _$SkillInGameState implements SkillInGameState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(playerIndex),
+      const DeepCollectionEquality().hash(playerId),
       const DeepCollectionEquality().hash(show),
       const DeepCollectionEquality().hash(usedActions),
       const DeepCollectionEquality().hash(queuedAction));
@@ -265,41 +297,52 @@ class _$SkillInGameState implements SkillInGameState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            int playerIndex,
+            String playerId,
             bool show,
             Map<SlidepartyActions, bool> usedActions,
             SlidepartyActions? queuedAction)
         inGame,
+    required TResult Function(
+            bool show,
+            Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)
+        online,
   }) {
-    return inGame(playerIndex, show, usedActions, queuedAction);
+    return inGame(playerId, show, usedActions, queuedAction);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(
-            int playerIndex,
+            String playerId,
             bool show,
             Map<SlidepartyActions, bool> usedActions,
             SlidepartyActions? queuedAction)?
         inGame,
+    TResult Function(bool show, Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)?
+        online,
   }) {
-    return inGame?.call(playerIndex, show, usedActions, queuedAction);
+    return inGame?.call(playerId, show, usedActions, queuedAction);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(
-            int playerIndex,
+            String playerId,
             bool show,
             Map<SlidepartyActions, bool> usedActions,
             SlidepartyActions? queuedAction)?
         inGame,
+    TResult Function(bool show, Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)?
+        online,
     required TResult orElse(),
   }) {
     if (inGame != null) {
-      return inGame(playerIndex, show, usedActions, queuedAction);
+      return inGame(playerId, show, usedActions, queuedAction);
     }
     return orElse();
   }
@@ -308,6 +351,7 @@ class _$SkillInGameState implements SkillInGameState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(SkillInGameState value) inGame,
+    required TResult Function(SkillOnlineState value) online,
   }) {
     return inGame(this);
   }
@@ -316,6 +360,7 @@ class _$SkillInGameState implements SkillInGameState {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(SkillInGameState value)? inGame,
+    TResult Function(SkillOnlineState value)? online,
   }) {
     return inGame?.call(this);
   }
@@ -324,6 +369,7 @@ class _$SkillInGameState implements SkillInGameState {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(SkillInGameState value)? inGame,
+    TResult Function(SkillOnlineState value)? online,
     required TResult orElse(),
   }) {
     if (inGame != null) {
@@ -339,8 +385,8 @@ class _$SkillInGameState implements SkillInGameState {
 }
 
 abstract class SkillInGameState implements SkillKeyboardState {
-  factory SkillInGameState(
-      {required int playerIndex,
+  const factory SkillInGameState(
+      {required String playerId,
       bool show,
       Map<SlidepartyActions, bool> usedActions,
       SlidepartyActions? queuedAction}) = _$SkillInGameState;
@@ -348,8 +394,7 @@ abstract class SkillInGameState implements SkillKeyboardState {
   factory SkillInGameState.fromJson(Map<String, dynamic> json) =
       _$SkillInGameState.fromJson;
 
-  @override
-  int get playerIndex;
+  String get playerId;
   @override
   bool get show;
   @override
@@ -359,5 +404,218 @@ abstract class SkillInGameState implements SkillKeyboardState {
   @override
   @JsonKey(ignore: true)
   $SkillInGameStateCopyWith<SkillInGameState> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SkillOnlineStateCopyWith<$Res>
+    implements $SkillKeyboardStateCopyWith<$Res> {
+  factory $SkillOnlineStateCopyWith(
+          SkillOnlineState value, $Res Function(SkillOnlineState) then) =
+      _$SkillOnlineStateCopyWithImpl<$Res>;
+  @override
+  $Res call(
+      {bool show,
+      Map<SlidepartyActions, bool> usedActions,
+      SlidepartyActions? queuedAction});
+}
+
+/// @nodoc
+class _$SkillOnlineStateCopyWithImpl<$Res>
+    extends _$SkillKeyboardStateCopyWithImpl<$Res>
+    implements $SkillOnlineStateCopyWith<$Res> {
+  _$SkillOnlineStateCopyWithImpl(
+      SkillOnlineState _value, $Res Function(SkillOnlineState) _then)
+      : super(_value, (v) => _then(v as SkillOnlineState));
+
+  @override
+  SkillOnlineState get _value => super._value as SkillOnlineState;
+
+  @override
+  $Res call({
+    Object? show = freezed,
+    Object? usedActions = freezed,
+    Object? queuedAction = freezed,
+  }) {
+    return _then(SkillOnlineState(
+      show: show == freezed
+          ? _value.show
+          : show // ignore: cast_nullable_to_non_nullable
+              as bool,
+      usedActions: usedActions == freezed
+          ? _value.usedActions
+          : usedActions // ignore: cast_nullable_to_non_nullable
+              as Map<SlidepartyActions, bool>,
+      queuedAction: queuedAction == freezed
+          ? _value.queuedAction
+          : queuedAction // ignore: cast_nullable_to_non_nullable
+              as SlidepartyActions?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$SkillOnlineState implements SkillOnlineState {
+  const _$SkillOnlineState(
+      {this.show = false,
+      this.usedActions = const <SlidepartyActions, bool>{},
+      this.queuedAction,
+      String? $type})
+      : $type = $type ?? 'online';
+
+  factory _$SkillOnlineState.fromJson(Map<String, dynamic> json) =>
+      _$$SkillOnlineStateFromJson(json);
+
+  @JsonKey()
+  @override
+  final bool show;
+  @JsonKey()
+  @override
+  final Map<SlidepartyActions, bool> usedActions;
+  @override
+  final SlidepartyActions? queuedAction;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
+  @override
+  String toString() {
+    return 'SkillKeyboardState.online(show: $show, usedActions: $usedActions, queuedAction: $queuedAction)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is SkillOnlineState &&
+            const DeepCollectionEquality().equals(other.show, show) &&
+            const DeepCollectionEquality()
+                .equals(other.usedActions, usedActions) &&
+            const DeepCollectionEquality()
+                .equals(other.queuedAction, queuedAction));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(show),
+      const DeepCollectionEquality().hash(usedActions),
+      const DeepCollectionEquality().hash(queuedAction));
+
+  @JsonKey(ignore: true)
+  @override
+  $SkillOnlineStateCopyWith<SkillOnlineState> get copyWith =>
+      _$SkillOnlineStateCopyWithImpl<SkillOnlineState>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+            String playerId,
+            bool show,
+            Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)
+        inGame,
+    required TResult Function(
+            bool show,
+            Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)
+        online,
+  }) {
+    return online(show, usedActions, queuedAction);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            String playerId,
+            bool show,
+            Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)?
+        inGame,
+    TResult Function(bool show, Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)?
+        online,
+  }) {
+    return online?.call(show, usedActions, queuedAction);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+            String playerId,
+            bool show,
+            Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)?
+        inGame,
+    TResult Function(bool show, Map<SlidepartyActions, bool> usedActions,
+            SlidepartyActions? queuedAction)?
+        online,
+    required TResult orElse(),
+  }) {
+    if (online != null) {
+      return online(show, usedActions, queuedAction);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(SkillInGameState value) inGame,
+    required TResult Function(SkillOnlineState value) online,
+  }) {
+    return online(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(SkillInGameState value)? inGame,
+    TResult Function(SkillOnlineState value)? online,
+  }) {
+    return online?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(SkillInGameState value)? inGame,
+    TResult Function(SkillOnlineState value)? online,
+    required TResult orElse(),
+  }) {
+    if (online != null) {
+      return online(this);
+    }
+    return orElse();
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$SkillOnlineStateToJson(this);
+  }
+}
+
+abstract class SkillOnlineState implements SkillKeyboardState {
+  const factory SkillOnlineState(
+      {bool show,
+      Map<SlidepartyActions, bool> usedActions,
+      SlidepartyActions? queuedAction}) = _$SkillOnlineState;
+
+  factory SkillOnlineState.fromJson(Map<String, dynamic> json) =
+      _$SkillOnlineState.fromJson;
+
+  @override
+  bool get show;
+  @override
+  Map<SlidepartyActions, bool> get usedActions;
+  @override
+  SlidepartyActions? get queuedAction;
+  @override
+  @JsonKey(ignore: true)
+  $SkillOnlineStateCopyWith<SkillOnlineState> get copyWith =>
       throw _privateConstructorUsedError;
 }

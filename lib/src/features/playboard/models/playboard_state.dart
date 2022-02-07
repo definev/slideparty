@@ -59,7 +59,7 @@ class MultiplePlayboardState extends PlayboardState {
     required this.boardSize,
     required int playerCount,
     Map<String, SinglePlayboardState>? playerStates,
-    Map<String, List<SlidepartyActions>>? actions,
+    Map<String, List<SlidepartyActions>>? usedActions,
     MultiplePlayboardConfig stateConfig = defaultConfig,
   }) : super(config: stateConfig) {
     assert(playerCount >= 0 && playerCount <= 4);
@@ -73,7 +73,7 @@ class MultiplePlayboardState extends PlayboardState {
               bestStep: -1,
             ),
         };
-    _actions = actions ??
+    _usedActions = usedActions ??
         {
           for (var index = 0; index < playerCount; index++) '$index': [],
         };
@@ -92,12 +92,14 @@ class MultiplePlayboardState extends PlayboardState {
   late final Map<String, SinglePlayboardState> _playerStates;
   int get playerCount => _playerStates.length;
 
-  late final Map<String, List<SlidepartyActions>> _actions;
+  late final Map<String, List<SlidepartyActions>> _usedActions;
 
-  List<SlidepartyActions> currentAction(int index) =>
-      _actions[index.toString()]!;
+  List<String> getPlayerIds(String playerId) =>
+      _playerStates.keys.toList()..remove(playerId);
+
+  List<SlidepartyActions> currentAction(String index) => _usedActions[index]!;
   MultiplePlayboardState setActions(
-    int index,
+    String index,
     List<SlidepartyActions> actions, [
     MultiplePlayboardConfig? stateConfig,
   ]) =>
@@ -105,7 +107,7 @@ class MultiplePlayboardState extends PlayboardState {
         boardSize: boardSize,
         playerCount: playerCount,
         playerStates: _playerStates,
-        actions: {..._actions}..[index.toString()] = actions,
+        usedActions: {..._usedActions}..[index.toString()] = actions,
         stateConfig: stateConfig ?? config as MultiplePlayboardConfig,
       );
 
@@ -117,70 +119,127 @@ class MultiplePlayboardState extends PlayboardState {
     return res;
   }
 
-  SinglePlayboardState currentState(int index) =>
-      _playerStates[index.toString()]!;
-  MultiplePlayboardState setState(int index, SinglePlayboardState state) {
+  SinglePlayboardState currentState(String index) => _playerStates[index]!;
+  MultiplePlayboardState setState(String index, SinglePlayboardState state) {
     return MultiplePlayboardState(
       playerCount: playerCount,
       boardSize: boardSize,
-      playerStates: {..._playerStates}..[index.toString()] = state,
-      actions: _actions,
+      playerStates: {..._playerStates}..[index] = state,
+      usedActions: _usedActions,
       stateConfig: config as MultiplePlayboardConfig,
     );
   }
 
-  MultiplePlayboardState setConfig(int index, PlayboardConfig _config) =>
+  MultiplePlayboardState setConfig(String index, PlayboardConfig _config) =>
       MultiplePlayboardState(
         boardSize: boardSize,
         playerCount: playerCount,
-        actions: _actions,
+        usedActions: _usedActions,
         playerStates: _playerStates,
-        stateConfig: (config as MultiplePlayboardConfig).changeConfig(
-          index.toString(),
-          _config,
-        ),
+        stateConfig:
+            (config as MultiplePlayboardConfig).changeConfig(index, _config),
       );
 
   @override
-  List<Object?> get props => [_playerStates, _actions, config];
+  List<Object?> get props => [_playerStates, _usedActions, config];
 }
 
 class OnlinePlayboardState extends PlayboardState {
-  const OnlinePlayboardState({
+  const OnlinePlayboardState(
+    this.info, {
     required this.playerId,
-    required this.state,
+    required this.serverState,
+    this.currentState,
+    this.currentUsedAction,
   }) : super(config: const NonePlayboardConfig());
 
   final String playerId;
-  final ServerState state;
+  final ServerState serverState;
+  final RoomInfo info;
+  final SinglePlayboardState? currentState;
+  final List<SlidepartyActions>? currentUsedAction;
+  Map<String, SlidepartyActions>? get affectedAction => serverState.mapOrNull(
+        roomData: (roomData) => roomData.players[playerId]!.affectedActions,
+      );
+
+  int get boardSize => info.boardSize;
+
   MultiplePlayboardState? get multiplePlayboardState {
-    return state.mapOrNull(
+    return serverState.mapOrNull(
       roomData: (roomData) {
         final playerCount = roomData.players.length;
+        roomData.players[0]!.affectedActions;
 
         return MultiplePlayboardState(
           boardSize: boardSize,
           playerCount: playerCount,
+          playerStates: roomData.players.map(
+            (key, value) {
+              if (key == playerId) {
+                return MapEntry(key, currentState!);
+              }
+              return MapEntry(
+                key,
+                SinglePlayboardState(
+                  playboard: Playboard.fromList(value.currentBoard),
+                  config: const NonePlayboardConfig(),
+                  bestStep: -1,
+                ),
+              );
+            },
+          ),
+          usedActions: roomData.players.map(
+            (key, value) {
+              if (key == playerId) {
+                return MapEntry(key, currentUsedAction!);
+              }
+              return MapEntry(key, value.usedActions);
+            },
+          ),
+          stateConfig: MultiplePlayboardConfig(
+            roomData.players.map(
+              (key, value) => MapEntry(
+                key,
+                value.affectedActions.containsValue(SlidepartyActions.blind)
+                    ? PlayboardConfig.blind(value.color.buttonColor)
+                    : PlayboardConfig.number(value.color.buttonColor),
+              ),
+            ),
+          ),
         );
       },
     );
   }
 
   OnlinePlayboardState initPlayerId(String playerId) => OnlinePlayboardState(
+        info,
         playerId: playerId,
-        state: state,
+        serverState: serverState,
+        currentState: SinglePlayboardState(
+          playboard: Playboard.random(boardSize),
+          bestStep: -1,
+          config: const NonePlayboardConfig(),
+        ),
+        currentUsedAction: const [],
       );
 
-  OnlinePlayboardState copyWith({ServerState? state}) => OnlinePlayboardState(
+  OnlinePlayboardState copyWith({
+    ServerState? serverState,
+    SinglePlayboardState? currentState,
+    List<SlidepartyActions>? currentUsedAction,
+  }) =>
+      OnlinePlayboardState(
+        info,
         playerId: playerId,
-        state: state ?? this.state,
+        serverState: serverState ?? this.serverState,
+        currentState: currentState ?? this.currentState,
+        currentUsedAction: currentUsedAction ?? this.currentUsedAction,
       );
 
   @override
-  List<Object?> get props => [playerId, state];
+  List<Object?> get props => [playerId, serverState];
 }
 
-extension OnlinePlayboardExt on OnlinePlayboardState {
-  int get boardSize =>
-      (state as RoomData).players.values.first.currentBoard.size;
+extension PlayerColorsExt on PlayerColors {
+  ButtonColors get buttonColor => ButtonColors.values[index];
 }

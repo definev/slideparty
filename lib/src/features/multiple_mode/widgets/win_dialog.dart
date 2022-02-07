@@ -5,8 +5,8 @@ import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_
 import 'package:slideparty/src/widgets/dialogs/slideparty_dialog.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 
-class WinDialog extends StatelessWidget {
-  const WinDialog({
+class MultipleModeWinDialog extends StatelessWidget {
+  const MultipleModeWinDialog({
     Key? key,
     required this.whoWin,
     required this.controller,
@@ -18,7 +18,7 @@ class WinDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _whoWin = int.parse(whoWin);
-    
+
     return Center(
       child: Material(
         color: Colors.transparent,
@@ -29,7 +29,7 @@ class WinDialog extends StatelessWidget {
             width: 313,
             title: 'Winner !!!',
             content: Text(
-              'Player ${_whoWin + 1} solved the puzzle!',
+              'Player $_whoWin solved the puzzle!',
               textAlign: TextAlign.center,
             ),
             actions: [

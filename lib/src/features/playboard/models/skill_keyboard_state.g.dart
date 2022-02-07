@@ -8,7 +8,7 @@ part of 'skill_keyboard_state.dart';
 
 _$SkillInGameState _$$SkillInGameStateFromJson(Map<String, dynamic> json) =>
     _$SkillInGameState(
-      playerIndex: json['playerIndex'] as int,
+      playerId: json['playerId'] as String,
       show: json['show'] as bool? ?? false,
       usedActions: (json['usedActions'] as Map<String, dynamic>?)?.map(
             (k, e) =>
@@ -17,15 +17,17 @@ _$SkillInGameState _$$SkillInGameStateFromJson(Map<String, dynamic> json) =>
           const <SlidepartyActions, bool>{},
       queuedAction:
           $enumDecodeNullable(_$SlidepartyActionsEnumMap, json['queuedAction']),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$SkillInGameStateToJson(_$SkillInGameState instance) =>
     <String, dynamic>{
-      'playerIndex': instance.playerIndex,
+      'playerId': instance.playerId,
       'show': instance.show,
       'usedActions': instance.usedActions
           .map((k, e) => MapEntry(_$SlidepartyActionsEnumMap[k], e)),
       'queuedAction': _$SlidepartyActionsEnumMap[instance.queuedAction],
+      'runtimeType': instance.$type,
     };
 
 const _$SlidepartyActionsEnumMap = {
@@ -33,3 +35,25 @@ const _$SlidepartyActionsEnumMap = {
   SlidepartyActions.pause: 'pause',
   SlidepartyActions.clear: 'clear',
 };
+
+_$SkillOnlineState _$$SkillOnlineStateFromJson(Map<String, dynamic> json) =>
+    _$SkillOnlineState(
+      show: json['show'] as bool? ?? false,
+      usedActions: (json['usedActions'] as Map<String, dynamic>?)?.map(
+            (k, e) =>
+                MapEntry($enumDecode(_$SlidepartyActionsEnumMap, k), e as bool),
+          ) ??
+          const <SlidepartyActions, bool>{},
+      queuedAction:
+          $enumDecodeNullable(_$SlidepartyActionsEnumMap, json['queuedAction']),
+      $type: json['runtimeType'] as String?,
+    );
+
+Map<String, dynamic> _$$SkillOnlineStateToJson(_$SkillOnlineState instance) =>
+    <String, dynamic>{
+      'show': instance.show,
+      'usedActions': instance.usedActions
+          .map((k, e) => MapEntry(_$SlidepartyActionsEnumMap[k], e)),
+      'queuedAction': _$SlidepartyActionsEnumMap[instance.queuedAction],
+      'runtimeType': instance.$type,
+    };

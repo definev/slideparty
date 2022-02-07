@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:line_icons/line_icon.dart';
 
@@ -8,21 +7,29 @@ import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboar
 import 'package:slideparty/src/features/playboard/models/skill_keyboard_state.dart';
 import 'package:slideparty_socket/slideparty_socket.dart';
 
-final skillStateProvider =
-    StateProvider.autoDispose.family<SkillKeyboardState, int>(
-  (ref, index) => SkillKeyboardState.inGame(playerIndex: index),
+final multipleSkillStateProvider = StateProvider //
+    .autoDispose
+    .family<SkillKeyboardState, String>(
+  (ref, index) => SkillKeyboardState.inGame(playerId: index),
+);
+
+final onlineSkillStateProvider = StateProvider //
+    .autoDispose<SkillKeyboardState>(
+  (ref) => const SkillKeyboardState.online(),
 );
 
 class SkillKeyboard extends HookConsumerWidget {
   const SkillKeyboard(
     this.keyboard, {
     Key? key,
-    required this.index,
+    required this.playerId,
+    required this.otherPlayersIndex,
     required this.size,
     required this.playerCount,
   }) : super(key: key);
 
-  final int index;
+  final String playerId;
+  final List<String> otherPlayersIndex;
   final int playerCount;
   final double size;
   final PlayboardSkillKeyboardControl keyboard;
@@ -86,8 +93,7 @@ class SkillKeyboard extends HookConsumerWidget {
 
   Color _cardColor(
     BuildContext context,
-    SkillKeyboardState openSkill,
-    List<int> otherPlayersIndex, {
+    SkillKeyboardState openSkill, {
     required int index,
   }) {
     if (openSkill.show) {
@@ -113,11 +119,7 @@ class SkillKeyboard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final openSkill = ref.watch(skillStateProvider(index));
-    final otherPlayersIndex = useMemoized(() => [
-          for (var i = 0; i < playerCount; i++)
-            if (i != index) i
-        ]);
+    final openSkill = ref.watch(multipleSkillStateProvider(playerId));
 
     return SizedBox.square(
       dimension: size * 3,
@@ -167,7 +169,6 @@ class SkillKeyboard extends HookConsumerWidget {
                                 color: _cardColor(
                                   context,
                                   openSkill,
-                                  otherPlayersIndex,
                                   index: cardIndex,
                                 ),
                                 child: Center(
@@ -185,7 +186,9 @@ class SkillKeyboard extends HookConsumerWidget {
                                           true,
                                     ),
                                     secondChild: Text(
-                                      '${otherPlayersIndex.length > cardIndex ? otherPlayersIndex[cardIndex] + 1 : ''}',
+                                      otherPlayersIndex.length > cardIndex
+                                          ? otherPlayersIndex[cardIndex]
+                                          : '',
                                     ),
                                   ),
                                 ),

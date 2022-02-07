@@ -13,7 +13,6 @@ class PlayboardView extends HookConsumerWidget {
   const PlayboardView({
     Key? key,
     this.playerId,
-    this.playerIndex,
     required this.boardSize,
     required this.size,
     required this.onPressed,
@@ -24,7 +23,6 @@ class PlayboardView extends HookConsumerWidget {
   }) : super(key: key);
 
   final String? playerId;
-  final int? playerIndex;
   final int boardSize;
   final double size;
   final Function(int index) onPressed;
@@ -101,16 +99,13 @@ class PlayboardView extends HookConsumerWidget {
               return state.playboard.currentLoc(index);
             }
             if (state is OnlinePlayboardState) {
-              return (state.state as RoomData)
+              return (state.serverState as RoomData)
                   .players[playerId]!
                   .currentBoard
                   .loc(index);
             }
             if (state is MultiplePlayboardState) {
-              return state
-                  .currentState(playerIndex!)
-                  .playboard
-                  .currentLoc(index);
+              return state.currentState(playerId!).playboard.currentLoc(index);
             }
 
             throw UnimplementedError(
@@ -198,7 +193,7 @@ class PlayboardView extends HookConsumerWidget {
     }
 
     if (config is MultiplePlayboardConfig) {
-      final tileConfig = config.configs[playerIndex!.toString()]!;
+      final tileConfig = config.configs[playerId]!;
 
       return NumberTile(
         key: ValueKey('number-tile-${loc.index(boardSize)}'),
