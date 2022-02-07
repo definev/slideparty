@@ -47,6 +47,7 @@ dependencies:
   hooks_riverpod: ^1.0.3
   intl: ^0.17.0
   just_audio: ^0.9.18
+  just_audio_libwinmedia: ^0.0.4
   line_icons: ^2.0.1
   slideparty_socket:
     git:
@@ -56,16 +57,16 @@ dependencies:
   uuid: ^3.0.5
 
 dev_dependencies:
-  freezed: ^1.1.0
-  json_serializable: ^6.1.4
   build_runner: ^2.1.7
   fast_i18n: ^5.7.0
   flutter_lints: ^1.0.0
   flutter_test:
     sdk: flutter
+  freezed: ^1.1.0
   hive_generator: ^1.1.2
   integration_test:
     sdk: flutter
+  json_serializable: ^6.1.4
   mocktail: ^0.2.0
 
 # For information on the generic Dart part of this file, see the

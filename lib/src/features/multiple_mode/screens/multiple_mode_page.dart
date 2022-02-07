@@ -19,7 +19,7 @@ class MultipleModePage extends ConsumerWidget {
       case 0:
         return const MultipleSetting();
       default:
-        return MultiplePlayground(playerCount: playerCount);
+        return const MultiplePlayground();
     }
   }
 }

@@ -18,18 +18,14 @@ import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:slideparty_socket/slideparty_socket.dart';
 
 class MultiplePlayground extends HookConsumerWidget {
-  const MultiplePlayground({
-    Key? key,
-    required this.playerCount,
-  }) : super(key: key);
+  const MultiplePlayground({Key? key}) : super(key: key);
 
-  final int playerCount;
+  int axisLength(int playerCount) =>
+      playerCount ~/ 2 + (playerCount % 2 == 1 ? 1 : 0);
 
-  int get axisLength => playerCount ~/ 2 + (playerCount % 2 == 1 ? 1 : 0);
-
-  int _flexSpace(int index, double ratio) {
+  int _flexSpace(int index, double ratio, playerCount) {
     if (ratio <= 1.3) return 1;
-    if (index == axisLength - 1 && playerCount % 2 == 1) {
+    if (index == axisLength(playerCount) - 1 && playerCount % 2 == 1) {
       return 1;
     } else {
       return 2;
@@ -43,6 +39,7 @@ class MultiplePlayground extends HookConsumerWidget {
     int index, {
     required BoxConstraints constraints,
     required bool preferVertical,
+    required int playerCount,
   }) {
     if (preferVertical) {
       if (constraints.biggest.shortestSide > 600) {
@@ -79,15 +76,16 @@ class MultiplePlayground extends HookConsumerWidget {
     BuildContext context, {
     required bool preferVertical,
     required BoxConstraints constraints,
+    required int playerCount,
   }) {
     final ratio =
         constraints.biggest.longestSide / constraints.biggest.shortestSide;
     return Flex(
       direction: preferVertical ? Axis.vertical : Axis.horizontal,
       children: List.generate(
-          axisLength,
+          axisLength(playerCount),
           (index) => Flexible(
-                flex: _flexSpace(index, ratio),
+                flex: _flexSpace(index, ratio, playerCount),
                 child: Flex(
                   direction: _getDirectionOfParent(
                     index,
@@ -100,9 +98,11 @@ class MultiplePlayground extends HookConsumerWidget {
                           index,
                           constraints: constraints,
                           preferVertical: preferVertical,
+                          playerCount: playerCount,
                         ),
                         children: List.generate(
-                          playerCount % 2 == 1 && index == axisLength - 1
+                          playerCount % 2 == 1 &&
+                                  index == axisLength(playerCount) - 1
                               ? 1
                               : 2,
                           (colorIndex) => Expanded(
@@ -143,6 +143,16 @@ class MultiplePlayground extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(playboardControllerProvider.notifier);
+    final playerCount = ref.watch(
+      playboardControllerProvider.select((value) {
+        if (value is MultiplePlayboardState) {
+          return value.playerCount;
+        }
+        if (value is OnlinePlayboardState) {
+          return value.multiplePlayboardState?.playerCount;
+        }
+      }),
+    )!;
     ref.listen<String?>(
       playboardControllerProvider.select(
         (value) {
@@ -185,6 +195,7 @@ class MultiplePlayground extends HookConsumerWidget {
               context,
               preferVertical: constraints.maxWidth < constraints.maxHeight,
               constraints: constraints,
+              playerCount: playerCount,
             ),
           ),
         ),
