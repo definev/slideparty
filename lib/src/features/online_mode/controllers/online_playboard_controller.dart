@@ -15,8 +15,7 @@ final onlinePlayboardControlllerProvider = StateNotifierProvider //
   (ref, info) => OnlineModeController(ref.read, info),
 );
 
-class OnlineModeController
-    extends PlayboardController<OnlinePlayboardState>
+class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     with PlayboardGestureControlHelper, PlayboardKeyboardControlHelper {
   OnlineModeController(this._read, this.info)
       : _ssk = SlidepartySocket(info),
@@ -39,9 +38,9 @@ class OnlineModeController
   late final StreamSubscription _sub;
 
   void initController() {
-    _ssk.send(
-      ClientEvent.sendBoard(state.currentState!.playboard.currentBoard),
-    );
+    _ssk.send(ClientEvent.sendBoard(
+      state.currentState!.playboard.currentBoard,
+    ));
   }
 
   @override
@@ -50,6 +49,8 @@ class OnlineModeController
     _ssk.close();
     super.dispose();
   }
+
+  bool isMyPlayerId(String id) => state.playerId == id;
 
   void move(int index) {
     if (willBlockControl) return;
@@ -126,7 +127,7 @@ class OnlineModeController
   }
 
   bool handleSkillKey(LogicalKeyboardKey pressedKey) {
-    final control = _defaultControl;
+    final control = defaultControl;
     final openSkillState = _read(onlineSkillStateProvider);
     final openSkillNotifier = _read(onlineSkillStateProvider.notifier);
     final otherPlayersIndex =
@@ -211,7 +212,7 @@ class OnlineModeController
   bool handleKeyboardControl(LogicalKeyboardKey pressedKey) {
     final singleState = state.currentState!;
     final newBoard = defaultMoveByKeyboard(
-      _defaultControl.control,
+      defaultControl.control,
       pressedKey,
       singleState.playboard,
     );
@@ -239,7 +240,7 @@ class OnlineModeController
     return null;
   }
 
-  final PlayboardSkillKeyboardControl _defaultControl =
+  final PlayboardSkillKeyboardControl defaultControl =
       PlayboardSkillKeyboardControl(
     control: arrowControl,
     activeSkillKey: LogicalKeyboardKey.space,

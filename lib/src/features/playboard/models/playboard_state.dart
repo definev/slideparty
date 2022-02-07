@@ -97,7 +97,7 @@ class MultiplePlayboardState extends PlayboardState {
   List<String> getPlayerIds(String playerId) =>
       _playerStates.keys.toList()..remove(playerId);
 
-  List<SlidepartyActions> currentAction(String index) => _usedActions[index]!;
+  List<SlidepartyActions> currentAction(String id) => _usedActions[id]!;
   MultiplePlayboardState setActions(
     String index,
     List<SlidepartyActions> actions, [
@@ -168,7 +168,6 @@ class OnlinePlayboardState extends PlayboardState {
     return serverState.mapOrNull(
       roomData: (roomData) {
         final playerCount = roomData.players.length;
-        roomData.players[0]!.affectedActions;
 
         return MultiplePlayboardState(
           boardSize: boardSize,

@@ -114,7 +114,12 @@ class PlayboardView extends HookConsumerWidget {
         );
 
         final config = ref.watch(
-          playboardControllerProvider.select((value) => value.config),
+          playboardControllerProvider.select((value) {
+            if (value is OnlinePlayboardState) {
+              return value.multiplePlayboardState!.config;
+            }
+            return value.config;
+          }),
         );
         final tile = _getTileWithConfig(
           loc: loc,

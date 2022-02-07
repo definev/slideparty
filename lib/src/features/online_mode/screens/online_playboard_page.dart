@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:slideparty/src/features/multiple_mode/screens/multiple_playground.dart';
 import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 class OnlinePlayboardPage extends ConsumerWidget {
@@ -29,17 +30,7 @@ class OnlinePlayboardPage extends ConsumerWidget {
               style: Theme.of(context).textTheme.headline6,
             ),
           ),
-          roomData: (data) => LayoutBuilder(
-            builder: (context, constraints) {
-              if (constraints.biggest.shortestSide < 450) {}
-
-              return Consumer(
-                builder: (context, ref, child) {
-                  return const SizedBox();
-                },
-              );
-            },
-          ),
+          roomData: (data) => const MultiplePlayground(),
           waiting: (_) => const Center(child: CircularProgressIndicator()),
           roomFull: (_) => const Center(child: Text('Room is full')),
           connected: (_) {

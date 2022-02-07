@@ -106,11 +106,26 @@ class MultiplePlayground extends HookConsumerWidget {
                               ? 1
                               : 2,
                           (colorIndex) => Expanded(
-                            child: _PlayerPlayboardView(
-                              playerId: (index * 2 + colorIndex).toString(),
-                              ratio: ratio,
-                              color:
-                                  ButtonColors.values[index * 2 + colorIndex],
+                            child: Consumer(
+                              builder: (context, ref, _) {
+                                final playerId = ref.watch(
+                                  playboardControllerProvider.select((value) {
+                                    if (value is OnlinePlayboardState) {
+                                      return (value.serverState as RoomData)
+                                          .players
+                                          .keys
+                                          .elementAt(index * 2 + colorIndex);
+                                    }
+                                  }),
+                                );
+                                return _PlayerPlayboardView(
+                                  playerId: playerId ??
+                                      (index * 2 + colorIndex).toString(),
+                                  ratio: ratio,
+                                  color: ButtonColors
+                                      .values[index * 2 + colorIndex],
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -204,7 +219,7 @@ class MultiplePlayground extends HookConsumerWidget {
   }
 }
 
-class _PlayerPlayboardView extends ConsumerWidget {
+class _PlayerPlayboardView extends HookConsumerWidget {
   const _PlayerPlayboardView({
     Key? key,
     required this.playerId,
@@ -230,16 +245,47 @@ class _PlayerPlayboardView extends ConsumerWidget {
     final themeData = Theme.of(context);
     final boardSize = ref.watch(
       playboardControllerProvider.select(
-        (value) => (value as MultiplePlayboardState).boardSize,
+        (value) {
+          if (value is MultiplePlayboardState) {
+            return value.boardSize;
+          }
+          if (value is OnlinePlayboardState) {
+            return value.multiplePlayboardState!.boardSize;
+          }
+        },
       ),
-    );
+    )!;
     final playerCount = ref.watch(
       playboardControllerProvider.select(
-        (value) => (value as MultiplePlayboardState).playerCount,
+        (value) {
+          if (value is MultiplePlayboardState) {
+            return value.playerCount;
+          }
+          if (value is OnlinePlayboardState) {
+            return value.multiplePlayboardState!.playerCount;
+          }
+        },
       ),
-    );
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as MultipleModeController;
+    )!;
+    final controller = ref.watch(playboardControllerProvider.notifier);
+    final keyboard = () {
+      if (controller is MultipleModeController) {
+        return controller.playerControl(playerId);
+      }
+      if (controller is OnlineModeController) {
+        return controller.defaultControl;
+      }
+      return null;
+    }();
+    final isMyPlayerId = useMemoized(() {
+      if (controller is MultipleModeController) {
+        return true;
+      }
+      if (controller is OnlineModeController) {
+        return controller.isMyPlayerId(playerId);
+      }
+      return false;
+    });
 
     final view = Theme(
       data: themeData.colorScheme.brightness == Brightness.light
@@ -283,9 +329,10 @@ class _PlayerPlayboardView extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      if (AppInfos.screenType == ScreenTypes.mouse ||
-                          AppInfos.screenType ==
-                              ScreenTypes.touchscreenAndMouse)
+                      if ((AppInfos.screenType == ScreenTypes.mouse ||
+                              AppInfos.screenType ==
+                                  ScreenTypes.touchscreenAndMouse) &&
+                          isMyPlayerId)
                         Align(
                           alignment: constraints.biggest.aspectRatio > 1
                               ? Alignment.centerRight
@@ -293,7 +340,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: SkillKeyboard(
-                              controller.playerControl(playerId),
+                              keyboard!,
                               playerId: playerId,
                               playerCount: playerCount,
                               size: min(
@@ -317,10 +364,17 @@ class _PlayerPlayboardView extends ConsumerWidget {
                         builder: (context, ref, _) {
                           final affectedActions = ref.watch(
                             playboardControllerProvider.select(
-                              (value) => (value as MultiplePlayboardState)
-                                  .currentAction(playerId),
+                              (value) {
+                                if (value is MultiplePlayboardState) {
+                                  return value.currentAction(playerId);
+                                }
+                                if (value is OnlinePlayboardState) {
+                                  return value.multiplePlayboardState!
+                                      .currentAction(playerId);
+                                }
+                              },
                             ),
-                          );
+                          )!;
                           bool isPause =
                               affectedActions.contains(SlidepartyActions.pause);
 
@@ -336,8 +390,15 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                               ScreenTypes.touchscreen
                                       ? HoleMenu(playerId: playerId)
                                       : null,
-                                  onPressed: (number) =>
-                                      controller.move(playerId, number),
+                                  onPressed: (number) {
+                                    if (controller is MultipleModeController) {
+                                      return controller.move(playerId, number);
+                                    }
+                                    if (isMyPlayerId == false) return;
+                                    if (controller is OnlineModeController) {
+                                      return controller.move(number);
+                                    }
+                                  },
                                   clipBehavior: Clip.none,
                                 ),
                               ),
@@ -377,8 +438,24 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                 Consumer(
                                   builder: (context, ref, child) {
                                     final show = ref.watch(
-                                      multipleSkillStateProvider(playerId)
-                                          .select((value) => value.show),
+                                      controller is OnlineModeController
+                                          ? onlineSkillStateProvider
+                                              .select((value) => value.show)
+                                          : multipleSkillStateProvider(playerId)
+                                              .select((value) => value.show),
+                                    );
+                                    final otherPlayersIds = ref.watch(
+                                      playboardControllerProvider.select(
+                                        (state) {
+                                          if (state is OnlinePlayboardState) {
+                                            return state.multiplePlayboardState!
+                                                .getPlayerIds(playerId);
+                                          }
+                                          if (state is MultiplePlayboardState) {
+                                            return state.getPlayerIds(playerId);
+                                          }
+                                        },
+                                      ),
                                     );
 
                                     return Center(
@@ -395,13 +472,7 @@ class _PlayerPlayboardView extends ConsumerWidget {
                                             playerId: playerId,
                                             color: ButtonColors
                                                 .values[int.parse(playerId)],
-                                            otherPlayersIndex: [
-                                              for (var i = 0;
-                                                  i < playerCount;
-                                                  i++)
-                                                if (i.toString() != playerId)
-                                                  i.toString()
-                                            ],
+                                            otherPlayersIds: otherPlayersIds!,
                                           ),
                                         ),
                                       ),
@@ -437,14 +508,38 @@ class _PlayerPlayboardView extends ConsumerWidget {
     if (AppInfos.screenType == ScreenTypes.touchscreen ||
         AppInfos.screenType == ScreenTypes.touchscreenAndMouse) {
       return SwipeDetector(
-        onSwipeLeft: () =>
-            controller.moveByGesture(playerId, PlayboardDirection.left),
-        onSwipeRight: () =>
-            controller.moveByGesture(playerId, PlayboardDirection.right),
-        onSwipeUp: () =>
-            controller.moveByGesture(playerId, PlayboardDirection.up),
-        onSwipeDown: () =>
-            controller.moveByGesture(playerId, PlayboardDirection.down),
+        onSwipeLeft: () {
+          if (controller is MultipleModeController) {
+            controller.moveByGesture(playerId, PlayboardDirection.left);
+          }
+          if (controller is OnlineModeController) {
+            controller.moveByGesture(PlayboardDirection.left);
+          }
+        },
+        onSwipeRight: () {
+          if (controller is MultipleModeController) {
+            controller.moveByGesture(playerId, PlayboardDirection.right);
+          }
+          if (controller is OnlineModeController) {
+            controller.moveByGesture(PlayboardDirection.right);
+          }
+        },
+        onSwipeUp: () {
+          if (controller is MultipleModeController) {
+            controller.moveByGesture(playerId, PlayboardDirection.up);
+          }
+          if (controller is OnlineModeController) {
+            controller.moveByGesture(PlayboardDirection.up);
+          }
+        },
+        onSwipeDown: () {
+          if (controller is MultipleModeController) {
+            controller.moveByGesture(playerId, PlayboardDirection.down);
+          }
+          if (controller is OnlineModeController) {
+            controller.moveByGesture(PlayboardDirection.down);
+          }
+        },
         child: view,
       );
     }
@@ -502,13 +597,13 @@ class SmallSkillMenu extends HookConsumerWidget {
     Key? key,
     required this.size,
     required this.playerId,
-    required this.otherPlayersIndex,
+    required this.otherPlayersIds,
     required this.color,
   }) : super(key: key);
 
   final double size;
   final String playerId;
-  final List<String> otherPlayersIndex;
+  final List<String> otherPlayersIds;
   final ButtonColors color;
 
   Widget _actionIcon(
@@ -585,7 +680,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                 separatorBuilder: () => const SizedBox(width: 8),
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  for (final otherPlayerIndex in otherPlayersIndex)
+                  for (final otherPlayerIndex in otherPlayersIds)
                     AnimatedScale(
                       duration: const Duration(milliseconds: 200),
                       scale: pickedPlayer.value == otherPlayerIndex ? 1.1 : 1,
