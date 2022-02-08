@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:line_icons/line_icon.dart';
+import 'package:dartx/dartx.dart';
 
 import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
 import 'package:slideparty/src/features/multiple_mode/widgets/win_dialog.dart';
@@ -504,7 +505,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
             return value.currentAction(playerId);
           }
           if (value is OnlinePlayboardState) {
-            return value.affectedAction![playerId]!.values;
+            return value.affectedAction![playerId]!.values.flatten();
           }
         },
       ),

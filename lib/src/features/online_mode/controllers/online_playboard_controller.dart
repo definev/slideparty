@@ -254,8 +254,10 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   bool get willBlockControl {
-    final singleState = state.affectedAction![state.playerId];
-    return singleState!.values.contains(SlidepartyActions.pause);
+    final singleState = state.affectedAction![state.playerId]!.values
+        .toList()
+        .expand((element) => [...element]);
+    return singleState.contains(SlidepartyActions.pause);
   }
 
   @override
