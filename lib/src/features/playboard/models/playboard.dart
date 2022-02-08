@@ -167,24 +167,8 @@ class Playboard {
 
   Playboard? moveHole(PlayboardDirection direction) {
     final holeLoc = currentLoc(hole);
-    switch (direction) {
-      case PlayboardDirection.up:
-        final numberLoc = holeLoc.down(size);
-        if (numberLoc != null) return swap(holeLoc, numberLoc);
-        break;
-      case PlayboardDirection.down:
-        final numberLoc = holeLoc.up(size);
-        if (numberLoc != null) return swap(holeLoc, numberLoc);
-        break;
-      case PlayboardDirection.left:
-        final numberLoc = holeLoc.right(size);
-        if (numberLoc != null) return swap(holeLoc, numberLoc);
-        break;
-      case PlayboardDirection.right:
-        final numberLoc = holeLoc.left(size);
-        if (numberLoc != null) return swap(holeLoc, numberLoc);
-        break;
-    }
+    final numberLoc = holeLoc.move(size, direction.opposite);
+    if (numberLoc != null) return swap(holeLoc, numberLoc);
     return null;
   }
 

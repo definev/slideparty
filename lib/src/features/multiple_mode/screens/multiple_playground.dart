@@ -467,10 +467,6 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                     final otherPlayersIds = ref.watch(
                                       playboardControllerProvider.select(
                                         (state) {
-                                          if (state is OnlinePlayboardState) {
-                                            return state.multiplePlayboardState!
-                                                .getPlayerIds(playerId);
-                                          }
                                           if (state is MultiplePlayboardState) {
                                             return state.getPlayerIds(playerId);
                                           }

@@ -238,7 +238,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     if (willBlockControl) return null;
     final player = state.currentState!;
     if (player.playboard.isSolved) return null;
-    final playboard = player.playboard.moveHoleExact(direction);
+    final playboard = player.playboard.moveHole(direction);
     if (playboard != null) updatePlayboardState(playboard);
     return null;
   }
