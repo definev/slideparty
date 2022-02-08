@@ -215,7 +215,12 @@ class OnlinePlayboardState extends PlayboardState {
           roomData.players.map(
             (key, value) => MapEntry(
               key,
-              value.affectedActions.containsValue(SlidepartyActions.blind)
+              value.affectedActions.entries.fold<List<SlidepartyActions>>(
+                      [],
+                      (previousValue, element) => [
+                            ...previousValue,
+                            ...element.value
+                          ]).contains(SlidepartyActions.blind)
                   ? PlayboardConfig.blind(value.color.buttonColor)
                   : PlayboardConfig.number(value.color.buttonColor),
             ),
