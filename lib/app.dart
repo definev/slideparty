@@ -97,6 +97,7 @@ class _AppState extends ConsumerState<App> {
       themeMode: isDarkTheme ? ThemeMode.dark : ThemeMode.light,
       theme: playboardDefaultColor.lightTheme,
       darkTheme: playboardDefaultColor.darkTheme,
+      onGenerateTitle: (context) => 'Slideparty',
     );
   }
 }
