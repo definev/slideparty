@@ -10,7 +10,6 @@ import 'package:slideparty/app.dart';
 import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
 import 'package:slideparty/src/features/app_setting/app_setting_local.dart';
 import 'package:slideparty/src/features/audio/repositories/audio_local.dart';
-import 'package:slideparty/src/features/home/home.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'package:slideparty/src/features/playboard/repositories/playboard_local.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
