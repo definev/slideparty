@@ -177,8 +177,12 @@ class OnlinePlayboardState extends PlayboardState {
   final RoomInfo info;
   final SinglePlayboardState? currentState;
   final List<SlidepartyActions> currentUsedAction;
-  Map<String, SlidepartyActions>? get affectedAction => serverState.mapOrNull(
-        roomData: (roomData) => roomData.players[playerId]!.affectedActions,
+  Map<String, Map<String, SlidepartyActions>>? get affectedAction =>
+      serverState.mapOrNull(
+        roomData: (roomData) => Map.fromIterables(
+            roomData.players.values.map<String>((value) => value.id),
+            roomData.players.values.map<Map<String, SlidepartyActions>>(
+                (value) => value.affectedActions)),
       );
 
   int get boardSize => info.boardSize;

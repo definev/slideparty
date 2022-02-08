@@ -504,7 +504,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
             return value.currentAction(playerId);
           }
           if (value is OnlinePlayboardState) {
-            return value.multiplePlayboardState!.currentAction(playerId);
+            return value.affectedAction![playerId]!.values;
           }
         },
       ),

@@ -77,7 +77,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     state = state.copyWith(
       currentUsedAction: [...state.currentUsedAction, usedAction],
     );
-    _ssk.send(ClientEvent.sendAction(targetId, usedAction));
+    // _ssk.send(ClientEvent.sendAction(targetId, usedAction));
   }
 
   void pickAction(SlidepartyActions queueAction) {
@@ -107,10 +107,6 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   void doAction(ButtonColors otherColor) {
-    _doAction(otherColor);
-  }
-
-  void _doAction(ButtonColors otherColor) {
     final openSkillState = _read(multipleSkillStateProvider(state.playerId));
     final openSkillNotifier =
         _read(multipleSkillStateProvider(state.playerId).notifier);
@@ -210,15 +206,15 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
         control.control.onKeyDown<void>(
           pressedKey,
           onLeft: () {
-            _doAction(otherPlayerColors[0]);
+            doAction(otherPlayerColors[0]);
           },
           onDown: () {
             if (otherPlayerColors.length < 2) return;
-            _doAction(otherPlayerColors[1]);
+            doAction(otherPlayerColors[1]);
           },
           onRight: () {
             if (otherPlayerColors.length < 3) return;
-            _doAction(otherPlayerColors[2]);
+            doAction(otherPlayerColors[2]);
           },
         );
       }
@@ -250,8 +246,8 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   bool get willBlockControl {
-    final singleState = state.affectedAction!;
-    return singleState.values.contains(SlidepartyActions.pause);
+    final singleState = state.affectedAction![state.playerId];
+    return singleState!.values.contains(SlidepartyActions.pause);
   }
 
   @override
