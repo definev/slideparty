@@ -10,6 +10,7 @@ import 'package:line_icons/line_icon.dart';
 import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
 import 'package:slideparty/src/features/multiple_mode/widgets/win_dialog.dart';
 import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
+import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
@@ -303,32 +304,37 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                 body: Stack(
                   children: [
                     if (isLargeScreen(constraints)) ...[
-                      Align(
-                        alignment: constraints.biggest.aspectRatio > 1
-                            ? Alignment.centerLeft
-                            : Alignment.topCenter,
-                        child: SizedBox.square(
-                          dimension: (constraints.biggest.longestSide -
-                                  _playboardSize(constraints)) /
-                              2,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                left: _textPadding(constraints),
-                              ),
-                              child: Text(
-                                playerId,
-                                style: themeData.textTheme.headline1!.copyWith(
-                                  fontSize: (constraints.biggest.longestSide -
-                                          _playboardSize(constraints)) /
-                                      4,
-                                  color: themeData.colorScheme.surface,
+                      if (isMyPlayerId)
+                        Align(
+                          alignment: constraints.biggest.aspectRatio > 1
+                              ? Alignment.centerLeft
+                              : Alignment.topCenter,
+                          child: SizedBox.square(
+                            dimension: (constraints.biggest.longestSide -
+                                    _playboardSize(constraints)) /
+                                2,
+                            child: Center(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  left: _textPadding(constraints),
+                                ),
+                                child: Text(
+                                  controller is OnlineModeController &&
+                                          isMyPlayerId
+                                      ? 'YOU'
+                                      : playerId,
+                                  style:
+                                      themeData.textTheme.headline1!.copyWith(
+                                    fontSize: (constraints.biggest.longestSide -
+                                            _playboardSize(constraints)) /
+                                        6,
+                                    color: themeData.colorScheme.surface,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
                       if ((AppInfos.screenType == ScreenTypes.mouse ||
                               AppInfos.screenType ==
                                   ScreenTypes.touchscreenAndMouse) &&
@@ -337,23 +343,32 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                           alignment: constraints.biggest.aspectRatio > 1
                               ? Alignment.centerRight
                               : Alignment.bottomCenter,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: SkillKeyboard(
-                              keyboard!,
-                              playerId: playerId,
-                              playerCount: playerCount,
-                              size: min(
-                                (constraints.biggest.longestSide -
-                                        _playboardSize(constraints) -
-                                        32) /
-                                    8,
-                                constraints.biggest.shortestSide / 6,
+                          child: SizedBox.square(
+                            dimension: (constraints.biggest.longestSide -
+                                    _playboardSize(constraints)) /
+                                2,
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: SkillKeyboard(
+                                  keyboard!,
+                                  playerId: playerId,
+                                  playerCount: playerCount,
+                                  size: min(
+                                      60,
+                                      min(
+                                        (constraints.biggest.longestSide -
+                                                _playboardSize(constraints) -
+                                                32) /
+                                            8,
+                                        constraints.biggest.shortestSide / 6,
+                                      )),
+                                  otherPlayersIndex: [
+                                    for (var i = 0; i < playerCount; i++)
+                                      if (i.toString() != playerId) i.toString()
+                                  ],
+                                ),
                               ),
-                              otherPlayersIndex: [
-                                for (var i = 0; i < playerCount; i++)
-                                  if (i.toString() != playerId) i.toString()
-                              ],
                             ),
                           ),
                         ),
@@ -385,10 +400,15 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                   boardSize: boardSize,
                                   size: _playboardSize(constraints),
                                   playerId: playerId,
-                                  holeWidget: !isLargeScreen(constraints) ||
-                                          AppInfos.screenType ==
-                                              ScreenTypes.touchscreen
-                                      ? HoleMenu(playerId: playerId)
+                                  holeWidget: (!isLargeScreen(constraints) ||
+                                              AppInfos.screenType ==
+                                                  ScreenTypes.touchscreen) &&
+                                          isMyPlayerId
+                                      ? HoleMenu(
+                                          playerId: playerId,
+                                          isOnlineMode: controller
+                                              is OnlineModeController,
+                                        )
                                       : null,
                                   onPressed: (number) {
                                     if (controller is MultipleModeController) {
@@ -457,6 +477,22 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                         },
                                       ),
                                     );
+                                    final color = ref.watch(
+                                        playboardControllerProvider
+                                            .select((state) {
+                                      if (state is OnlinePlayboardState) {
+                                        return (state.multiplePlayboardState!
+                                                    .config
+                                                as MultiplePlayboardConfig)
+                                            .configs[playerId]!
+                                            .mapOrNull(
+                                              blind: (value) => value.color,
+                                              number: (value) => value.color,
+                                            )!;
+                                      }
+                                      return ButtonColors
+                                          .values[int.parse(playerId)];
+                                    }));
 
                                     return Center(
                                       child: IgnorePointer(
@@ -470,8 +506,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                             size: _playboardSize(constraints) +
                                                 32,
                                             playerId: playerId,
-                                            color: ButtonColors
-                                                .values[int.parse(playerId)],
+                                            color: color,
                                             otherPlayersIds: otherPlayersIds!,
                                           ),
                                         ),
@@ -550,9 +585,11 @@ class _PlayerPlayboardView extends HookConsumerWidget {
 class HoleMenu extends StatelessWidget {
   const HoleMenu({
     Key? key,
+    required this.isOnlineMode,
     required this.playerId,
   }) : super(key: key);
 
+  final bool isOnlineMode;
   final String playerId;
 
   @override
@@ -561,8 +598,12 @@ class HoleMenu extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, cs) => Consumer(
           builder: (context, ref, child) {
-            final skillStateNotifier =
-                ref.watch(multipleSkillStateProvider(playerId).notifier);
+            final controller = ref.watch(playboardControllerProvider.notifier);
+            final skillStateNotifier = ref.watch(
+              controller is OnlineModeController
+                  ? onlineSkillStateProvider.notifier
+                  : multipleSkillStateProvider(playerId).notifier,
+            );
             return InkWell(
               onTap: () => skillStateNotifier.state = skillStateNotifier.state
                   .copyWith(show: !skillStateNotifier.state.show),
@@ -579,7 +620,7 @@ class HoleMenu extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'P.$playerId',
+                isOnlineMode ? 'You' : 'P.$playerId',
                 style: Theme.of(context).textTheme.bodyText2!.copyWith(
                       fontSize: cs.maxHeight / 10,
                     ),
@@ -623,11 +664,17 @@ class SmallSkillMenu extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as MultipleModeController;
-    final openSkill = ref.watch(multipleSkillStateProvider(playerId));
-    final openSkillNotifier =
-        ref.watch(multipleSkillStateProvider(playerId).notifier);
+    final controller = ref.watch(playboardControllerProvider.notifier);
+    final openSkill = ref.watch(
+      controller is OnlineModeController
+          ? onlineSkillStateProvider
+          : multipleSkillStateProvider(playerId),
+    );
+    final openSkillNotifier = ref.watch(
+      controller is OnlineModeController
+          ? onlineSkillStateProvider.notifier
+          : multipleSkillStateProvider(playerId).notifier,
+    );
     final pickedPlayer = useState<String?>(null);
 
     return GestureDetector(
@@ -668,7 +715,12 @@ class SmallSkillMenu extends HookConsumerWidget {
                             Navigator.pop(context);
                             return;
                           }
-                          controller.pickAction(playerId, action);
+                          if (controller is MultipleModeController) {
+                            controller.pickAction(playerId, action);
+                          }
+                          if (controller is OnlineModeController) {
+                            controller.pickAction(openSkill.queuedAction!);
+                          }
                         },
                         size: ButtonSize.square,
                         child: _actionIcon(context, action),
@@ -692,7 +744,11 @@ class SmallSkillMenu extends HookConsumerWidget {
                                 pickedPlayer.value == null
                             ? SlidepartyButtonStyle.normal
                             : SlidepartyButtonStyle.invert,
-                        child: Text('P.$otherPlayerIndex'),
+                        child: Text(
+                          controller is OnlineModeController
+                              ? 'You'
+                              : 'P.$otherPlayerIndex',
+                        ),
                       ),
                     ),
                 ],
@@ -705,7 +761,13 @@ class SmallSkillMenu extends HookConsumerWidget {
                         : SlidepartyButtonStyle.normal,
                 customSize: const Size(49 * 3 + 16, 49),
                 onPressed: () {
-                  controller.doAction(playerId, pickedPlayer.value!);
+                  if (controller is MultipleModeController) {
+                    controller.doAction(playerId, pickedPlayer.value!);
+                  }
+                  if (controller is OnlineModeController) {
+                    controller.doAction(
+                        pickedPlayer.value!, openSkill.queuedAction!);
+                  }
                   pickedPlayer.value = null;
                 },
                 child: const Text('Apply skill'),
