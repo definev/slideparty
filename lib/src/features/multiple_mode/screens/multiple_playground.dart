@@ -110,14 +110,16 @@ class MultiplePlayground extends HookConsumerWidget {
                             child: Consumer(
                               builder: (context, ref, _) {
                                 final playerId = ref.watch(
-                                  playboardControllerProvider.select((value) {
-                                    if (value is OnlinePlayboardState) {
-                                      return (value.serverState as RoomData)
-                                          .players
-                                          .keys
-                                          .elementAt(index * 2 + colorIndex);
-                                    }
-                                  }),
+                                  playboardControllerProvider.select(
+                                    (value) {
+                                      if (value is OnlinePlayboardState) {
+                                        return (value.serverState as RoomData)
+                                            .players
+                                            .keys
+                                            .elementAt(index * 2 + colorIndex);
+                                      }
+                                    },
+                                  ),
                                 );
                                 return _PlayerPlayboardView(
                                   playerId: playerId ??
@@ -238,38 +240,24 @@ class _PlayerPlayboardView extends HookConsumerWidget {
   double _textPadding(BoxConstraints constraints) =>
       3 * (constraints.biggest.longestSide - _playboardSize(constraints)) / 64;
 
-  bool isLargeScreen(BoxConstraints constraints) =>
+  bool _isLargeScreen(BoxConstraints constraints) =>
       ratio > 1.3 && constraints.biggest.longestSide > 750;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-    final boardSize = ref.watch(
-      playboardControllerProvider.select(
-        (value) {
-          if (value is MultiplePlayboardState) {
-            return value.boardSize;
-          }
-          if (value is OnlinePlayboardState) {
-            return value.multiplePlayboardState!.boardSize;
-          }
-        },
-      ),
-    )!;
-    final playerCount = ref.watch(
-      playboardControllerProvider.select(
-        (value) {
-          if (value is MultiplePlayboardState) {
-            return value.playerCount;
-          }
-          if (value is OnlinePlayboardState) {
-            return value.multiplePlayboardState!.playerCount;
-          }
-        },
-      ),
-    )!;
+    final playerCount = ref.watch(playboardControllerProvider.select(
+      (value) {
+        if (value is MultiplePlayboardState) {
+          return value.playerCount;
+        }
+        if (value is OnlinePlayboardState) {
+          return value.multiplePlayboardState!.playerCount;
+        }
+      },
+    ))!;
     final controller = ref.watch(playboardControllerProvider.notifier);
-    final keyboard = () {
+    final keyboard = useMemoized(() {
       if (controller is MultipleModeController) {
         return controller.playerControl(playerId);
       }
@@ -277,7 +265,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
         return controller.defaultControl;
       }
       return null;
-    }();
+    }, [controller]);
     final isMyPlayerId = useMemoized(() {
       if (controller is MultipleModeController) {
         return true;
@@ -303,7 +291,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
               child: Scaffold(
                 body: Stack(
                   children: [
-                    if (isLargeScreen(constraints)) ...[
+                    if (_isLargeScreen(constraints)) ...[
                       if (isMyPlayerId)
                         Align(
                           alignment: constraints.biggest.aspectRatio > 1
@@ -373,174 +361,18 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                           ),
                         ),
                     ],
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Consumer(
-                        builder: (context, ref, _) {
-                          final affectedActions = ref.watch(
-                            playboardControllerProvider.select(
-                              (value) {
-                                if (value is MultiplePlayboardState) {
-                                  return value.currentAction(playerId);
-                                }
-                                if (value is OnlinePlayboardState) {
-                                  return value.multiplePlayboardState!
-                                      .currentAction(playerId);
-                                }
-                              },
-                            ),
-                          )!;
-                          bool isPause =
-                              affectedActions.contains(SlidepartyActions.pause);
-
-                          return Stack(
-                            children: [
-                              Center(
-                                child: PlayboardView(
-                                  boardSize: boardSize,
-                                  size: _playboardSize(constraints),
-                                  playerId: playerId,
-                                  holeWidget: (!isLargeScreen(constraints) ||
-                                              AppInfos.screenType ==
-                                                  ScreenTypes.touchscreen) &&
-                                          isMyPlayerId
-                                      ? HoleMenu(
-                                          playerId: playerId,
-                                          isOnlineMode: controller
-                                              is OnlineModeController,
-                                        )
-                                      : null,
-                                  onPressed: (number) {
-                                    if (controller is MultipleModeController) {
-                                      return controller.move(playerId, number);
-                                    }
-                                    if (isMyPlayerId == false) return;
-                                    if (controller is OnlineModeController) {
-                                      return controller.move(number);
-                                    }
-                                  },
-                                  clipBehavior: Clip.none,
-                                ),
-                              ),
-                              if (isPause)
-                                Center(
-                                  child: IgnorePointer(
-                                    child: ColoredBox(
-                                      color: themeData.scaffoldBackgroundColor
-                                          .withOpacity(0.3),
-                                      child: SizedBox(
-                                        width: _playboardSize(constraints) + 32,
-                                        height:
-                                            _playboardSize(constraints) + 32,
-                                        child: Center(
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              color: themeData
-                                                  .scaffoldBackgroundColor,
-                                              shape: BoxShape.circle,
-                                              boxShadow: const [BoxShadow()],
-                                            ),
-                                            child: SizedBox(
-                                              height: 64,
-                                              width: 64,
-                                              child: Center(
-                                                child: LineIcon.pauseCircleAlt(
-                                                    size: 32),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              if (!isLargeScreen(constraints))
-                                Consumer(
-                                  builder: (context, ref, child) {
-                                    final show = ref.watch(
-                                      controller is OnlineModeController
-                                          ? onlineSkillStateProvider
-                                              .select((value) => value.show)
-                                          : multipleSkillStateProvider(playerId)
-                                              .select((value) => value.show),
-                                    );
-                                    final otherPlayersIds = ref.watch(
-                                      playboardControllerProvider.select(
-                                        (state) {
-                                          if (state is MultiplePlayboardState) {
-                                            return state.getPlayerIds(playerId);
-                                          }
-                                        },
-                                      ),
-                                    );
-                                    final otherPlayersColors = ref.watch(
-                                      playboardControllerProvider.select(
-                                        (state) {
-                                          if (state is OnlinePlayboardState) {
-                                            return state.multiplePlayboardState!
-                                                .getPlayerColors(playerId);
-                                          }
-                                        },
-                                      ),
-                                    );
-                                    final color = ref.watch(
-                                        playboardControllerProvider
-                                            .select((state) {
-                                      if (state is OnlinePlayboardState) {
-                                        return (state.multiplePlayboardState!
-                                                    .config
-                                                as MultiplePlayboardConfig)
-                                            .configs[playerId]!
-                                            .mapOrNull(
-                                              blind: (value) => value.color,
-                                              number: (value) => value.color,
-                                            )!;
-                                      }
-                                      return ButtonColors
-                                          .values[int.parse(playerId)];
-                                    }));
-
-                                    return Center(
-                                      child: IgnorePointer(
-                                        ignoring: !show,
-                                        child: AnimatedOpacity(
-                                          duration:
-                                              const Duration(milliseconds: 100),
-                                          curve: Curves.easeInOutCubic,
-                                          opacity: show ? 1 : 0,
-                                          child: SmallSkillMenu(
-                                            size: _playboardSize(constraints) +
-                                                32,
-                                            playerId: playerId,
-                                            color: color,
-                                            otherPlayersIds: otherPlayersIds,
-                                            otherPlayerColors:
-                                                otherPlayersColors,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                            ],
-                          );
-                        },
-                      ),
+                    _MultipleMainPlayground(
+                      playerId: playerId,
+                      size: _playboardSize(constraints),
+                      isLargeScreen: _isLargeScreen(constraints),
                     ),
                   ],
                 ),
               ),
-              builder: (context, value, child) => Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      height: constraints.biggest.height * value,
-                      width: constraints.biggest.width * value,
-                      child: child,
-                    ),
-                  ),
-                ],
+              builder: (context, value, child) => SizedBox(
+                height: constraints.biggest.height * value,
+                width: constraints.biggest.width * value,
+                child: child,
               ),
             );
           },
@@ -606,12 +438,8 @@ class HoleMenu extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, cs) => Consumer(
           builder: (context, ref, child) {
-            final controller = ref.watch(playboardControllerProvider.notifier);
-            final skillStateNotifier = ref.watch(
-              controller is OnlineModeController
-                  ? onlineSkillStateProvider.notifier
-                  : multipleSkillStateProvider(playerId).notifier,
-            );
+            final skillStateNotifier =
+                ref.watch(multipleSkillStateProvider(playerId).notifier);
             return InkWell(
               onTap: () => skillStateNotifier.state = skillStateNotifier.state
                   .copyWith(show: !skillStateNotifier.state.show),
@@ -637,6 +465,177 @@ class HoleMenu extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _MultipleMainPlayground extends HookConsumerWidget {
+  const _MultipleMainPlayground({
+    Key? key,
+    required this.playerId,
+    required this.size,
+    required this.isLargeScreen,
+  }) : super(key: key);
+
+  final String playerId;
+  final double size;
+  final bool isLargeScreen;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
+    final controller = ref.watch(playboardControllerProvider.notifier);
+    final boardSize = ref.watch(
+      playboardControllerProvider.select(
+        (value) {
+          if (value is MultiplePlayboardState) {
+            return value.boardSize;
+          }
+          if (value is OnlinePlayboardState) {
+            return value.multiplePlayboardState!.boardSize;
+          }
+        },
+      ),
+    )!;
+    final affectedActions = ref.watch(
+      playboardControllerProvider.select(
+        (value) {
+          if (value is MultiplePlayboardState) {
+            return value.currentAction(playerId);
+          }
+          if (value is OnlinePlayboardState) {
+            return value.multiplePlayboardState!.currentAction(playerId);
+          }
+        },
+      ),
+    )!;
+    final isMyPlayerId = useMemoized(() {
+      if (controller is MultipleModeController) {
+        return true;
+      }
+      if (controller is OnlineModeController) {
+        return controller.isMyPlayerId(playerId);
+      }
+      return false;
+    });
+    bool isPause = affectedActions.contains(SlidepartyActions.pause);
+
+    return Stack(
+      children: [
+        Center(
+          child: PlayboardView(
+            boardSize: boardSize,
+            size: size,
+            playerId: playerId,
+            holeWidget: (!isLargeScreen ||
+                        AppInfos.screenType == ScreenTypes.touchscreen) &&
+                    isMyPlayerId
+                ? HoleMenu(
+                    playerId: playerId,
+                    isOnlineMode: controller is OnlineModeController,
+                  )
+                : null,
+            onPressed: (number) {
+              if (controller is MultipleModeController) {
+                return controller.move(playerId, number);
+              }
+              if (isMyPlayerId == false) return;
+              if (controller is OnlineModeController) {
+                return controller.move(number);
+              }
+            },
+            clipBehavior: Clip.none,
+          ),
+        ),
+        if (isPause)
+          Center(
+            child: IgnorePointer(
+              child: ColoredBox(
+                color: themeData.scaffoldBackgroundColor.withOpacity(0.3),
+                child: SizedBox(
+                  width: size + 32,
+                  height: size + 32,
+                  child: Center(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: themeData.scaffoldBackgroundColor,
+                        shape: BoxShape.circle,
+                        boxShadow: const [BoxShadow()],
+                      ),
+                      child: SizedBox(
+                        height: 64,
+                        width: 64,
+                        child: Center(
+                          child: LineIcon.pauseCircleAlt(size: 32),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (!isLargeScreen)
+          Consumer(
+            builder: (context, ref, child) {
+              final show = ref.watch(
+                multipleSkillStateProvider(playerId).select(
+                  (value) => value.show,
+                ),
+              );
+              final otherPlayersIds = ref.watch(
+                playboardControllerProvider.select(
+                  (state) {
+                    if (state is MultiplePlayboardState) {
+                      return state.getPlayerIds(playerId);
+                    }
+                  },
+                ),
+              );
+              final otherPlayersColors = ref.watch(
+                playboardControllerProvider.select(
+                  (state) {
+                    if (state is OnlinePlayboardState) {
+                      return state.multiplePlayboardState!
+                          .getPlayerColors(playerId);
+                    }
+                  },
+                ),
+              );
+              final color =
+                  ref.watch(playboardControllerProvider.select((state) {
+                if (state is OnlinePlayboardState) {
+                  return (state.multiplePlayboardState!.config
+                          as MultiplePlayboardConfig)
+                      .configs[playerId]!
+                      .mapOrNull(
+                        blind: (value) => value.color,
+                        number: (value) => value.color,
+                      )!;
+                }
+                return ButtonColors.values[int.parse(playerId)];
+              }));
+
+              return Center(
+                child: IgnorePointer(
+                  ignoring: !show,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 100),
+                    curve: Curves.easeInOutCubic,
+                    opacity: show ? 1 : 0,
+                    child: SmallSkillMenu(
+                      size: size + 32,
+                      playerId: playerId,
+                      color: color,
+                      otherPlayersIds: otherPlayersIds,
+                      otherPlayerColors: otherPlayersColors,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }
@@ -675,26 +674,18 @@ class SmallSkillMenu extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
     final controller = ref.watch(playboardControllerProvider.notifier);
-    final openSkill = ref.watch(
-      controller is OnlineModeController
-          ? onlineSkillStateProvider
-          : multipleSkillStateProvider(playerId),
-    );
-    final openSkillNotifier = ref.watch(
-      controller is OnlineModeController
-          ? onlineSkillStateProvider.notifier
-          : multipleSkillStateProvider(playerId).notifier,
-    );
+    final openSkill = ref.watch(multipleSkillStateProvider(playerId));
+    final openSkillNotifier =
+        ref.watch(multipleSkillStateProvider(playerId).notifier);
     final pickedPlayer = useState<String?>(null);
     final pickedColor = useState<ButtonColors?>(null);
 
     return GestureDetector(
       onTap: () {
-        openSkillNotifier.state = openSkill.copyWith(
-          show: false,
-          queuedAction: null,
-        );
+        openSkillNotifier.state =
+            openSkill.copyWith(show: false, queuedAction: null);
         pickedPlayer.value = null;
+        pickedColor.value = null;
       },
       child: ColoredBox(
         color: themeData.scaffoldBackgroundColor.withOpacity(0.3),
@@ -766,33 +757,35 @@ class SmallSkillMenu extends HookConsumerWidget {
                         duration: const Duration(milliseconds: 200),
                         scale: pickedColor.value == otherColor ? 1.1 : 1,
                         child: SlidepartyButton(
-                          color: color,
+                          color: otherColor,
                           onPressed: () => pickedColor.value = otherColor,
                           size: ButtonSize.square,
                           style: pickedColor.value == otherColor ||
                                   pickedColor.value == null
                               ? SlidepartyButtonStyle.normal
                               : SlidepartyButtonStyle.invert,
-                          child: const Text('You'),
+                          child: Text(otherColor.name[0].toUpperCase()),
                         ),
                       ),
                 ],
               ),
               SlidepartyButton(
                 color: color,
-                style:
-                    pickedPlayer.value == null || openSkill.queuedAction == null
-                        ? SlidepartyButtonStyle.invert
-                        : SlidepartyButtonStyle.normal,
+                style: (openSkill.queuedAction != null &&
+                        (pickedColor.value != null ||
+                            pickedPlayer.value != null))
+                    ? SlidepartyButtonStyle.normal
+                    : SlidepartyButtonStyle.invert,
                 customSize: const Size(49 * 3 + 16, 49),
                 onPressed: () {
                   if (controller is MultipleModeController) {
                     controller.doAction(playerId, pickedPlayer.value!);
                   }
                   if (controller is OnlineModeController) {
-                    controller.doAction(pickedPlayer.value!);
+                    controller.doAction(pickedColor.value!);
                   }
                   pickedPlayer.value = null;
+                  pickedColor.value = null;
                 },
                 child: const Text('Apply skill'),
               ),

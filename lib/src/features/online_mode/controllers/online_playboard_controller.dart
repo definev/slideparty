@@ -7,6 +7,7 @@ import 'package:slideparty/src/features/playboard/models/playboard_keyboard_cont
 import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
+import 'package:slideparty/src/widgets/buttons/buttons.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
 
 final onlinePlayboardControlllerProvider = StateNotifierProvider //
@@ -72,13 +73,17 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     _ssk.send(ClientEvent.sendBoard(playboard.currentBoard));
   }
 
-  void updateUsedAction(List<SlidepartyActions> usedAction) {
-    state = state.copyWith(currentUsedAction: usedAction);
+  void updateUsedAction(String targetId, SlidepartyActions usedAction) {
+    state = state.copyWith(
+      currentUsedAction: [...state.currentUsedAction, usedAction],
+    );
+    _ssk.send(ClientEvent.sendAction(targetId, usedAction));
   }
 
   void pickAction(SlidepartyActions queueAction) {
-    final openSkillState = _read(onlineSkillStateProvider);
-    final openSkillNotifier = _read(onlineSkillStateProvider.notifier);
+    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final openSkillNotifier =
+        _read(multipleSkillStateProvider(state.playerId).notifier);
     if (state.currentUsedAction.contains(queueAction) == true) return;
 
     switch (queueAction) {
@@ -101,17 +106,32 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     }
   }
 
-  void doAction(String targetId) {
-    _doAction(targetId);
+  void doAction(ButtonColors otherColor) {
+    _doAction(otherColor);
   }
 
-  void _doAction(String targetId) {
-    final openSkillState = _read(onlineSkillStateProvider);
-    final openSkillNotifier = _read(onlineSkillStateProvider.notifier);
+  void _doAction(ButtonColors otherColor) {
+    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final openSkillNotifier =
+        _read(multipleSkillStateProvider(state.playerId).notifier);
     final queuedAction = openSkillState.queuedAction;
+    final targetId =
+        (state.multiplePlayboardState!.config as MultiplePlayboardConfig)
+            .configs
+            .entries
+            .where(
+              (entry) =>
+                  entry.value.mapOrNull(
+                    blind: (c) => c.color,
+                    number: (c) => c.color,
+                  ) ==
+                  otherColor,
+            )
+            .first
+            .key;
     if (queuedAction == null) return;
 
-    updateUsedAction([...state.currentUsedAction, queuedAction]);
+    updateUsedAction(targetId, queuedAction);
 
     if (queuedAction == SlidepartyActions.clear) {
       _ssk.send(ClientEvent.sendAction(state.playerId, queuedAction));
@@ -131,10 +151,11 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
 
   bool handleSkillKey(LogicalKeyboardKey pressedKey) {
     final control = defaultControl;
-    final openSkillState = _read(onlineSkillStateProvider);
-    final openSkillNotifier = _read(onlineSkillStateProvider.notifier);
-    final otherPlayersIndex =
-        state.multiplePlayboardState!.getPlayerIds(state.playerId);
+    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final openSkillNotifier =
+        _read(multipleSkillStateProvider(state.playerId).notifier);
+    final otherPlayerColors =
+        state.multiplePlayboardState!.getPlayerColors(state.playerId);
 
     if (openSkillState.show) {
       if (control.activeSkillKey == pressedKey) {
@@ -189,15 +210,15 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
         control.control.onKeyDown<void>(
           pressedKey,
           onLeft: () {
-            _doAction(otherPlayersIndex[0]);
+            _doAction(otherPlayerColors[0]);
           },
           onDown: () {
-            if (otherPlayersIndex.length < 2) return;
-            _doAction(otherPlayersIndex[1]);
+            if (otherPlayerColors.length < 2) return;
+            _doAction(otherPlayerColors[1]);
           },
           onRight: () {
-            if (otherPlayersIndex.length < 3) return;
-            _doAction(otherPlayersIndex[2]);
+            if (otherPlayerColors.length < 3) return;
+            _doAction(otherPlayerColors[2]);
           },
         );
       }
