@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
@@ -16,6 +17,8 @@ final onlinePlayboardControlllerProvider = StateNotifierProvider //
   (ref, info) => OnlineModeController(ref.read, info),
 );
 
+final isDisconnectWebSocketProvider = StateProvider<bool>((ref) => false);
+
 class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     with PlayboardGestureControlHelper, PlayboardKeyboardControlHelper {
   OnlineModeController(this._read, this.info)
@@ -29,9 +32,15 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
           ),
         ) {
     state = state.initPlayerId(_ssk.userId);
-    _sub = _ssk.state.listen((event) {
-      state = state.copyWith(serverState: event);
-    });
+    _ssk;
+    _sub = _ssk.state.listen(
+      (serverState) => state = state.copyWith(serverState: serverState),
+      onError: (e, stack) => debugPrint('$e\n$stack'),
+      onDone: () {
+        _read(isDisconnectWebSocketProvider.notifier).state = true;
+        debugPrint('socket done');
+      },
+    );
   }
 
   final RoomInfo info;
@@ -40,9 +49,9 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   late final StreamSubscription _sub;
 
   void initController() {
-    _ssk.send(ClientEvent.sendBoard(
-      state.currentState!.playboard.currentBoard,
-    ));
+    _ssk.send(
+      ClientEvent.sendBoard(state.currentState!.playboard.currentBoard),
+    );
   }
 
   @override
@@ -73,11 +82,10 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     _ssk.send(ClientEvent.sendBoard(playboard.currentBoard));
   }
 
-  void updateUsedAction(String targetId, SlidepartyActions usedAction) {
+  void updateUsedAction(SlidepartyActions usedAction) {
     state = state.copyWith(
       currentUsedAction: [...state.currentUsedAction, usedAction],
     );
-    // _ssk.send(ClientEvent.sendAction(targetId, usedAction));
   }
 
   void pickAction(SlidepartyActions queueAction) {
@@ -127,7 +135,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
             .key;
     if (queuedAction == null) return;
 
-    updateUsedAction(targetId, queuedAction);
+    updateUsedAction(queuedAction);
 
     if (queuedAction == SlidepartyActions.clear) {
       _ssk.send(ClientEvent.sendAction(state.playerId, queuedAction));

@@ -188,48 +188,59 @@ class OnlinePlayboardState extends PlayboardState {
   int get boardSize => info.boardSize;
 
   MultiplePlayboardState? get multiplePlayboardState {
-    return serverState.mapOrNull(
-      roomData: (roomData) {
-        final playerCount = roomData.players.length;
+    final _currentPlayerState = MapEntry(playerId, currentState!);
+    final _currentUsedAction = MapEntry(playerId, currentUsedAction);
+    Map<String, SinglePlayboardState>? playerStates;
+    Map<String, List<SlidepartyActions>>? usedActions;
+    MultiplePlayboardConfig? stateConfig;
+    int? playerCount;
 
-        return MultiplePlayboardState(
-          boardSize: boardSize,
-          playerCount: playerCount,
-          playerStates: roomData.players.map(
-            (key, value) {
-              if (key == playerId) {
-                return MapEntry(key, currentState!);
-              }
-              return MapEntry(
-                key,
-                SinglePlayboardState(
-                  playboard: Playboard.fromList(value.currentBoard),
-                  config: const NonePlayboardConfig(),
-                  bestStep: -1,
-                ),
-              );
-            },
+    serverState.mapOrNull(
+      roomData: (roomData) {
+        playerCount = roomData.players.length;
+        usedActions = roomData.players.map(
+          (key, value) => MapEntry(key, value.usedActions),
+        )..removeWhere((key, value) => key == playerId);
+        playerStates = roomData.players.map(
+          (key, value) => MapEntry(
+            key,
+            SinglePlayboardState(
+              playboard: Playboard.fromList(value.currentBoard),
+              config: const NonePlayboardConfig(),
+              bestStep: -1,
+            ),
           ),
-          usedActions: roomData.players.map(
-            (key, value) {
-              if (key == playerId) {
-                return MapEntry(key, currentUsedAction);
-              }
-              return MapEntry(key, value.usedActions);
-            },
-          ),
-          stateConfig: MultiplePlayboardConfig(
-            roomData.players.map(
-              (key, value) => MapEntry(
-                key,
-                value.affectedActions.containsValue(SlidepartyActions.blind)
-                    ? PlayboardConfig.blind(value.color.buttonColor)
-                    : PlayboardConfig.number(value.color.buttonColor),
-              ),
+        )..removeWhere((key, value) => key == playerId);
+        stateConfig = MultiplePlayboardConfig(
+          roomData.players.map(
+            (key, value) => MapEntry(
+              key,
+              value.affectedActions.containsValue(SlidepartyActions.blind)
+                  ? PlayboardConfig.blind(value.color.buttonColor)
+                  : PlayboardConfig.number(value.color.buttonColor),
             ),
           ),
         );
       },
+    );
+
+    if (playerStates == null ||
+        usedActions == null ||
+        playerCount == null ||
+        stateConfig == null) return null;
+
+    return MultiplePlayboardState(
+      boardSize: boardSize,
+      playerCount: playerCount!,
+      playerStates: {
+        _currentPlayerState.key: _currentPlayerState.value,
+        ...playerStates!
+      },
+      usedActions: {
+        _currentUsedAction.key: _currentUsedAction.value,
+        ...usedActions!,
+      },
+      stateConfig: stateConfig!,
     );
   }
 

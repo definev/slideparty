@@ -5,6 +5,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/multiple_mode/screens/multiple_playground.dart';
 import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
+import 'package:slideparty/src/widgets/dialogs/slideparty_snack_bar.dart';
+
 class OnlinePlayboardPage extends ConsumerWidget {
   const OnlinePlayboardPage({Key? key}) : super(key: key);
 
@@ -14,8 +16,19 @@ class OnlinePlayboardPage extends ConsumerWidget {
       playboardControllerProvider
           .select((value) => (value as OnlinePlayboardState).serverState),
     );
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as OnlineModeController;
+    final controller =
+        ref.watch(playboardControllerProvider.notifier) as OnlineModeController;
+    ref.listen(
+      isDisconnectWebSocketProvider,
+      (previous, next) {
+        showSlidepartyToast(
+          context,
+          'Your connection is lost. Please reconnect.',
+          250,
+        );
+        context.go('/');
+      },
+    );
 
     return WillPopScope(
       onWillPop: () async {
