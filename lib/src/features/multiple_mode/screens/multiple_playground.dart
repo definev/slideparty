@@ -266,7 +266,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
       }
       return null;
     }, [controller]);
-    final isMyPlayerId = useMemoized(() {
+    final isMyPlayerId = () {
       if (controller is MultipleModeController) {
         return true;
       }
@@ -274,7 +274,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
         return controller.isMyPlayerId(playerId);
       }
       return false;
-    });
+    }();
 
     final view = Theme(
       data: themeData.colorScheme.brightness == Brightness.light
@@ -509,7 +509,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
         },
       ),
     )!;
-    final isMyPlayerId = useMemoized(() {
+    final isMyPlayerId = () {
       if (controller is MultipleModeController) {
         return true;
       }
@@ -517,7 +517,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
         return controller.isMyPlayerId(playerId);
       }
       return false;
-    });
+    }();
     bool isPause = affectedActions.contains(SlidepartyActions.pause);
 
     return Stack(
