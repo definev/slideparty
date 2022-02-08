@@ -477,6 +477,16 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                         },
                                       ),
                                     );
+                                    final otherPlayersColors = ref.watch(
+                                      playboardControllerProvider.select(
+                                        (state) {
+                                          if (state is OnlinePlayboardState) {
+                                            return state.multiplePlayboardState!
+                                                .getPlayerColors(playerId);
+                                          }
+                                        },
+                                      ),
+                                    );
                                     final color = ref.watch(
                                         playboardControllerProvider
                                             .select((state) {
@@ -507,7 +517,9 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                                 32,
                                             playerId: playerId,
                                             color: color,
-                                            otherPlayersIds: otherPlayersIds!,
+                                            otherPlayersIds: otherPlayersIds,
+                                            otherPlayerColors:
+                                                otherPlayersColors,
                                           ),
                                         ),
                                       ),
@@ -640,12 +652,14 @@ class SmallSkillMenu extends HookConsumerWidget {
     required this.playerId,
     required this.otherPlayersIds,
     required this.color,
+    this.otherPlayerColors,
   }) : super(key: key);
 
   final double size;
   final String playerId;
-  final List<String> otherPlayersIds;
   final ButtonColors color;
+  final List<String>? otherPlayersIds;
+  final List<ButtonColors>? otherPlayerColors;
 
   Widget _actionIcon(
     BuildContext context,
@@ -676,6 +690,7 @@ class SmallSkillMenu extends HookConsumerWidget {
           : multipleSkillStateProvider(playerId).notifier,
     );
     final pickedPlayer = useState<String?>(null);
+    final pickedColor = useState<ButtonColors?>(null);
 
     return GestureDetector(
       onTap: () {
@@ -719,7 +734,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                             controller.pickAction(playerId, action);
                           }
                           if (controller is OnlineModeController) {
-                            controller.pickAction(openSkill.queuedAction!);
+                            controller.pickAction(action);
                           }
                         },
                         size: ButtonSize.square,
@@ -732,25 +747,39 @@ class SmallSkillMenu extends HookConsumerWidget {
                 separatorBuilder: () => const SizedBox(width: 8),
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  for (final otherPlayerIndex in otherPlayersIds)
-                    AnimatedScale(
-                      duration: const Duration(milliseconds: 200),
-                      scale: pickedPlayer.value == otherPlayerIndex ? 1.1 : 1,
-                      child: SlidepartyButton(
-                        color: color,
-                        onPressed: () => pickedPlayer.value = otherPlayerIndex,
-                        size: ButtonSize.square,
-                        style: pickedPlayer.value == otherPlayerIndex ||
-                                pickedPlayer.value == null
-                            ? SlidepartyButtonStyle.normal
-                            : SlidepartyButtonStyle.invert,
-                        child: Text(
-                          controller is OnlineModeController
-                              ? 'You'
-                              : 'P.$otherPlayerIndex',
+                  if (otherPlayersIds != null)
+                    for (final otherPlayerIndex in otherPlayersIds!)
+                      AnimatedScale(
+                        duration: const Duration(milliseconds: 200),
+                        scale: pickedPlayer.value == otherPlayerIndex ? 1.1 : 1,
+                        child: SlidepartyButton(
+                          color: color,
+                          onPressed: () =>
+                              pickedPlayer.value = otherPlayerIndex,
+                          size: ButtonSize.square,
+                          style: pickedPlayer.value == otherPlayerIndex ||
+                                  pickedPlayer.value == null
+                              ? SlidepartyButtonStyle.normal
+                              : SlidepartyButtonStyle.invert,
+                          child: Text('P.$otherPlayerIndex'),
                         ),
                       ),
-                    ),
+                  if (otherPlayerColors != null)
+                    for (final otherColor in otherPlayerColors!)
+                      AnimatedScale(
+                        duration: const Duration(milliseconds: 200),
+                        scale: pickedColor.value == otherColor ? 1.1 : 1,
+                        child: SlidepartyButton(
+                          color: color,
+                          onPressed: () => pickedColor.value = otherColor,
+                          size: ButtonSize.square,
+                          style: pickedColor.value == otherColor ||
+                                  pickedColor.value == null
+                              ? SlidepartyButtonStyle.normal
+                              : SlidepartyButtonStyle.invert,
+                          child: const Text('You'),
+                        ),
+                      ),
                 ],
               ),
               SlidepartyButton(
@@ -765,8 +794,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                     controller.doAction(playerId, pickedPlayer.value!);
                   }
                   if (controller is OnlineModeController) {
-                    controller.doAction(
-                        pickedPlayer.value!, openSkill.queuedAction!);
+                    controller.doAction(pickedPlayer.value!);
                   }
                   pickedPlayer.value = null;
                 },

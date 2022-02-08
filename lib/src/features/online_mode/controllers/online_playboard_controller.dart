@@ -24,6 +24,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
             info,
             playerId: '',
             serverState: ServerState.waiting(),
+            currentUsedAction: const [],
           ),
         ) {
     state = state.initPlayerId(_ssk.userId);
@@ -78,7 +79,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   void pickAction(SlidepartyActions queueAction) {
     final openSkillState = _read(onlineSkillStateProvider);
     final openSkillNotifier = _read(onlineSkillStateProvider.notifier);
-    if (openSkillState.usedActions[queueAction] == true) return;
+    if (state.currentUsedAction.contains(queueAction) == true) return;
 
     switch (queueAction) {
       case SlidepartyActions.clear:
@@ -100,15 +101,17 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     }
   }
 
-  void doAction(String targetId, SlidepartyActions action) {
-    _doAction(targetId, action);
+  void doAction(String targetId) {
+    _doAction(targetId);
   }
 
-  void _doAction(String targetId, SlidepartyActions queuedAction) {
+  void _doAction(String targetId) {
     final openSkillState = _read(onlineSkillStateProvider);
     final openSkillNotifier = _read(onlineSkillStateProvider.notifier);
+    final queuedAction = openSkillState.queuedAction;
+    if (queuedAction == null) return;
 
-    updateUsedAction([...state.currentUsedAction!, queuedAction]);
+    updateUsedAction([...state.currentUsedAction, queuedAction]);
 
     if (queuedAction == SlidepartyActions.clear) {
       _ssk.send(ClientEvent.sendAction(state.playerId, queuedAction));
@@ -186,15 +189,15 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
         control.control.onKeyDown<void>(
           pressedKey,
           onLeft: () {
-            _doAction(otherPlayersIndex[0], openSkillState.queuedAction!);
+            _doAction(otherPlayersIndex[0]);
           },
           onDown: () {
             if (otherPlayersIndex.length < 2) return;
-            _doAction(otherPlayersIndex[1], openSkillState.queuedAction!);
+            _doAction(otherPlayersIndex[1]);
           },
           onRight: () {
             if (otherPlayersIndex.length < 3) return;
-            _doAction(otherPlayersIndex[2], openSkillState.queuedAction!);
+            _doAction(otherPlayersIndex[2]);
           },
         );
       }

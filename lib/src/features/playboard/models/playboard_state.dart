@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
+import 'package:dartx/dartx.dart';
 
 import 'playboard_config.dart';
 import 'playboard.dart';
@@ -97,6 +98,24 @@ class MultiplePlayboardState extends PlayboardState {
   List<String> getPlayerIds(String playerId) =>
       _playerStates.keys.toList()..remove(playerId);
 
+  List<ButtonColors> getPlayerColors(String playerId) {
+    final _config = config as MultiplePlayboardConfig;
+    return _config.configs.values
+        .whereIndexed(
+          (value, index) {
+            if (_config.configs.keys.elementAt(index) == playerId) return false;
+            return true;
+          },
+        )
+        .map(
+          (value) => value.mapOrNull(
+            blind: (v) => v.color,
+            number: (v) => v.color,
+          )!,
+        )
+        .toList();
+  }
+
   List<SlidepartyActions> currentAction(String id) => _usedActions[id]!;
   MultiplePlayboardState setActions(
     String index,
@@ -149,15 +168,15 @@ class OnlinePlayboardState extends PlayboardState {
     this.info, {
     required this.playerId,
     required this.serverState,
+    required this.currentUsedAction,
     this.currentState,
-    this.currentUsedAction,
   }) : super(config: const NonePlayboardConfig());
 
   final String playerId;
   final ServerState serverState;
   final RoomInfo info;
   final SinglePlayboardState? currentState;
-  final List<SlidepartyActions>? currentUsedAction;
+  final List<SlidepartyActions> currentUsedAction;
   Map<String, SlidepartyActions>? get affectedAction => serverState.mapOrNull(
         roomData: (roomData) => roomData.players[playerId]!.affectedActions,
       );
@@ -190,7 +209,7 @@ class OnlinePlayboardState extends PlayboardState {
           usedActions: roomData.players.map(
             (key, value) {
               if (key == playerId) {
-                return MapEntry(key, currentUsedAction!);
+                return MapEntry(key, currentUsedAction);
               }
               return MapEntry(key, value.usedActions);
             },
