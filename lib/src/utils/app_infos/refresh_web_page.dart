@@ -8,7 +8,6 @@ void refreshWindow(BuildContext context, String url) {
   if (kIsWeb) {
     window.location.reload();
   } else {
-    context.go('/_refresh');
-    context.go(url);
+    Future(() => context.go(url));
   }
 }

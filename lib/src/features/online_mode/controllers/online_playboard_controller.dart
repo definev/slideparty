@@ -248,7 +248,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
       state = state.copyWith(currentState: singleState.editPlayboard(newBoard));
       _ssk.send(ClientEvent.sendBoard(newBoard.currentBoard));
       if (state.currentState!.playboard.isSolved) {
-        _ssk.send(ClientEvent.solved(state.playerId));
+        Future(() => _ssk.send(ClientEvent.solved(state.playerId)));
       }
       return true;
     }

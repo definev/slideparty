@@ -23,6 +23,10 @@ class OnlinePlayboardPage extends ConsumerWidget {
       playboardControllerProvider
           .select((value) => (value as OnlinePlayboardState).serverState),
     );
+    final playerId = ref.watch(
+      playboardControllerProvider
+          .select((value) => (value as OnlinePlayboardState).playerId),
+    );
     final controller =
         ref.watch(playboardControllerProvider.notifier) as OnlineModeController;
     ref.listen(
@@ -31,7 +35,7 @@ class OnlinePlayboardPage extends ConsumerWidget {
         showSlidepartyToast(
           context,
           'Your connection is lost. Please reconnect.',
-          250,
+          300,
         );
         context.go('/');
       },
@@ -44,7 +48,11 @@ class OnlinePlayboardPage extends ConsumerWidget {
       },
       child: Scaffold(
         body: state.map(
-          endGame: (value) => OnlineEndgame(value, info: info),
+          endGame: (value) => OnlineEndgame(
+            value,
+            playerId: playerId,
+            info: info,
+          ),
           wrongBoardSize: (value) => Center(
             child: Text(
               'Wrong board size',
