@@ -57,7 +57,7 @@ class OnlineEndgame extends StatelessWidget {
                         size: ButtonSize.square,
                         color: ButtonColors.values[stat.playerColor.index],
                         onPressed: () {},
-                        child: playerId == value.winnerPlayerState.id
+                        child: value.winnerPlayerState.color == stat.playerColor
                             ? const Text('You')
                             : Text(stat.playerColor.name[0]),
                       ),
