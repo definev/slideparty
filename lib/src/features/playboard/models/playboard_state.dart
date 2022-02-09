@@ -64,7 +64,6 @@ class MultiplePlayboardState extends PlayboardState {
     MultiplePlayboardConfig stateConfig = defaultConfig,
   }) : super(config: stateConfig) {
     assert(playerCount >= 0 && playerCount <= 4);
-    assert(playerStates == null || playerStates.length == playerCount);
     _playerStates = playerStates ??
         {
           for (var index = 0; index < playerCount; index++)

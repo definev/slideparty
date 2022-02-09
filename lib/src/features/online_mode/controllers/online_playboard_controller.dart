@@ -27,7 +27,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
           OnlinePlayboardState(
             info,
             playerId: '',
-            serverState: ServerState.waiting(),
+            serverState: const ServerState.waiting(),
             currentUsedAction: const [],
           ),
         ) {
@@ -73,13 +73,12 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
 
   void updatePlayboardState(Playboard playboard) {
     state = state.copyWith(
-      currentState: SinglePlayboardState(
-        playboard: playboard,
-        bestStep: -1,
-        config: const NonePlayboardConfig(),
-      ),
+      currentState: state.currentState!.editPlayboard(playboard),
     );
     _ssk.send(ClientEvent.sendBoard(playboard.currentBoard));
+    if (state.currentState!.playboard.isSolved) {
+      _ssk.send(ClientEvent.solved(state.playerId));
+    }
   }
 
   void updateUsedAction(SlidepartyActions usedAction) {
@@ -248,6 +247,9 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     if (newBoard != null) {
       state = state.copyWith(currentState: singleState.editPlayboard(newBoard));
       _ssk.send(ClientEvent.sendBoard(newBoard.currentBoard));
+      if (state.currentState!.playboard.isSolved) {
+        _ssk.send(ClientEvent.solved(state.playerId));
+      }
       return true;
     }
     return false;

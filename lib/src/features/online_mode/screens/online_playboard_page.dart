@@ -4,11 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:slideparty/src/features/multiple_mode/screens/multiple_playground.dart';
 import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
+import 'package:slideparty/src/features/online_mode/screens/online_endgame.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/widgets/dialogs/slideparty_snack_bar.dart';
+import 'package:slideparty_socket/slideparty_socket.dart';
 
 class OnlinePlayboardPage extends ConsumerWidget {
-  const OnlinePlayboardPage({Key? key}) : super(key: key);
+  const OnlinePlayboardPage({
+    Key? key,
+    required this.info,
+  }) : super(key: key);
+
+  final RoomInfo info;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,6 +44,7 @@ class OnlinePlayboardPage extends ConsumerWidget {
       },
       child: Scaffold(
         body: state.map(
+          endGame: (value) => OnlineEndgame(value, info: info),
           wrongBoardSize: (value) => Center(
             child: Text(
               'Wrong board size',

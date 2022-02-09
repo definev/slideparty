@@ -28,6 +28,14 @@ class App extends ConsumerStatefulWidget {
         ),
       ),
       GoRoute(
+        path: '/_refresh',
+        pageBuilder: (context, state) => const NoTransitionPage(
+          child: Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
+        ),
+      ),
+      GoRoute(
         path: '/s_mode',
         pageBuilder: (context, state) => NoTransitionPage(
           child: ProviderScope(
@@ -58,7 +66,7 @@ class App extends ConsumerStatefulWidget {
                 playboardControllerProvider.overrideWithProvider(
                     onlinePlayboardControlllerProvider(info)),
               ],
-              child: const OnlinePlayboardPage(),
+              child: OnlinePlayboardPage(info: info),
             ),
           );
         },
