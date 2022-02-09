@@ -25,10 +25,14 @@ class OnlineEndgame extends StatelessWidget {
         children: [
           SizedBox(
             width: 190,
-            child: Row(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Winner is:'),
+                Text(
+                  'Winner',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                const Gap(16),
                 SlidepartyButton(
                   size: ButtonSize.square,
                   color:
@@ -61,10 +65,55 @@ class OnlineEndgame extends StatelessWidget {
                             ? const Text('You')
                             : Text(stat.playerColor.name[0]),
                       ),
+                      const Gap(16),
+                      TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.bounceOut,
+                        builder: (context, value, child) => Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                height: 50,
+                                width: (250 - 16 - 49),
+                                decoration: ShapeDecoration(
+                                  shape: BeveledRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  color: ButtonColors
+                                      .values[stat.playerColor.index]
+                                      .primaryColor
+                                      .withOpacity(0.3),
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                height: 50,
+                                width: value *
+                                    ((stat.totalTile - stat.remainTile) /
+                                        stat.totalTile) *
+                                    (250 - 16 - 49),
+                                decoration: ShapeDecoration(
+                                  shape: BeveledRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  color: ButtonColors
+                                      .values[stat.playerColor.index]
+                                      .primaryColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
+          const Gap(16),
           SlidepartyButton(
             color: ButtonColors.values[value.stats.first.playerColor.index],
             onPressed: () => refreshWindow(
