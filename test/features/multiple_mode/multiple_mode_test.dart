@@ -38,7 +38,7 @@ void main() {
 
   testWidgets('3 x 3 and 2 players (Big screen, horizontal prefer)',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(1280, 800);
+    tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
     tester.binding.window.devicePixelRatioTestValue = 1.0;
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
@@ -51,7 +51,7 @@ void main() {
 
   testWidgets('3 x 3 and 2 players (Big screen, vertical prefer)',
       (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(800, 1280);
+    tester.binding.window.physicalSizeTestValue = const Size(1080, 1440);
     tester.binding.window.devicePixelRatioTestValue = 1.0;
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
