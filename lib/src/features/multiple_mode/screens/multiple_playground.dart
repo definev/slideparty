@@ -311,7 +311,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                   controller is OnlineModeController &&
                                           isMyPlayerId
                                       ? 'YOU'
-                                      : playerId,
+                                      : 'P.' + playerId,
                                   style:
                                       themeData.textTheme.headline1!.copyWith(
                                     fontSize: (constraints.biggest.longestSide -
