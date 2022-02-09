@@ -548,34 +548,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
             clipBehavior: Clip.none,
           ),
         ),
-        if (isPause)
-          Center(
-            child: IgnorePointer(
-              child: ColoredBox(
-                color: themeData.scaffoldBackgroundColor.withOpacity(0.3),
-                child: SizedBox(
-                  width: size + 32,
-                  height: size + 32,
-                  child: Center(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: themeData.scaffoldBackgroundColor,
-                        shape: BoxShape.circle,
-                        boxShadow: const [BoxShadow()],
-                      ),
-                      child: SizedBox(
-                        height: 64,
-                        width: 64,
-                        child: Center(
-                          child: LineIcon.pauseCircleAlt(size: 32),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+        if (isPause) PauseAction(themeData: themeData, size: size),
         if (!isLargeScreen)
           Consumer(
             builder: (context, ref, child) {
@@ -637,6 +610,48 @@ class _MultipleMainPlayground extends HookConsumerWidget {
             },
           ),
       ],
+    );
+  }
+}
+
+class PauseAction extends StatelessWidget {
+  const PauseAction({
+    Key? key,
+    required this.themeData,
+    required this.size,
+  }) : super(key: key);
+
+  final ThemeData themeData;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: IgnorePointer(
+        child: ColoredBox(
+          color: themeData.scaffoldBackgroundColor.withOpacity(0.3),
+          child: SizedBox(
+            width: size + 32,
+            height: size + 32,
+            child: Center(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: themeData.scaffoldBackgroundColor,
+                  shape: BoxShape.circle,
+                  boxShadow: const [BoxShadow()],
+                ),
+                child: SizedBox(
+                  height: 64,
+                  width: 64,
+                  child: Center(
+                    child: LineIcon.pauseCircleAlt(size: 32),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

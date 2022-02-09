@@ -70,7 +70,7 @@ class SkillKeyboard extends HookConsumerWidget {
   }
 
   String get skillButtonText => keyboard.activeSkillKey.keyLabel == ' '
-      ? '⎵ Key'
+      ? 'Space Key'
       : keyboard.activeSkillKey.keyLabel + ' Key';
 
   Widget _actionIcon(
@@ -189,6 +189,11 @@ class SkillKeyboard extends HookConsumerWidget {
                                       otherPlayersIndex.length > cardIndex
                                           ? otherPlayersIndex[cardIndex]
                                           : '',
+                                      key: otherPlayersIndex.length > cardIndex
+                                          ? ValueKey(
+                                              'Other player ${otherPlayersIndex[cardIndex]} of $playerId',
+                                            )
+                                          : null,
                                     ),
                                   ),
                                 ),

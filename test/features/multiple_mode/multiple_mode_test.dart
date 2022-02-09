@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:slideparty/src/features/multiple_mode/multiple_mode.dart';
 import 'package:slideparty/src/features/multiple_mode/screens/multiple_playground.dart';
@@ -69,5 +70,41 @@ void main() {
     await _multipleModeSetUp(tester);
 
     expect(find.byType(HoleMenu), findsWidgets);
+  });
+
+  testWidgets('Pause action', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
+    tester.binding.window.devicePixelRatioTestValue = 1.0;
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    await _multipleModeSetUp(tester);
+    await tester.runAsync(() async {
+      await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      await simulateKeyDownEvent(LogicalKeyboardKey.keyS);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      await simulateKeyDownEvent(LogicalKeyboardKey.keyA);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      expect(find.byType(PauseAction), findsOneWidget);
+    });
+  });
+
+  testWidgets('Blind action', (tester) async {
+    tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
+    tester.binding.window.devicePixelRatioTestValue = 1.0;
+    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+    await _multipleModeSetUp(tester);
+    await tester.runAsync(() async {
+      await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      await simulateKeyDownEvent(LogicalKeyboardKey.keyS);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      await simulateKeyDownEvent(LogicalKeyboardKey.keyA);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      expect(find.byType(PauseAction), findsOneWidget);
+    });
   });
 }
