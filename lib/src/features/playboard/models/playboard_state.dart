@@ -25,8 +25,6 @@ class SinglePlayboardState extends PlayboardState {
   final int step;
   final int bestStep;
 
-  bool get canSolve => playboard.canSolve;
-
   SinglePlayboardState editPlayboard(Playboard playboard,
           [bool increment = true]) =>
       SinglePlayboardState(

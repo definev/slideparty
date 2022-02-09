@@ -81,20 +81,6 @@ class Playboard {
     return Loc.fromIndex(size, index);
   }
 
-  bool get canSolve {
-    return true;
-    // switch (size) {
-    //   case 3:
-    //     return true;
-    //   case 4:
-    //     return cost < 4;
-    //   case 5:
-    //     return cost < 4;
-    //   default:
-    //     return false;
-    // }
-  }
-
   bool get isSolved {
     for (int i = 0; i < solvedBoard.length; i++) {
       if (currentBoard[i] != solvedBoard[i]) {
@@ -106,7 +92,6 @@ class Playboard {
 
   // Auto solve the puzzle with A* algorithm
   List<PlayboardDirection>? autoSolve([List<int>? finalBoard]) {
-    if (!canSolve) return null;
     if (!isSolvable(size, currentBoard)) return null;
 
     if (size >= 4) {
