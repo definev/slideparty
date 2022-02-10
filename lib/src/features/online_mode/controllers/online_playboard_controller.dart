@@ -31,7 +31,6 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
             currentUsedAction: const [],
           ),
         ) {
-    state = state.initPlayerId(_ssk.userId);
     _sub = _ssk.state.listen(
       (serverState) => state = state.copyWith(serverState: serverState),
       onError: (e, stack) => debugPrint('$e\n$stack'),
@@ -62,13 +61,15 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
 
   void initController() {
     Future(() {
-      final currentState = SinglePlayboardState(
-        playboard: Playboard.random(info.boardSize),
-        bestStep: -1,
-        config: state.currentState!.config,
+      state = state.initPlayerId(_ssk.userId);
+      _ssk.send(
+        ClientEvent.sendBoard(
+          state //
+              .currentState!
+              .playboard
+              .currentBoard,
+        ),
       );
-      state = state.copyWith(currentState: currentState);
-      _ssk.send(ClientEvent.sendBoard(currentState.playboard.currentBoard));
     });
   }
 
