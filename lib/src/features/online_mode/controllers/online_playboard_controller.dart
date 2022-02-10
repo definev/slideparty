@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/models/skill_keyboard_state.dart';
@@ -33,7 +32,6 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
           ),
         ) {
     state = state.initPlayerId(_ssk.userId);
-    _ssk;
     _sub = _ssk.state.listen(
       (serverState) => state = state.copyWith(serverState: serverState),
       onError: (e, stack) => debugPrint('$e\n$stack'),

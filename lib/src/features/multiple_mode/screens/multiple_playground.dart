@@ -256,6 +256,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
           return value.playerCount;
         }
         if (value is OnlinePlayboardState) {
+          if (value.multiplePlayboardState == null) return 0;
           return value.multiplePlayboardState!.playerCount;
         }
       },
@@ -496,6 +497,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
             return value.boardSize;
           }
           if (value is OnlinePlayboardState) {
+            if (value.multiplePlayboardState == null) return 2;
             return value.multiplePlayboardState!.boardSize;
           }
         },
@@ -573,6 +575,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
                 playboardControllerProvider.select(
                   (state) {
                     if (state is OnlinePlayboardState) {
+                      if (state.multiplePlayboardState == null) return null;
                       return state.multiplePlayboardState!
                           .getPlayerColors(playerId);
                     }
