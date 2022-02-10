@@ -99,6 +99,9 @@ class PlayboardView extends HookConsumerWidget {
               return state.playboard.currentLoc(index);
             }
             if (state is OnlinePlayboardState) {
+              if (state.serverState is! RoomData) {
+                return const Loc(0, 0);
+              }
               return (state.serverState as RoomData)
                   .players[playerId]!
                   .currentBoard
@@ -116,6 +119,9 @@ class PlayboardView extends HookConsumerWidget {
         final config = ref.watch(
           playboardControllerProvider.select((value) {
             if (value is OnlinePlayboardState) {
+              if (value.serverState is! RoomData) {
+                return MultiplePlayboardState.defaultConfig;
+              }
               return value.multiplePlayboardState!.config;
             }
             return value.config;

@@ -59,20 +59,15 @@ class OnlinePlayboardPage extends ConsumerWidget {
               style: Theme.of(context).textTheme.headline6,
             ),
           ),
-          roomData: (data) => const MultiplePlayground(),
+          roomData: (data) {
+            if (state is! RoomData) return const SizedBox();
+            return const MultiplePlayground();
+          },
           waiting: (_) => const Center(child: CircularProgressIndicator()),
           roomFull: (_) => const Center(child: Text('Room is full')),
           connected: (_) {
-            return HookBuilder(
-              builder: (context) {
-                useEffect(() {
-                  controller.initController();
-                  return null;
-                });
-
-                return const Center(child: CircularProgressIndicator());
-              },
-            );
+            controller.initController();
+            return const Center(child: CircularProgressIndicator());
           },
         ),
       ),

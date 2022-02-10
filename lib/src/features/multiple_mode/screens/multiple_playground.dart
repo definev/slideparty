@@ -114,6 +114,9 @@ class MultiplePlayground extends HookConsumerWidget {
                                   playboardControllerProvider.select(
                                     (value) {
                                       if (value is OnlinePlayboardState) {
+                                        if (value.serverState is! RoomData) {
+                                          return '';
+                                        }
                                         return (value.serverState as RoomData)
                                             .players
                                             .keys
@@ -179,7 +182,7 @@ class MultiplePlayground extends HookConsumerWidget {
             return value.whoWin;
           }
           if (value is OnlinePlayboardState) {
-            return value.multiplePlayboardState!.whoWin;
+            return value.multiplePlayboardState?.whoWin;
           }
           return null;
         },

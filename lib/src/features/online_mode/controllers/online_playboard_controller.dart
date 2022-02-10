@@ -50,8 +50,17 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
 
   void restart() => _ssk.send(const ClientEvent.restart());
 
-  void initController() => _ssk
-      .send(ClientEvent.sendBoard(state.currentState!.playboard.currentBoard));
+  void initController() {
+    Future(() {
+      final currentState = SinglePlayboardState(
+        playboard: Playboard.random(info.boardSize),
+        bestStep: -1,
+        config: state.currentState!.config,
+      );
+      state = state.copyWith(currentState: currentState);
+      _ssk.send(ClientEvent.sendBoard(currentState.playboard.currentBoard));
+    });
+  }
 
   @override
   void dispose() {
