@@ -13,11 +13,6 @@ final multipleSkillStateProvider = StateProvider //
   (ref, index) => SkillKeyboardState.inGame(playerId: index),
 );
 
-// final onlineSkillStateProvider = StateProvider //
-//     .autoDispose<SkillKeyboardState>(
-//   (ref) => const SkillKeyboardState.online(),
-// );
-
 class SkillKeyboard extends HookConsumerWidget {
   const SkillKeyboard(
     this.keyboard, {

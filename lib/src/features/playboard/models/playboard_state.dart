@@ -275,6 +275,24 @@ class OnlinePlayboardState extends PlayboardState {
   List<Object?> get props => [playerId, serverState];
 }
 
+extension PlayerIdExt on OnlinePlayboardState {
+  String? getIdByColor(ButtonColors color) => multiplePlayboardState == null
+      ? null
+      : (multiplePlayboardState!.config as MultiplePlayboardConfig)
+          .configs
+          .entries
+          .where(
+            (entry) =>
+                entry.value.mapOrNull(
+                  blind: (c) => c.color,
+                  number: (c) => c.color,
+                ) ==
+                color,
+          )
+          .first
+          .key;
+}
+
 extension PlayerColorsExt on PlayerColors {
   ButtonColors get buttonColor => ButtonColors.values[index];
 }

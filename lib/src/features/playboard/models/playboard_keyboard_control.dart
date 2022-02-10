@@ -26,15 +26,16 @@ class PlayboardKeyboardControl {
     T Function()? onDown,
     T Function()? onLeft,
     T Function()? onRight,
+    T Function()? orElse,
   }) {
     if (key == up) {
-      return onUp?.call();
+      return (onUp ?? orElse)?.call();
     } else if (key == down) {
-      return onDown?.call();
+      return (onDown ?? orElse)?.call();
     } else if (key == left) {
-      return onLeft?.call();
+      return (onLeft ?? orElse)?.call();
     } else if (key == right) {
-      return onRight?.call();
+      return (onRight ?? orElse)?.call();
     }
     return null;
   }

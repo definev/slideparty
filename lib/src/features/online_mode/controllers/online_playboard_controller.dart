@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboard_control.dart';
+import 'package:slideparty/src/features/playboard/models/skill_keyboard_state.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
@@ -48,6 +49,12 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   final SlidepartySocket _ssk;
   late final StreamSubscription _sub;
 
+  final PlayboardSkillKeyboardControl defaultControl =
+      PlayboardSkillKeyboardControl(
+    control: arrowControl,
+    activeSkillKey: LogicalKeyboardKey.space,
+  );
+
   void restart() => _ssk.send(const ClientEvent.restart());
 
   void initController() {
@@ -89,10 +96,17 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     }
   }
 
-  void updateUsedAction(SlidepartyActions usedAction) {
-    state = state.copyWith(
-      currentUsedAction: [...state.currentUsedAction, usedAction],
-    );
+  void _updateUsedAction(SlidepartyActions usedAction) {
+    state = state
+        .copyWith(currentUsedAction: [...state.currentUsedAction, usedAction]);
+  }
+
+  void _sendActionToServer(SlidepartyActions queuedAction, String targetId) {
+    if (queuedAction == SlidepartyActions.clear) {
+      _ssk.send(ClientEvent.sendAction(state.playerId, queuedAction));
+    } else {
+      _ssk.send(ClientEvent.sendAction(targetId, queuedAction));
+    }
   }
 
   void pickAction(SlidepartyActions queueAction) {
@@ -121,43 +135,30 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     }
   }
 
-  void doAction(ButtonColors otherColor) {
+  void _clearQueuedAction() {
     final openSkillState = _read(multipleSkillStateProvider(state.playerId));
     final openSkillNotifier =
         _read(multipleSkillStateProvider(state.playerId).notifier);
-    final queuedAction = openSkillState.queuedAction;
-    final targetId =
-        (state.multiplePlayboardState!.config as MultiplePlayboardConfig)
-            .configs
-            .entries
-            .where(
-              (entry) =>
-                  entry.value.mapOrNull(
-                    blind: (c) => c.color,
-                    number: (c) => c.color,
-                  ) ==
-                  otherColor,
-            )
-            .first
-            .key;
-    if (queuedAction == null) return;
-
-    updateUsedAction(queuedAction);
-
-    if (queuedAction == SlidepartyActions.clear) {
-      _ssk.send(ClientEvent.sendAction(state.playerId, queuedAction));
-    } else {
-      _ssk.send(ClientEvent.sendAction(targetId, queuedAction));
-    }
-
+    if (openSkillState.queuedAction == null) return;
     openSkillNotifier.state = openSkillState.copyWith(
       queuedAction: null,
       show: false,
       usedActions: {
         ...openSkillState.usedActions,
-        queuedAction: true,
+        openSkillState.queuedAction!: true,
       },
     );
+  }
+
+  void doAction(ButtonColors otherColor) {
+    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final queuedAction = openSkillState.queuedAction;
+    final targetId = state.getIdByColor(otherColor);
+    if (queuedAction == null || targetId == null) return;
+
+    _updateUsedAction(queuedAction);
+    _sendActionToServer(queuedAction, targetId);
+    _clearQueuedAction();
   }
 
   bool handleSkillKey(LogicalKeyboardKey pressedKey) {
@@ -177,28 +178,11 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
         return true;
       }
       if (openSkillState.queuedAction == null) {
-        control.control.onKeyDown(
-          pressedKey,
-          onLeft: () {
-            if (openSkillState.usedActions[SlidepartyActions.blind] == true) {
-              return;
-            }
-            openSkillNotifier.state = openSkillState.copyWith(
-              queuedAction: SlidepartyActions.blind,
-            );
-          },
-          onDown: () {
-            if (openSkillState.usedActions[SlidepartyActions.pause] == true) {
-              return;
-            }
-            openSkillNotifier.state = openSkillState.copyWith(
-              queuedAction: SlidepartyActions.pause,
-            );
-          },
-          onRight: () {
-            if (openSkillState.usedActions[SlidepartyActions.clear] == true) {
-              return;
-            }
+        final pickedAction =
+            openSkillState.pickQueuedAction(control, pressedKey);
+
+        switch (pickedAction) {
+          case SlidepartyActions.clear:
             if (state.affectedAction!.isNotEmpty) {
               _ssk.send(
                 ClientEvent.sendAction(
@@ -213,10 +197,13 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
                   SlidepartyActions.clear: true,
                 },
               );
-              return;
             }
-          },
-        );
+            break;
+          default:
+            openSkillNotifier.state = openSkillState.copyWith(
+              queuedAction: pickedAction,
+            );
+        }
       } else {
         control.control.onKeyDown<void>(
           pressedKey,
@@ -279,12 +266,6 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     if (playboard != null) updatePlayboardState(playboard);
     return null;
   }
-
-  final PlayboardSkillKeyboardControl defaultControl =
-      PlayboardSkillKeyboardControl(
-    control: arrowControl,
-    activeSkillKey: LogicalKeyboardKey.space,
-  );
 
   @override
   void moveByKeyboard(LogicalKeyboardKey pressedKey) {
