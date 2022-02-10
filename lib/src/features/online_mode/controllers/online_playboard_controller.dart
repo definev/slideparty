@@ -86,17 +86,14 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     final player = state.currentState!;
     if (player.playboard.isSolved) return;
     final playboard = player.playboard.move(index);
-    if (playboard != null) updatePlayboardState(playboard);
+    if (playboard != null) _updatePlayboardState(playboard);
   }
 
-  void updatePlayboardState(Playboard playboard) {
+  void _updatePlayboardState(Playboard playboard) {
     state = state.copyWith(
       currentState: state.currentState!.editPlayboard(playboard),
     );
     _ssk.send(ClientEvent.sendBoard(playboard.currentBoard));
-    if (state.currentState!.playboard.isSolved) {
-      _ssk.send(ClientEvent.solved(state.playerId));
-    }
   }
 
   void _updateUsedAction(SlidepartyActions usedAction) {
@@ -266,7 +263,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     final player = state.currentState!;
     if (player.playboard.isSolved) return null;
     final playboard = player.playboard.moveHole(direction);
-    if (playboard != null) updatePlayboardState(playboard);
+    if (playboard != null) _updatePlayboardState(playboard);
     return null;
   }
 
