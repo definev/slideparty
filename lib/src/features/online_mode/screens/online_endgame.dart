@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:slideparty/src/utils/app_infos/refresh_web_page.dart';
+import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
+import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
 
-class OnlineEndgame extends StatelessWidget {
+class OnlineEndgame extends ConsumerWidget {
   const OnlineEndgame(
     this.value, {
     Key? key,
@@ -17,7 +19,10 @@ class OnlineEndgame extends StatelessWidget {
   final RoomInfo info;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller =
+        ref.watch(playboardControllerProvider.notifier) as OnlineModeController;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -116,9 +121,8 @@ class OnlineEndgame extends StatelessWidget {
           const Gap(16),
           SlidepartyButton(
             color: ButtonColors.values[value.stats.first.playerColor.index],
-            onPressed: () => refreshWindow(
-                context, '/o_mode/${info.boardSize}/${info.roomCode}'),
-            child: const Text('Ready'),
+            onPressed: () => controller.restart(),
+            child: const Text('Restart Game'),
           ),
         ],
       ),

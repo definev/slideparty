@@ -48,11 +48,10 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   final SlidepartySocket _ssk;
   late final StreamSubscription _sub;
 
-  void initController() {
-    _ssk.send(
-      ClientEvent.sendBoard(state.currentState!.playboard.currentBoard),
-    );
-  }
+  void restart() => _ssk.send(const ClientEvent.restart());
+
+  void initController() => _ssk
+      .send(ClientEvent.sendBoard(state.currentState!.playboard.currentBoard));
 
   @override
   void dispose() {
