@@ -53,18 +53,24 @@ class OnlinePlayboardPage extends ConsumerWidget {
             playerId: playerId,
             info: info,
           ),
-          wrongBoardSize: (value) => Center(
-            child: Text(
-              'Wrong board size',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-          ),
+          wrongBoardSize: (value) {
+            controller.disconnect();
+            return Center(
+              child: Text(
+                'Wrong board size',
+                style: Theme.of(context).textTheme.headline6,
+              ),
+            );
+          },
           roomData: (data) {
             if (state is! RoomData) return const SizedBox();
             return const MultiplePlayground();
           },
           waiting: (_) => const Center(child: CircularProgressIndicator()),
-          roomFull: (_) => const Center(child: Text('Room is full')),
+          roomFull: (_) {
+            controller.disconnect();
+            return const Center(child: Text('Room is full'));
+          },
           connected: (_) {
             controller.initController();
             return const Center(child: CircularProgressIndicator());

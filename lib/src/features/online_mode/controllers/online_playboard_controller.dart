@@ -55,6 +55,11 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     activeSkillKey: LogicalKeyboardKey.space,
   );
 
+  void disconnect() async {
+    _sub.cancel();
+    await _ssk.close();
+  }
+
   void restart() => _ssk.send(const ClientEvent.restart());
 
   void initController() {
