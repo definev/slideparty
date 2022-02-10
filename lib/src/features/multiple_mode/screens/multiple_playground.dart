@@ -115,7 +115,7 @@ class MultiplePlayground extends HookConsumerWidget {
                                     (value) {
                                       if (value is OnlinePlayboardState) {
                                         if (value.serverState is! RoomData) {
-                                          return '';
+                                          return null;
                                         }
                                         return (value.serverState as RoomData)
                                             .players
@@ -171,7 +171,7 @@ class MultiplePlayground extends HookConsumerWidget {
           return value.playerCount;
         }
         if (value is OnlinePlayboardState) {
-          return value.multiplePlayboardState?.playerCount;
+          return value.multiplePlayboardState?.playerCount ?? 0;
         }
       }),
     )!;
@@ -503,15 +503,17 @@ class _MultipleMainPlayground extends HookConsumerWidget {
         },
       ),
     )!;
-    final affectedActions = ref.watch(
+    final affectedActions = ref.watch<List<SlidepartyActions>?>(
       playboardControllerProvider.select(
         (value) {
           if (value is MultiplePlayboardState) {
             return value.currentAction(playerId);
           }
           if (value is OnlinePlayboardState) {
-            return value.affectedAction![playerId]!.values.flatten();
+            if (value.affectedAction?[playerId] == null) return [];
+            return value.affectedAction![playerId]!.values.flatten().toList();
           }
+          return null;
         },
       ),
     )!;
@@ -585,6 +587,9 @@ class _MultipleMainPlayground extends HookConsumerWidget {
               final color =
                   ref.watch(playboardControllerProvider.select((state) {
                 if (state is OnlinePlayboardState) {
+                  if (state.multiplePlayboardState == null) {
+                    return ButtonColors.blue;
+                  }
                   return (state.multiplePlayboardState!.config
                           as MultiplePlayboardConfig)
                       .configs[playerId]!
