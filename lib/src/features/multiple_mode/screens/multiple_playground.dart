@@ -343,24 +343,45 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
-                                child: SkillKeyboard(
-                                  keyboard!,
-                                  playerId: playerId,
-                                  playerCount: playerCount,
-                                  size: min(
-                                      60,
-                                      min(
-                                        (constraints.biggest.longestSide -
-                                                _playboardSize(constraints) -
-                                                32) /
-                                            8,
-                                        constraints.biggest.shortestSide / 6,
-                                      )),
-                                  otherPlayersIndex: [
-                                    for (var i = 0; i < playerCount; i++)
-                                      if (i.toString() != playerId) i.toString()
-                                  ],
-                                ),
+                                child: Consumer(builder: (context, ref, _) {
+                                  final otherPlayersIds = ref.watch(
+                                    playboardControllerProvider.select(
+                                      (state) {
+                                        if (state is MultiplePlayboardState) {
+                                          return state.getPlayerIds(playerId);
+                                        }
+                                      },
+                                    ),
+                                  );
+                                  final otherPlayersColors = ref.watch(
+                                    playboardControllerProvider.select(
+                                      (state) {
+                                        if (state is OnlinePlayboardState) {
+                                          if (state.multiplePlayboardState ==
+                                              null) return null;
+                                          return state.multiplePlayboardState!
+                                              .getPlayerColors(playerId);
+                                        }
+                                      },
+                                    ),
+                                  );
+                                  return SkillKeyboard(
+                                    keyboard!,
+                                    playerId: playerId,
+                                    playerCount: playerCount,
+                                    size: min(
+                                        60,
+                                        min(
+                                          (constraints.biggest.longestSide -
+                                                  _playboardSize(constraints) -
+                                                  32) /
+                                              8,
+                                          constraints.biggest.shortestSide / 6,
+                                        )),
+                                    otherPlayersColors: otherPlayersColors,
+                                    otherPlayersIds: otherPlayersIds,
+                                  );
+                                }),
                               ),
                             ),
                           ),

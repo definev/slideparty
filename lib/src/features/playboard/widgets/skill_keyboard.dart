@@ -5,6 +5,7 @@ import 'package:line_icons/line_icon.dart';
 
 import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/models/skill_keyboard_state.dart';
+import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:slideparty_socket/slideparty_socket.dart';
 
 final multipleSkillStateProvider = StateProvider //
@@ -17,14 +18,16 @@ class SkillKeyboard extends HookConsumerWidget {
   const SkillKeyboard(
     this.keyboard, {
     Key? key,
+    this.otherPlayersIds,
+    this.otherPlayersColors,
     required this.playerId,
-    required this.otherPlayersIndex,
     required this.size,
     required this.playerCount,
   }) : super(key: key);
 
   final String playerId;
-  final List<String> otherPlayersIndex;
+  final List<String>? otherPlayersIds;
+  final List<ButtonColors>? otherPlayersColors;
   final int playerCount;
   final double size;
   final PlayboardSkillKeyboardControl keyboard;
@@ -98,11 +101,14 @@ class SkillKeyboard extends HookConsumerWidget {
         }
         return Theme.of(context).colorScheme.primary;
       } else {
-        if (otherPlayersIndex.length >= index + 1) {
-          return Theme.of(context).colorScheme.primary;
-        } else {
-          return Theme.of(context).colorScheme.surface;
+        if (otherPlayersColors != null &&
+            otherPlayersColors!.length >= index + 1) {
+          return otherPlayersColors![index].primaryColor;
         }
+        if (otherPlayersIds != null && otherPlayersIds!.length >= index + 1) {
+          return Theme.of(context).colorScheme.primary;
+        }
+        return Theme.of(context).colorScheme.surface;
       }
     } else {
       return Theme.of(context).colorScheme.surface;
@@ -111,6 +117,86 @@ class SkillKeyboard extends HookConsumerWidget {
 
   CrossFadeState _crossFadeState(SlidepartyActions? actions) =>
       actions == null ? CrossFadeState.showFirst : CrossFadeState.showSecond;
+
+  Widget _buildPeopleSelect(
+    BuildContext context,
+    int cardIndex,
+    SkillKeyboardState openSkill,
+  ) {
+    if (otherPlayersIds != null) {
+      return Expanded(
+        child: Card(
+          margin: EdgeInsets.all(size < 30 ? 2 : 4),
+          color: _cardColor(
+            context,
+            openSkill,
+            index: cardIndex,
+          ),
+          child: Center(
+            child: AnimatedCrossFade(
+              duration: const Duration(milliseconds: 300),
+              firstCurve: Curves.decelerate,
+              secondCurve: Curves.easeOutCirc,
+              crossFadeState: _crossFadeState(openSkill.queuedAction),
+              firstChild: _actionIcon(
+                context,
+                SlidepartyActions.values[cardIndex],
+                openSkill.usedActions[SlidepartyActions.values[cardIndex]] ==
+                    true,
+              ),
+              secondChild: Text(
+                otherPlayersIds!.length > cardIndex
+                    ? otherPlayersIds![cardIndex]
+                    : '',
+                key: otherPlayersIds!.length > cardIndex
+                    ? ValueKey(
+                        'Other player ${otherPlayersIds![cardIndex]} of $playerId',
+                      )
+                    : null,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    if (otherPlayersColors != null) {
+      return Expanded(
+        child: Card(
+          margin: EdgeInsets.all(size < 30 ? 2 : 4),
+          color: _cardColor(
+            context,
+            openSkill,
+            index: cardIndex,
+          ),
+          child: Center(
+            child: AnimatedCrossFade(
+              duration: const Duration(milliseconds: 300),
+              firstCurve: Curves.decelerate,
+              secondCurve: Curves.easeOutCirc,
+              crossFadeState: _crossFadeState(openSkill.queuedAction),
+              firstChild: _actionIcon(
+                context,
+                SlidepartyActions.values[cardIndex],
+                openSkill.usedActions[SlidepartyActions.values[cardIndex]] ==
+                    true,
+              ),
+              secondChild: Text(
+                otherPlayersColors!.length > cardIndex
+                    ? otherPlayersColors![cardIndex].name[0].toString()
+                    : '',
+                key: otherPlayersColors!.length > cardIndex
+                    ? ValueKey(
+                        'Other player ${otherPlayersColors![cardIndex]} of $playerId',
+                      )
+                    : null,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    throw UnimplementedError('No other players');
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -158,42 +244,7 @@ class SkillKeyboard extends HookConsumerWidget {
                       child: Row(
                         children: [
                           for (int cardIndex = 0; cardIndex < 3; cardIndex++)
-                            Expanded(
-                              child: Card(
-                                margin: EdgeInsets.all(size < 30 ? 2 : 4),
-                                color: _cardColor(
-                                  context,
-                                  openSkill,
-                                  index: cardIndex,
-                                ),
-                                child: Center(
-                                  child: AnimatedCrossFade(
-                                    duration: const Duration(milliseconds: 300),
-                                    firstCurve: Curves.decelerate,
-                                    secondCurve: Curves.easeOutCirc,
-                                    crossFadeState:
-                                        _crossFadeState(openSkill.queuedAction),
-                                    firstChild: _actionIcon(
-                                      context,
-                                      SlidepartyActions.values[cardIndex],
-                                      openSkill.usedActions[SlidepartyActions
-                                              .values[cardIndex]] ==
-                                          true,
-                                    ),
-                                    secondChild: Text(
-                                      otherPlayersIndex.length > cardIndex
-                                          ? otherPlayersIndex[cardIndex]
-                                          : '',
-                                      key: otherPlayersIndex.length > cardIndex
-                                          ? ValueKey(
-                                              'Other player ${otherPlayersIndex[cardIndex]} of $playerId',
-                                            )
-                                          : null,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            _buildPeopleSelect(context, cardIndex, openSkill),
                         ],
                       ),
                     ),
