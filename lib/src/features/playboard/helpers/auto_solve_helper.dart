@@ -1,4 +1,4 @@
-import 'package:slideparty/src/features/playboard/models/playboard.dart';
+import 'package:slideparty_playboard_utils/slideparty_playboard_utils.dart';
 
 mixin AutoSolveHelper {
   bool isSolving = false;

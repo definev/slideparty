@@ -54,6 +54,10 @@ dependencies:
     git:
       url: https://github.com/definev/slideparty_socket.git
       ref: main
+  slideparty_playboard_utils:
+    git:
+      url: https://github.com/definev/slideparty_playboard_utils.git
+      ref: main
   universal_platform: ^1.0.0+1
   uuid: ^3.0.5
 

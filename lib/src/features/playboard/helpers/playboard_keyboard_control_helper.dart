@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
-import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
+import 'package:slideparty_playboard_utils/slideparty_playboard_utils.dart';
 
 mixin PlayboardKeyboardControlHelper {
   PlayboardKeyboardControl get playboardKeyboardControl => throw UnimplementedError(

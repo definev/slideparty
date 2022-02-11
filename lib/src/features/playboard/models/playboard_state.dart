@@ -5,7 +5,6 @@ import 'package:slideparty_socket/slideparty_socket_fe.dart';
 import 'package:dartx/dartx.dart';
 
 import 'playboard_config.dart';
-import 'playboard.dart';
 
 abstract class PlayboardState extends Equatable {
   final PlayboardConfig config;

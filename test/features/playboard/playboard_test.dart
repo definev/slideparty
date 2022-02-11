@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:slideparty/src/features/playboard/models/playboard.dart';
+import 'package:slideparty_playboard_utils/slideparty_playboard_utils.dart';
 
 void main() {
   group('Playboard test', () {

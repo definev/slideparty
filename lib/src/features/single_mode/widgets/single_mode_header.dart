@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
-import 'package:slideparty/src/features/playboard/models/playboard.dart';
+import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/single_mode/controllers/single_mode_controller.dart';
+import 'package:slideparty/src/utils/breakpoint.dart';
 import 'package:slideparty/src/utils/durations.dart';
 
 class SingleModeHeader extends ConsumerWidget {
@@ -16,6 +16,8 @@ class SingleModeHeader extends ConsumerWidget {
       playboardSize / boardSize;
   double maxPlayboardSize(double screenSize, int boardSize) =>
       screenSize - 16 - 2 * _rSpacing(screenSize, boardSize);
+
+  static const bp = Breakpoint(small: 300, normal: 400, large: 500);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +41,7 @@ class SingleModeHeader extends ConsumerWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final textStyle = Theme.of(context).textTheme.subtitle1!.copyWith(
-                  fontSize: Playboard.bp.responsiveValue(
+                  fontSize: bp.responsiveValue(
                     constraints.biggest,
                     watch: 10,
                     tablet: 16,

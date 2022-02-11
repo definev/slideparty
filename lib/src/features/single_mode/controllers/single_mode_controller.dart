@@ -8,10 +8,10 @@ import 'package:slideparty/src/features/audio/button_audio_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/controllers/playboard_info_controller.dart';
 import 'package:slideparty/src/features/playboard/helpers/helpers.dart';
-import 'package:slideparty/src/features/playboard/models/playboard.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
+import 'package:slideparty_playboard_utils/slideparty_playboard_utils.dart';
 
 final singleModeControllerProvider =
     StateNotifierProvider.autoDispose<PlayboardController, PlayboardState>(
