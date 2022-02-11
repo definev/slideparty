@@ -9,6 +9,10 @@ import 'package:slideparty_socket/slideparty_socket_be.dart';
 
 import '../playboard.dart';
 
+extension on Loc {
+  Size get toSize => Size(dx.toDouble(), dy.toDouble());
+}
+
 class PlayboardView extends HookConsumerWidget {
   const PlayboardView({
     Key? key,
