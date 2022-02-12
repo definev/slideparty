@@ -86,12 +86,12 @@ class MultiplePlayboardState extends PlayboardState {
     return res;
   }
 
-  SinglePlayboardState currentState(String index) => _playerStates[index]!;
-  MultiplePlayboardState setState(String index, SinglePlayboardState state) {
+  SinglePlayboardState currentState(String id) => _playerStates[id]!;
+  MultiplePlayboardState setState(String id, SinglePlayboardState state) {
     return MultiplePlayboardState(
       playerCount: playerCount,
       boardSize: boardSize,
-      playerStates: {..._playerStates}..[index] = state,
+      playerStates: {..._playerStates}..[id] = state,
       usedActions: _usedActions,
       stateConfig: config as MultiplePlayboardConfig,
     );

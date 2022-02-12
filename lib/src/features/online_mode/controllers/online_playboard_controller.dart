@@ -240,6 +240,13 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   bool handleKeyboardControl(LogicalKeyboardKey pressedKey) {
+    if (state.currentState == null) {
+      state = state.copyWith(
+        currentState:
+            state.multiplePlayboardState!.currentState(state.playerId),
+      );
+      return false;
+    }
     final singleState = state.currentState!;
     final newBoard = defaultMoveByKeyboard(
       defaultControl.control,
@@ -265,6 +272,13 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   @override
   Playboard? moveByGesture(PlayboardDirection direction) {
     if (willBlockControl) return null;
+    if (state.currentState == null) {
+      state = state.copyWith(
+        currentState:
+            state.multiplePlayboardState!.currentState(state.playerId),
+      );
+      return null;
+    }
     final player = state.currentState!;
     if (player.playboard.isSolved) return null;
     final playboard = player.playboard.moveHole(direction);
