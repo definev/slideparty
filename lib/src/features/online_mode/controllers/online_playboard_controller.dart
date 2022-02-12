@@ -46,8 +46,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   final SlidepartySocket _ssk;
   late final StreamSubscription _sub;
 
-  final PlayboardSkillKeyboardControl defaultControl =
-      PlayboardSkillKeyboardControl(
+  final defaultControl = PlayboardSkillKeyboardControl(
     control: arrowControl,
     activeSkillKey: LogicalKeyboardKey.space,
   );
@@ -57,7 +56,15 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     await _ssk.close();
   }
 
-  void restart() => _ssk.send(const ClientEvent.restart());
+  void restart() {
+    state = state.copyWith(
+      currentState: null,
+      overrideCurrentState: true,
+      currentUsedAction: null,
+      overrideCurrentUsedAction: true,
+    );
+    _ssk.send(const ClientEvent.restart());
+  }
 
   void initController() {
     Future(() {
@@ -98,8 +105,8 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   void _updateUsedAction(SlidepartyActions usedAction) {
-    state = state
-        .copyWith(currentUsedAction: [...state.currentUsedAction, usedAction]);
+    state = state.copyWith(
+        currentUsedAction: [...state.currentUsedAction ?? [], usedAction]);
   }
 
   void _sendActionToServer(SlidepartyActions queuedAction, String targetId) {
@@ -110,11 +117,26 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     }
   }
 
+  void _clearQueuedAction() {
+    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final openSkillNotifier =
+        _read(multipleSkillStateProvider(state.playerId).notifier);
+    if (openSkillState.queuedAction == null) return;
+    openSkillNotifier.state = openSkillState.copyWith(
+      queuedAction: null,
+      show: false,
+      usedActions: {
+        ...openSkillState.usedActions,
+        openSkillState.queuedAction!: true,
+      },
+    );
+  }
+
   void pickAction(SlidepartyActions queueAction) {
     final openSkillState = _read(multipleSkillStateProvider(state.playerId));
     final openSkillNotifier =
         _read(multipleSkillStateProvider(state.playerId).notifier);
-    if (state.currentUsedAction.contains(queueAction) == true) return;
+    if (state.currentUsedAction?.contains(queueAction) == true) return;
 
     switch (queueAction) {
       case SlidepartyActions.clear:
@@ -134,21 +156,6 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
         openSkillNotifier.state =
             openSkillState.copyWith(queuedAction: queueAction);
     }
-  }
-
-  void _clearQueuedAction() {
-    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
-    final openSkillNotifier =
-        _read(multipleSkillStateProvider(state.playerId).notifier);
-    if (openSkillState.queuedAction == null) return;
-    openSkillNotifier.state = openSkillState.copyWith(
-      queuedAction: null,
-      show: false,
-      usedActions: {
-        ...openSkillState.usedActions,
-        openSkillState.queuedAction!: true,
-      },
-    );
   }
 
   void doAction(ButtonColors otherColor) {

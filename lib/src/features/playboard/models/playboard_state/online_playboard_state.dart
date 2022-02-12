@@ -16,7 +16,7 @@ class OnlinePlayboardState extends PlayboardState {
   final ServerState serverState;
   final RoomInfo info;
   final SinglePlayboardState? currentState;
-  final List<SlidepartyActions> currentUsedAction;
+  final List<SlidepartyActions>? currentUsedAction;
   Map<String, Map<String, List<SlidepartyActions>>>? get affectedAction =>
       serverState.mapOrNull(
         roomData: (roomData) => Map.fromIterables(
@@ -28,8 +28,6 @@ class OnlinePlayboardState extends PlayboardState {
   int get boardSize => info.boardSize;
 
   MultiplePlayboardState? get multiplePlayboardState {
-    final _currentPlayerState = MapEntry(playerId, currentState!);
-    final _currentUsedAction = MapEntry(playerId, currentUsedAction);
     Map<String, SinglePlayboardState>? playerStates;
     Map<String, List<SlidepartyActions>>? usedActions;
     MultiplePlayboardConfig? stateConfig;
@@ -40,7 +38,9 @@ class OnlinePlayboardState extends PlayboardState {
         playerCount = roomData.players.length;
         usedActions = roomData.players.map(
           (key, value) => MapEntry(key, value.usedActions),
-        )..removeWhere((key, value) => key == playerId);
+        )..removeWhere(
+            (key, value) => key == playerId && currentUsedAction != null);
+
         playerStates = roomData.players.map(
           (key, value) => MapEntry(
             key,
@@ -50,7 +50,7 @@ class OnlinePlayboardState extends PlayboardState {
               bestStep: -1,
             ),
           ),
-        )..removeWhere((key, value) => key == playerId);
+        )..removeWhere((key, value) => key == playerId && currentState != null);
         stateConfig = MultiplePlayboardConfig(
           roomData.players.map(
             (key, value) => MapEntry(
@@ -74,16 +74,21 @@ class OnlinePlayboardState extends PlayboardState {
         playerCount == null ||
         stateConfig == null) return null;
 
+    final _currentPlayerState = MapEntry(playerId, currentState);
+    final _currentUsedAction = MapEntry(playerId, currentUsedAction);
+
     return MultiplePlayboardState(
       boardSize: boardSize,
       playerCount: playerCount!,
       playerStates: {
-        _currentPlayerState.key: _currentPlayerState.value,
-        ...playerStates!
+        if (_currentPlayerState.value != null)
+          _currentPlayerState.key: _currentPlayerState.value!,
+        if (playerStates != null) ...playerStates!,
       },
       usedActions: {
-        _currentUsedAction.key: _currentUsedAction.value,
-        ...usedActions!,
+        if (_currentUsedAction.value != null)
+          _currentUsedAction.key: _currentUsedAction.value!,
+        if (usedActions != null) ...usedActions!,
       },
       stateConfig: stateConfig!,
     );
@@ -104,14 +109,20 @@ class OnlinePlayboardState extends PlayboardState {
   OnlinePlayboardState copyWith({
     ServerState? serverState,
     SinglePlayboardState? currentState,
+    bool overrideCurrentState = false,
     List<SlidepartyActions>? currentUsedAction,
+    bool overrideCurrentUsedAction = false,
   }) =>
       OnlinePlayboardState(
         info,
         playerId: playerId,
         serverState: serverState ?? this.serverState,
-        currentState: currentState ?? this.currentState,
-        currentUsedAction: currentUsedAction ?? this.currentUsedAction,
+        currentState: overrideCurrentState
+            ? currentState
+            : currentState ?? this.currentState,
+        currentUsedAction: overrideCurrentUsedAction
+            ? currentUsedAction
+            : currentUsedAction ?? this.currentUsedAction,
       );
 
   @override
