@@ -137,7 +137,6 @@ class MultiplePlayground extends HookConsumerWidget {
         barrierDismissible: false,
       );
     }
-    if (controller is OnlineModeController) {}
   }
 
   @override
@@ -553,6 +552,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
                         AppInfos.screenType == ScreenTypes.touchscreen) &&
                     isMyPlayerId
                 ? HoleMenu(
+                    key: ValueKey('HoleMenu: $playerId'),
                     playerId: playerId,
                     isOnlineMode: controller is OnlineModeController,
                   )
@@ -746,6 +746,8 @@ class SmallSkillMenu extends HookConsumerWidget {
                       duration: const Duration(milliseconds: 200),
                       scale: openSkill.queuedAction == action ? 1.1 : 1,
                       child: SlidepartyButton(
+                        key:
+                            ValueKey('Owner $playerId - Action ${action.name}'),
                         color: color,
                         style: openSkill.queuedAction != null &&
                                 openSkill.queuedAction != action
@@ -781,6 +783,8 @@ class SmallSkillMenu extends HookConsumerWidget {
                         duration: const Duration(milliseconds: 200),
                         scale: pickedPlayer.value == otherPlayerIndex ? 1.1 : 1,
                         child: SlidepartyButton(
+                          key: ValueKey(
+                              'Owner $playerId - Target $otherPlayerIndex'),
                           color: color,
                           onPressed: () =>
                               pickedPlayer.value = otherPlayerIndex,
@@ -811,6 +815,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                 ],
               ),
               SlidepartyButton(
+                key: ValueKey('Owner $playerId - Apply skill'),
                 color: color,
                 style: (openSkill.queuedAction != null &&
                         (pickedColor.value != null ||

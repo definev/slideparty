@@ -81,6 +81,46 @@ void main() {
 
       expect(find.byType(HoleMenu), findsWidgets);
     });
+
+    testWidgets('Pause action', (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 3, 2);
+
+      await tester.runAsync(() async {
+        await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+        await simulateKeyDownEvent(LogicalKeyboardKey.keyS);
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+        await simulateKeyDownEvent(LogicalKeyboardKey.keyA);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+
+        expect(find.byType(PauseAction), findsOneWidget);
+      });
+    });
+
+    testWidgets('Blind action', (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 3, 2);
+
+      await tester.runAsync(() async {
+        await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+        await simulateKeyDownEvent(LogicalKeyboardKey.keyS);
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+        await simulateKeyDownEvent(LogicalKeyboardKey.keyA);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+
+        expect(find.byType(PauseAction), findsOneWidget);
+      });
+    });
   });
 
   group('4x4 board', () {
@@ -123,45 +163,31 @@ void main() {
 
       expect(find.byType(HoleMenu), findsWidgets);
     });
-  });
 
-  testWidgets('Pause action', (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    testWidgets('Show pickup skill screen and pause action', (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(700, 700);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    await _multipleModeSetUp(tester);
-    await _selectBoardSizeAndPlayer(tester, 3, 2);
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 4, 2);
 
-    await tester.runAsync(() async {
-      await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
-      await tester.pumpAndSettle(const Duration(milliseconds: 500));
-      await simulateKeyDownEvent(LogicalKeyboardKey.keyS);
-      await tester.pumpAndSettle(const Duration(milliseconds: 500));
-      await simulateKeyDownEvent(LogicalKeyboardKey.keyA);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      expect(find.byType(HoleMenu), findsWidgets);
 
-      expect(find.byType(PauseAction), findsOneWidget);
-    });
-  });
+      await tester.tap(find.byKey(const ValueKey('HoleMenu: 0')));
+      await tester.pumpAndSettle();
 
-  testWidgets('Blind action', (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+      await tester.tap(find.byKey(const ValueKey('Owner 0 - Action pause')));
+      await tester.pumpAndSettle();
 
-    await _multipleModeSetUp(tester);
-    await _selectBoardSizeAndPlayer(tester, 3, 2);
+      await tester.tap(find.byKey(const ValueKey('Owner 0 - Target 1')));
+      await tester.pumpAndSettle();
 
-    await tester.runAsync(() async {
-      await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
-      await tester.pumpAndSettle(const Duration(milliseconds: 500));
-      await simulateKeyDownEvent(LogicalKeyboardKey.keyS);
-      await tester.pumpAndSettle(const Duration(milliseconds: 500));
-      await simulateKeyDownEvent(LogicalKeyboardKey.keyA);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-
-      expect(find.byType(PauseAction), findsOneWidget);
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const ValueKey('Owner 0 - Apply skill')));
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(find.byType(PauseAction), findsOneWidget);
+      });
     });
   });
 }
