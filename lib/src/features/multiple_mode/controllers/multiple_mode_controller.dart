@@ -200,10 +200,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
   ) {
     final openSkillState = _read(multipleSkillStateProvider(index));
     final openSkillNotifier = _read(multipleSkillStateProvider(index).notifier);
-    final otherPlayersIndex = [
-      for (int i = 0; i < state.playerCount; i++)
-        if (i.toString() != index) i.toString()
-    ];
+    final otherPlayersIndex = state.getPlayerIds(index.toString());
 
     if (openSkillState.show) {
       if (control.activeSkillKey == pressedKey) {
