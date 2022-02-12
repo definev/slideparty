@@ -264,7 +264,9 @@ class PlayboardView extends HookConsumerWidget {
             angle: 2 * pi * animateValue,
             origin: const Offset(0.5, 0.5),
             child: Transform.scale(
-              scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
+              scale: animateValue <= 0.4
+                  ? 1 - animateValue / 2
+                  : 0.8 + (animateValue) / 5,
               child: Opacity(
                 opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
                 child: numberTile,
