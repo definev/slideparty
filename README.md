@@ -48,5 +48,11 @@ After that I trying to find a pattern of the game then i found that if we solve 
 ## What we learned
 
 Have fun with flutter
-
 Discover how to use dart for backend
+
+## Testing
+
+I tried to test all the essential parts of the game. It's not 100% coverage but it's still more reliable than no testing. To test this game, run the command:
+```
+flutter test
+```
