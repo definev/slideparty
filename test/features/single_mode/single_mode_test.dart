@@ -438,6 +438,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('You win!'), findsOneWidget);
+
+      for (int i = 0; i < 10; i++) {
+        await tester.tap(find.byKey(const Key('play-again-button')));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('SOLVE'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('You win!'), findsOneWidget);
+      }
     });
     testWidgets('Win and refresh', (tester) async {
       final t = await testApp(
