@@ -8,16 +8,15 @@ class OnlinePlayboardState extends PlayboardState {
     this.info, {
     required this.playerId,
     required this.serverState,
+    required this.currentUsedAction,
+    this.currentState,
   }) : super(config: const NonePlayboardConfig());
 
   final String playerId;
   final ServerState serverState;
   final RoomInfo info;
-  SinglePlayboardState? get currentState =>
-      multiplePlayboardState?.currentState(playerId);
-  List<SlidepartyActions>? get currentUsedAction =>
-      multiplePlayboardState?.currentAction(playerId);
-
+  final SinglePlayboardState? currentState;
+  final List<SlidepartyActions>? currentUsedAction;
   Map<String, Map<String, List<SlidepartyActions>>>? get affectedAction =>
       serverState.mapOrNull(
         roomData: (roomData) => Map.fromIterables(
@@ -39,7 +38,9 @@ class OnlinePlayboardState extends PlayboardState {
         playerCount = roomData.players.length;
         usedActions = roomData.players.map(
           (key, value) => MapEntry(key, value.usedActions),
-        );
+        )..removeWhere(
+            (key, value) => key == playerId && currentUsedAction != null);
+
         playerStates = roomData.players.map(
           (key, value) => MapEntry(
             key,
@@ -49,7 +50,7 @@ class OnlinePlayboardState extends PlayboardState {
               bestStep: -1,
             ),
           ),
-        );
+        )..removeWhere((key, value) => key == playerId && currentState != null);
         stateConfig = MultiplePlayboardConfig(
           roomData.players.map(
             (key, value) => MapEntry(
@@ -73,13 +74,20 @@ class OnlinePlayboardState extends PlayboardState {
         playerCount == null ||
         stateConfig == null) return null;
 
+    final _currentPlayerState = MapEntry(playerId, currentState);
+    final _currentUsedAction = MapEntry(playerId, currentUsedAction);
+
     return MultiplePlayboardState(
       boardSize: boardSize,
       playerCount: playerCount!,
       playerStates: {
+        if (_currentPlayerState.value != null)
+          _currentPlayerState.key: _currentPlayerState.value!,
         if (playerStates != null) ...playerStates!,
       },
       usedActions: {
+        if (_currentUsedAction.value != null)
+          _currentUsedAction.key: _currentUsedAction.value!,
         if (usedActions != null) ...usedActions!,
       },
       stateConfig: stateConfig!,
@@ -90,16 +98,31 @@ class OnlinePlayboardState extends PlayboardState {
         info,
         playerId: playerId,
         serverState: serverState,
+        currentState: SinglePlayboardState(
+          playboard: Playboard.random(boardSize),
+          bestStep: -1,
+          config: const NonePlayboardConfig(),
+        ),
+        currentUsedAction: const [],
       );
 
   OnlinePlayboardState copyWith({
     ServerState? serverState,
+    SinglePlayboardState? currentState,
+    bool overrideCurrentState = false,
     List<SlidepartyActions>? currentUsedAction,
+    bool overrideCurrentUsedAction = false,
   }) =>
       OnlinePlayboardState(
         info,
         playerId: playerId,
         serverState: serverState ?? this.serverState,
+        currentState: overrideCurrentState
+            ? currentState
+            : currentState ?? this.currentState,
+        currentUsedAction: overrideCurrentUsedAction
+            ? currentUsedAction
+            : currentUsedAction ?? this.currentUsedAction,
       );
 
   @override

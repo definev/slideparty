@@ -28,6 +28,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
             info,
             playerId: '',
             serverState: const ServerState.waiting(),
+            currentUsedAction: const [],
           ),
         ) {
     _sub = _ssk.state.listen(
@@ -55,13 +56,26 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     await _ssk.close();
   }
 
-  void restart() => _ssk.send(const ClientEvent.restart());
+  void restart() {
+    state = state.copyWith(
+      currentState: null,
+      overrideCurrentState: true,
+      currentUsedAction: null,
+      overrideCurrentUsedAction: true,
+    );
+    _ssk.send(const ClientEvent.restart());
+  }
 
   void initController() {
     Future(() {
       state = state.initPlayerId(_ssk.userId);
       _ssk.send(
-        ClientEvent.sendBoard(Playboard.random(info.boardSize).currentBoard),
+        ClientEvent.sendBoard(
+          state //
+              .currentState!
+              .playboard
+              .currentBoard,
+        ),
       );
     });
   }
@@ -84,6 +98,9 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   void _updatePlayboardState(Playboard playboard) {
+    state = state.copyWith(
+      currentState: state.currentState!.editPlayboard(playboard),
+    );
     _ssk.send(ClientEvent.sendBoard(playboard.currentBoard));
   }
 
@@ -224,6 +241,10 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
 
   bool handleKeyboardControl(LogicalKeyboardKey pressedKey) {
     if (state.currentState == null) {
+      state = state.copyWith(
+        currentState:
+            state.multiplePlayboardState!.currentState(state.playerId),
+      );
       return false;
     }
     final singleState = state.currentState!;
@@ -234,6 +255,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     );
 
     if (newBoard != null) {
+      state = state.copyWith(currentState: singleState.editPlayboard(newBoard));
       _ssk.send(ClientEvent.sendBoard(newBoard.currentBoard));
       return true;
     }
@@ -250,8 +272,13 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   @override
   Playboard? moveByGesture(PlayboardDirection direction) {
     if (willBlockControl) return null;
-    if (state.currentState == null) return null;
-
+    if (state.currentState == null) {
+      state = state.copyWith(
+        currentState:
+            state.multiplePlayboardState!.currentState(state.playerId),
+      );
+      return null;
+    }
     final player = state.currentState!;
     if (player.playboard.isSolved) return null;
     final playboard = player.playboard.moveHole(direction);
