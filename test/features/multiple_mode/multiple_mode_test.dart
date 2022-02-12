@@ -153,13 +153,13 @@ void main() {
       expect(find.text('Skills'), findsWidgets);
     });
 
-    testWidgets('4 x 4 and 2 players (Small screen)', (tester) async {
-      tester.binding.window.physicalSizeTestValue = const Size(500, 500);
+    testWidgets('4 x 4 and 4 players (Small screen)', (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(700, 700);
       tester.binding.window.devicePixelRatioTestValue = 1.0;
       addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
       await _multipleModeSetUp(tester);
-      await _selectBoardSizeAndPlayer(tester, 4, 2);
+      await _selectBoardSizeAndPlayer(tester, 4, 4);
 
       expect(find.byType(HoleMenu), findsWidgets);
     });
@@ -187,6 +187,14 @@ void main() {
         await tester.tap(find.byKey(const ValueKey('Owner 0 - Apply skill')));
         await tester.pump(const Duration(milliseconds: 100));
         expect(find.byType(PauseAction), findsOneWidget);
+
+        await tester.tap(find.byKey(const ValueKey('HoleMenu: 1')));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const ValueKey('Owner 1 - Action clear')));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PauseAction), findsNothing);
       });
     });
   });

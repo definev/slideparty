@@ -135,7 +135,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     _removeQueuedAction(index, target);
   }
 
-  void _removeQueuedAction(String index, String target) {
+  void _removeQueuedAction(String index, String target) async {
     final openSkillState = _read(multipleSkillStateProvider(index));
     final openSkillNotifier = _read(multipleSkillStateProvider(index).notifier);
     final queuedAction = openSkillState.queuedAction!;
@@ -144,6 +144,16 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
       target,
       [...state.currentAction(target), queuedAction],
     );
+
+    openSkillNotifier.state = openSkillState.copyWith(
+      queuedAction: null,
+      show: false,
+      usedActions: {
+        ...openSkillState.usedActions,
+        queuedAction: true,
+      },
+    );
+  
     if (queuedAction == SlidepartyActions.blind) {
       state = state.setConfig(
         target,
@@ -156,7 +166,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
               )!,
         ),
       );
-      Future.delayed(
+      await Future.delayed(
         const Duration(seconds: 10),
         () => state = state.setConfig(
           target,
@@ -171,26 +181,21 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
         ),
       );
     }
-    openSkillNotifier.state = openSkillState.copyWith(
-      queuedAction: null,
-      show: false,
-      usedActions: {
-        ...openSkillState.usedActions,
-        queuedAction: true,
-      },
-    );
   }
 
-  void _flushAction(String index, String target) {
+  void _flushAction(String index, String target) async {
     final openSkillState = _read(multipleSkillStateProvider(index));
     final queuedAction = openSkillState.queuedAction!;
 
-    Future.delayed(const Duration(seconds: 10), () {
-      state = state.setActions(
-        target,
-        [...state.currentAction(target)]..remove(queuedAction),
-      );
-    });
+    await Future.delayed(
+      const Duration(seconds: 10),
+      () {
+        state = state.setActions(
+          target,
+          [...state.currentAction(target)]..remove(queuedAction),
+        );
+      },
+    );
   }
 
   bool handleSkillKey(
