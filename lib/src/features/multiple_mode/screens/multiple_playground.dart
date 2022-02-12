@@ -108,31 +108,9 @@ class MultiplePlayground extends HookConsumerWidget {
                               ? 1
                               : 2,
                           (colorIndex) => Expanded(
-                            child: Consumer(
-                              builder: (context, ref, _) {
-                                final playerId = ref.watch(
-                                  playboardControllerProvider.select(
-                                    (value) {
-                                      if (value is OnlinePlayboardState) {
-                                        if (value.serverState is! RoomData) {
-                                          return null;
-                                        }
-                                        return (value.serverState as RoomData)
-                                            .players
-                                            .keys
-                                            .elementAt(index * 2 + colorIndex);
-                                      }
-                                    },
-                                  ),
-                                );
-                                return _PlayerPlayboardView(
-                                  playerId: playerId ??
-                                      (index * 2 + colorIndex).toString(),
-                                  ratio: ratio,
-                                  color: ButtonColors
-                                      .values[index * 2 + colorIndex],
-                                );
-                              },
+                            child: _PlayerPlayboardView(
+                              index: index * 2 + colorIndex,
+                              ratio: ratio,
                             ),
                           ),
                         ),
@@ -229,13 +207,11 @@ class MultiplePlayground extends HookConsumerWidget {
 class _PlayerPlayboardView extends HookConsumerWidget {
   const _PlayerPlayboardView({
     Key? key,
-    required this.playerId,
-    required this.color,
+    required this.index,
     required this.ratio,
   }) : super(key: key);
 
-  final String playerId;
-  final ButtonColors color;
+  final int index;
   final double ratio;
 
   double _playboardSize(BoxConstraints constraints) =>
@@ -250,6 +226,22 @@ class _PlayerPlayboardView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
+    final playerId = ref.watch(
+      playboardControllerProvider.select(
+        (value) {
+          if (value is OnlinePlayboardState) {
+            if (value.serverState is! RoomData) {
+              return (index).toString();
+            }
+            return (value.serverState as RoomData)
+                .players
+                .keys
+                .elementAt(index);
+          }
+          return index.toString();
+        },
+      ),
+    );
     final playerCount = ref.watch(playboardControllerProvider.select(
       (value) {
         if (value is MultiplePlayboardState) {
@@ -280,6 +272,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
       }
       return false;
     }();
+    final color = ButtonColors.values[index];
 
     final view = Theme(
       data: themeData.colorScheme.brightness == Brightness.light
