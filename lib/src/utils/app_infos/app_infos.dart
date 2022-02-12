@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'html_locator.dart' if (dart.library.html) 'dart:html';
@@ -28,5 +29,11 @@ class AppInfos {
     return UniversalPlatform.isDesktop
         ? ScreenTypes.mouse
         : ScreenTypes.touchscreenAndMouse;
+  }
+
+  static void setAppTitle(String label) {
+    SystemChrome.setApplicationSwitcherDescription(
+      ApplicationSwitcherDescription(label: label),
+    );
   }
 }
