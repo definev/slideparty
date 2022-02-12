@@ -41,7 +41,8 @@ class PlayboardView extends HookConsumerWidget {
         ref.watch(playboardControllerProvider.select((value) {
       if (value is SinglePlayboardState) {
         if (value.playboard.isSolved) {
-          return PlayboardAnimationTypes.values[0];
+          return PlayboardAnimationTypes
+              .values[Random().nextInt(PlayboardAnimationTypes.values.length)];
         }
         return null;
       }
@@ -50,16 +51,28 @@ class PlayboardView extends HookConsumerWidget {
 
     return IgnorePointer(
       ignoring: animationTypes != null,
-      child: _heartScaleFade(
-          animationTypes == PlayboardAnimationTypes.heartScaleFade),
+      child: animationTypes == null
+          ? _basePlayboard(null, 1)
+          : _animatedPlayboard(animationTypes),
     );
   }
 
-  TweenAnimationBuilder<double> _heartScaleFade(bool isAnimated) {
+  Widget _animatedPlayboard(PlayboardAnimationTypes animationType) {
+    switch (animationType) {
+      case PlayboardAnimationTypes.heartScaleFade:
+        return _heartScaleFade();
+      case PlayboardAnimationTypes.spinTile:
+        return _spinTile();
+      case PlayboardAnimationTypes.spinTileWithFade:
+        return _spinTileWithFade();
+    }
+  }
+
+  Widget _heartScaleFade() {
     return TweenAnimationBuilder<double>(
       duration: const Duration(seconds: 2),
       curve: Curves.decelerate,
-      tween: Tween<double>(begin: 0, end: isAnimated ? 1 : 0),
+      tween: Tween<double>(begin: 0, end: 1),
       builder: (context, value, child) {
         return Transform.rotate(
           angle: -(pi * 3 / 4) * value,
@@ -67,32 +80,62 @@ class PlayboardView extends HookConsumerWidget {
           child: Transform.scale(
             scale:
                 value == 0 ? 1 : 1 + (size / sqrt(size * size * 2) - 1) * value,
-            child: SizedBox(
-              height: size,
-              width: size,
-              child: Stack(
-                clipBehavior: clipBehavior,
-                children: List.generate(
-                  boardSize * boardSize,
-                  (index) => _puzzleTile(
-                    index: index,
-                    size: size,
-                    animationType: PlayboardAnimationTypes.heartScaleFade,
-                    animateValue: value,
-                  ),
-                ),
-              ),
-            ),
+            child:
+                _basePlayboard(PlayboardAnimationTypes.heartScaleFade, value),
           ),
         );
       },
     );
   }
 
+  Widget _spinTile() {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(seconds: 2),
+      curve: Curves.bounceInOut,
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, value, child) {
+        return _basePlayboard(PlayboardAnimationTypes.spinTile, value);
+      },
+    );
+  }
+
+  Widget _spinTileWithFade() {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(seconds: 2),
+      curve: Curves.bounceInOut,
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, value, child) {
+        return _basePlayboard(PlayboardAnimationTypes.spinTileWithFade, value);
+      },
+    );
+  }
+
+  SizedBox _basePlayboard(
+    PlayboardAnimationTypes? animationType,
+    double animateValue,
+  ) {
+    return SizedBox(
+      height: size,
+      width: size,
+      child: Stack(
+        clipBehavior: clipBehavior,
+        children: List.generate(
+          boardSize * boardSize,
+          (index) => _puzzleTile(
+            index: index,
+            size: size,
+            animationType: animationType,
+            animateValue: animateValue,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _puzzleTile({
     required int index,
     required double size,
-    required PlayboardAnimationTypes animationType,
+    required PlayboardAnimationTypes? animationType,
     required double animateValue,
   }) {
     return Consumer(
@@ -173,7 +216,7 @@ class PlayboardView extends HookConsumerWidget {
     required double size,
     required int index,
     required PlayboardConfig config,
-    required PlayboardAnimationTypes animationType,
+    required PlayboardAnimationTypes? animationType,
     required double animateValue,
   }) {
     if (index == boardSize * boardSize - 1) {
@@ -186,25 +229,51 @@ class PlayboardView extends HookConsumerWidget {
     }
 
     if (config is NumberPlayboardConfig) {
-      return Transform.scale(
-        scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
-        child: Opacity(
-          opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
-          child: NumberTile(
-            key: ValueKey('number-tile-${loc.index(boardSize)}'),
-            index: index,
-            boardSize: boardSize,
-            playboardSize: size,
-            color: config.color,
-            onPressed: onPressed,
-            child: Transform.rotate(
-              angle: (pi + pi / 4 - pi / 2) * animateValue,
-              origin: const Offset(0.5, 0.5),
-              child: Text('${index + 1}'),
-            ),
-          ),
-        ),
+      final numberTile = NumberTile(
+        key: ValueKey('number-tile-${loc.index(boardSize)}'),
+        index: index,
+        boardSize: boardSize,
+        playboardSize: size,
+        color: config.color,
+        onPressed: onPressed,
+        child: Text('${index + 1}'),
       );
+
+      switch (animationType) {
+        case PlayboardAnimationTypes.heartScaleFade:
+          return Transform.scale(
+            scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
+            child: Opacity(
+              opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
+              child: numberTile,
+            ),
+          );
+        case PlayboardAnimationTypes.spinTile:
+          return Transform.rotate(
+            angle: 2 * pi * animateValue,
+            origin: const Offset(0.5, 0.5),
+            child: Transform.scale(
+              scale: animateValue <= 0.4
+                  ? 1 - animateValue / 2
+                  : 0.8 + (animateValue) / 5,
+              child: numberTile,
+            ),
+          );
+        case PlayboardAnimationTypes.spinTileWithFade:
+          return Transform.rotate(
+            angle: 2 * pi * animateValue,
+            origin: const Offset(0.5, 0.5),
+            child: Transform.scale(
+              scale: animateValue < 0.8 ? 1 : 1 + (animateValue - 0.8) / 0.6,
+              child: Opacity(
+                opacity: animateValue < 0.8 ? 1 : (1 - animateValue) / 0.2,
+                child: numberTile,
+              ),
+            ),
+          );
+        default:
+          return numberTile;
+      }
     }
 
     if (config is MultiplePlayboardConfig) {

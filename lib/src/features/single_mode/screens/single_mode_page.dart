@@ -181,7 +181,7 @@ class SingleModePage extends StatelessWidget {
               (_, next) {
                 if (next) {
                   Future.delayed(
-                    const Duration(seconds: 2),
+                    const Duration(seconds: 2, milliseconds: 100),
                     () {
                       if (isMounted()) {
                         showWinDialog.value = true;
