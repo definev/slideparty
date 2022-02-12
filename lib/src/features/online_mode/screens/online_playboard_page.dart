@@ -79,6 +79,7 @@ class OnlinePlayboardPage extends ConsumerWidget {
               controller.restartGame();
               return Center(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: const [
                     Text('Restarting...'),
                     Gap(16),
