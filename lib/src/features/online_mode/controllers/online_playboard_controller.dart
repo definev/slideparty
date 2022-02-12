@@ -47,6 +47,8 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   final SlidepartySocket _ssk;
   late final StreamSubscription _sub;
 
+  final Stopwatch _stopwatch = Stopwatch();
+
   final defaultControl = PlayboardSkillKeyboardControl(
     control: arrowControl,
     activeSkillKey: LogicalKeyboardKey.space,
@@ -65,18 +67,18 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     await _ssk.close();
   }
 
-  void restart() {
-    state = state.copyWith(
-      currentState: null,
-      overrideCurrentState: true,
-      currentUsedAction: null,
-      overrideCurrentUsedAction: true,
-    );
-    _ssk.send(const ClientEvent.restart());
+  void restart() => _ssk.send(const ClientEvent.restart());
+
+  Duration get time {
+    _stopwatch.stop();
+    return _stopwatch.elapsed;
   }
+
+  void stopTimer() => _stopwatch.stop();
 
   void initController() {
     Future(() {
+      _stopwatch.start();
       state = state.initPlayerId(_ssk.userId);
       _ssk.send(
         ClientEvent.sendBoard(
@@ -89,10 +91,30 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     });
   }
 
+  void restartGame() {
+    Future.delayed(
+      const Duration(seconds: 3),
+      () {
+        _stopwatch.reset();
+        _stopwatch.start();
+        state = state.initPlayerId(_ssk.userId);
+        _ssk.send(
+          ClientEvent.sendBoard(
+            state //
+                .currentState!
+                .playboard
+                .currentBoard,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _sub.cancel();
     _ssk.close();
+    _stopwatch.stop();
     super.dispose();
   }
 

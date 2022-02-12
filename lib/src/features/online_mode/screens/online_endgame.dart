@@ -22,6 +22,7 @@ class OnlineEndgame extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller =
         ref.watch(playboardControllerProvider.notifier) as OnlineModeController;
+    final time = controller.time;
 
     return Center(
       child: Column(
@@ -52,7 +53,7 @@ class OnlineEndgame extends ConsumerWidget {
           ),
           const Gap(16),
           Text(
-              '${value.time.inHours % 24 <= 9 ? '0' + (value.time.inHours % 24).toString() : value.time.inHours % 24} : ${value.time.inMinutes % 60 <= 9 ? '0' + (value.time.inMinutes % 60).toString() : value.time.inMinutes % 60} : ${value.time.inSeconds % 60 <= 9 ? '0' + (value.time.inSeconds % 60).toString() : value.time.inSeconds % 60}'),
+              '${time.inHours % 24 <= 9 ? '0' + (time.inHours % 24).toString() : time.inHours % 24} : ${time.inMinutes % 60 <= 9 ? '0' + (time.inMinutes % 60).toString() : time.inMinutes % 60} : ${time.inSeconds % 60 <= 9 ? '0' + (time.inSeconds % 60).toString() : time.inSeconds % 60}'),
           const Gap(16),
           for (final stat in value.stats)
             if (stat.playerColor != value.winnerPlayerState.color)

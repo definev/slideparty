@@ -109,20 +109,14 @@ class OnlinePlayboardState extends PlayboardState {
   OnlinePlayboardState copyWith({
     ServerState? serverState,
     SinglePlayboardState? currentState,
-    bool overrideCurrentState = false,
     List<SlidepartyActions>? currentUsedAction,
-    bool overrideCurrentUsedAction = false,
   }) =>
       OnlinePlayboardState(
         info,
         playerId: playerId,
         serverState: serverState ?? this.serverState,
-        currentState: overrideCurrentState
-            ? currentState
-            : currentState ?? this.currentState,
-        currentUsedAction: overrideCurrentUsedAction
-            ? currentUsedAction
-            : currentUsedAction ?? this.currentUsedAction,
+        currentState: currentState ?? this.currentState,
+        currentUsedAction: currentUsedAction ?? this.currentUsedAction,
       );
 
   @override
