@@ -10,10 +10,16 @@ Future<void> _multipleModeSetUp(WidgetTester tester) async {
   await testRouterApp(tester, initialRoute: '/m_mode');
 
   expect(find.byType(MultipleModePage), findsOneWidget);
+}
 
-  await tester.tap(find.text('3 x 3'));
+Future<void> _selectBoardSizeAndPlayer(
+  WidgetTester tester,
+  int boardSize,
+  int player,
+) async {
+  await tester.tap(find.text('$boardSize x $boardSize'));
   await tester.pumpAndSettle();
-  await tester.tap(find.text('2'));
+  await tester.tap(find.text('$player'));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Start'));
   await tester.pumpAndSettle();
@@ -36,40 +42,87 @@ void main() {
     expect(find.text('5 x 5'), findsOneWidget);
   });
 
-  testWidgets('3 x 3 and 2 players (Big screen, horizontal prefer)',
-      (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+  group('3x3 board', () {
+    testWidgets('3 x 3 and 2 players (Big screen, horizontal prefer)',
+        (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    await _multipleModeSetUp(tester);
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 3, 2);
 
-    expect(find.text('P.0'), findsOneWidget);
-    expect(find.text('P.1'), findsOneWidget);
-    expect(find.text('Skills'), findsWidgets);
+      expect(find.text('P.0'), findsOneWidget);
+      expect(find.text('P.1'), findsOneWidget);
+      expect(find.text('Skills'), findsWidgets);
+    });
+
+    testWidgets('3 x 3 and 2 players (Big screen, vertical prefer)',
+        (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(1080, 1440);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 3, 2);
+
+      expect(find.text('P.0'), findsOneWidget);
+      expect(find.text('P.1'), findsOneWidget);
+      expect(find.text('Skills'), findsWidgets);
+    });
+
+    testWidgets('3 x 3 and 2 players (Small screen)', (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(500, 500);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 3, 2);
+
+      expect(find.byType(HoleMenu), findsWidgets);
+    });
   });
 
-  testWidgets('3 x 3 and 2 players (Big screen, vertical prefer)',
-      (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(1080, 1440);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+  group('4x4 board', () {
+    testWidgets('4 x 4 and 2 players (Big screen, horizontal prefer)',
+        (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(1440, 1080);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    await _multipleModeSetUp(tester);
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 4, 2);
 
-    expect(find.text('P.0'), findsOneWidget);
-    expect(find.text('P.1'), findsOneWidget);
-    expect(find.text('Skills'), findsWidgets);
-  });
+      expect(find.text('P.0'), findsOneWidget);
+      expect(find.text('P.1'), findsOneWidget);
+      expect(find.text('Skills'), findsWidgets);
+    });
 
-  testWidgets('3 x 3 and 2 players (Small screen)', (tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(500, 500);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
-    addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+    testWidgets('4 x 4 and 3 players (Big screen, vertical prefer)',
+        (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(1080, 1440);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
-    await _multipleModeSetUp(tester);
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 4, 3);
 
-    expect(find.byType(HoleMenu), findsWidgets);
+      expect(find.text('P.0'), findsOneWidget);
+      expect(find.text('P.1'), findsOneWidget);
+      expect(find.text('P.2'), findsOneWidget);
+      expect(find.text('Skills'), findsWidgets);
+    });
+
+    testWidgets('4 x 4 and 2 players (Small screen)', (tester) async {
+      tester.binding.window.physicalSizeTestValue = const Size(500, 500);
+      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+
+      await _multipleModeSetUp(tester);
+      await _selectBoardSizeAndPlayer(tester, 4, 2);
+
+      expect(find.byType(HoleMenu), findsWidgets);
+    });
   });
 
   testWidgets('Pause action', (tester) async {
@@ -78,6 +131,8 @@ void main() {
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
     await _multipleModeSetUp(tester);
+    await _selectBoardSizeAndPlayer(tester, 3, 2);
+
     await tester.runAsync(() async {
       await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
@@ -96,6 +151,8 @@ void main() {
     addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
     await _multipleModeSetUp(tester);
+    await _selectBoardSizeAndPlayer(tester, 3, 2);
+
     await tester.runAsync(() async {
       await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
