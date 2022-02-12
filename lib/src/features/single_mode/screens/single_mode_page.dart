@@ -192,58 +192,40 @@ class SingleModePage extends StatelessWidget {
               },
             );
 
-            switch (AppInfos.screenType) {
-              case ScreenTypes.touchscreen:
-                return SwipeDetector(
-                  onSwipeLeft: () =>
-                      controller.moveByGesture(PlayboardDirection.left),
-                  onSwipeRight: () =>
-                      controller.moveByGesture(PlayboardDirection.right),
-                  onSwipeUp: () =>
-                      controller.moveByGesture(PlayboardDirection.up),
-                  onSwipeDown: () =>
-                      controller.moveByGesture(PlayboardDirection.down),
-                  child: playboard(context, controller, showWinDialog),
-                );
-              case ScreenTypes.mouse:
-                return RawKeyboardListener(
-                  focusNode: focusNode,
-                  autofocus: true,
-                  onKey: (event) {
-                    if (event is RawKeyDownEvent) {
-                      controller.moveByKeyboard(event.logicalKey);
-                    }
-                  },
-                  child: GestureDetector(
-                    onTap: () => focusNode.requestFocus(),
-                    child: playboard(context, controller, showWinDialog),
-                  ),
-                );
-              case ScreenTypes.touchscreenAndMouse:
-                return SwipeDetector(
-                  onSwipeLeft: () =>
-                      controller.moveByGesture(PlayboardDirection.left),
-                  onSwipeRight: () =>
-                      controller.moveByGesture(PlayboardDirection.right),
-                  onSwipeUp: () =>
-                      controller.moveByGesture(PlayboardDirection.up),
-                  onSwipeDown: () =>
-                      controller.moveByGesture(PlayboardDirection.down),
-                  child: RawKeyboardListener(
-                    focusNode: focusNode,
-                    autofocus: true,
-                    onKey: (event) {
-                      if (event is RawKeyDownEvent) {
-                        controller.moveByKeyboard(event.logicalKey);
-                      }
-                    },
-                    child: GestureDetector(
-                      onTap: () => focusNode.requestFocus(),
-                      child: playboard(context, controller, showWinDialog),
-                    ),
-                  ),
-                );
+            var widget = playboard(context, controller, showWinDialog);
+
+            if (AppInfos.screenType == ScreenTypes.mouse ||
+                AppInfos.screenType == ScreenTypes.touchscreenAndMouse) {
+              widget = RawKeyboardListener(
+                focusNode: focusNode,
+                autofocus: true,
+                onKey: (event) {
+                  if (event is RawKeyDownEvent) {
+                    controller.moveByKeyboard(event.logicalKey);
+                  }
+                },
+                child: GestureDetector(
+                  onTap: () => focusNode.requestFocus(),
+                  child: widget,
+                ),
+              );
             }
+            if (AppInfos.screenType == ScreenTypes.touchscreen ||
+                AppInfos.screenType == ScreenTypes.touchscreenAndMouse) {
+              widget = SwipeDetector(
+                onSwipeLeft: () =>
+                    controller.moveByGesture(PlayboardDirection.left),
+                onSwipeRight: () =>
+                    controller.moveByGesture(PlayboardDirection.right),
+                onSwipeUp: () =>
+                    controller.moveByGesture(PlayboardDirection.up),
+                onSwipeDown: () =>
+                    controller.moveByGesture(PlayboardDirection.down),
+                child: widget,
+              );
+            }
+
+            return widget;
           },
         ),
       ),
