@@ -271,7 +271,14 @@ class _PlayerPlayboardView extends HookConsumerWidget {
       }
       return false;
     }();
-    final color = ButtonColors.values[index];
+    final color = useMemoized(() {
+      if (controller is MultipleModeController) {
+        return ButtonColors.values[index];
+      }
+      if (controller is OnlineModeController) {
+        return controller.getColor(playerId);
+      }
+    }, [controller])!;
 
     final view = Theme(
       data: themeData.colorScheme.brightness == Brightness.light

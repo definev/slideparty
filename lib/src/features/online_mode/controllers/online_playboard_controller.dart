@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/models/skill_keyboard_state.dart';
@@ -50,6 +51,14 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     control: arrowControl,
     activeSkillKey: LogicalKeyboardKey.space,
   );
+
+  ButtonColors getColor(String id) =>
+      (state.multiplePlayboardState!.config as MultiplePlayboardConfig)
+          .configs[id]!
+          .mapOrNull(
+            blind: (v) => v.color,
+            number: (v) => v.color,
+          )!;
 
   void disconnect() async {
     _sub.cancel();
