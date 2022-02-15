@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:fps_widget/fps_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
 import 'package:slideparty/src/features/home/home.dart';
@@ -126,6 +127,8 @@ class _AppState extends ConsumerState<App> {
       theme: playboardDefaultColor.lightTheme,
       darkTheme: playboardDefaultColor.darkTheme,
       onGenerateTitle: (context) => 'Not Found',
+      // builder: (_, child) =>
+      // Material(child: FPSWidget(child: child ?? const SizedBox())),
     );
   }
 }
