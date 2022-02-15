@@ -220,17 +220,7 @@ class SkillKeyboard extends HookConsumerWidget {
         ),
       ),
     );
-    var pickedSkill = SizedBox(
-      height: size - 8,
-      width: size - 8,
-      child: Center(
-        child: _actionIcon(
-          context,
-          openSkill.queuedAction!,
-          false,
-        ),
-      ),
-    );
+
     return SizedBox.square(
       dimension: size * 3,
       child: Column(
@@ -324,12 +314,32 @@ class SkillKeyboard extends HookConsumerWidget {
                       ),
                       reduceMotion
                           ? (openSkill.queuedAction != null
-                              ? pickedSkill
+                              ? SizedBox(
+                                  height: size - 8,
+                                  width: size - 8,
+                                  child: Center(
+                                    child: _actionIcon(
+                                      context,
+                                      openSkill.queuedAction!,
+                                      false,
+                                    ),
+                                  ),
+                                )
                               : const SizedBox())
                           : AnimatedSize(
                               duration: const Duration(milliseconds: 300),
                               child: openSkill.queuedAction != null
-                                  ? pickedSkill
+                                  ? SizedBox(
+                                      height: size - 8,
+                                      width: size - 8,
+                                      child: Center(
+                                        child: _actionIcon(
+                                          context,
+                                          openSkill.queuedAction!,
+                                          false,
+                                        ),
+                                      ),
+                                    )
                                   : const SizedBox(),
                             ),
                     ],
