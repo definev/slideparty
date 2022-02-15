@@ -44,20 +44,17 @@ class PlayboardView extends HookConsumerWidget {
           return PlayboardAnimationTypes
               .values[Random().nextInt(PlayboardAnimationTypes.values.length)];
         }
-        return null;
       }
       return null;
     }));
 
     return IgnorePointer(
       ignoring: animationTypes != null,
-      child: animationTypes == null
-          ? _basePlayboard(null, 1)
-          : _animatedPlayboard(animationTypes),
+      child: _animatedPlayboard(animationTypes),
     );
   }
 
-  Widget _animatedPlayboard(PlayboardAnimationTypes animationType) {
+  Widget _animatedPlayboard(PlayboardAnimationTypes? animationType) {
     switch (animationType) {
       case PlayboardAnimationTypes.heartScaleFade:
         return _heartScaleFade();
@@ -65,6 +62,8 @@ class PlayboardView extends HookConsumerWidget {
         return _spinTile();
       case PlayboardAnimationTypes.spinTileWithFade:
         return _spinTileWithFade();
+      default:
+        return _basePlayboard(null, 1);
     }
   }
 
