@@ -8,7 +8,6 @@ import '../../mocks/test_app.dart';
 
 Future<void> _multipleModeSetUp(WidgetTester tester) async {
   await testRouterApp(tester, initialRoute: '/m_mode');
-
   expect(find.byType(MultipleModePage), findsOneWidget);
 }
 
