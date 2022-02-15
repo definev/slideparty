@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:slideparty/src/features/multiple_mode/screens/multiple_playground.dart';
 import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
 import 'package:slideparty/src/features/online_mode/screens/online_endgame.dart';
+import 'package:slideparty/src/features/online_mode/screens/online_playground.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/widgets/dialogs/slideparty_snack_bar.dart';
 import 'package:slideparty_socket/slideparty_socket.dart';
@@ -64,7 +64,7 @@ class OnlinePlayboardPage extends ConsumerWidget {
             },
             roomData: (data) {
               if (state is! RoomData) return const SizedBox();
-              return const MultiplePlayground();
+              return const OnlinePlayground();
             },
             waiting: (_) => const Center(child: CircularProgressIndicator()),
             roomFull: (_) {

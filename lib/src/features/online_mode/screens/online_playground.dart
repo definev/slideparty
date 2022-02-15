@@ -6,9 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:line_icons/line_icon.dart';
+import 'package:dartx/dartx.dart';
 
-import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
-import 'package:slideparty/src/features/multiple_mode/widgets/win_dialog.dart';
+import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
+import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/playboard_view.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
@@ -16,8 +17,8 @@ import 'package:slideparty/src/utils/app_infos/app_infos.dart';
 import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:slideparty_socket/slideparty_socket.dart';
 
-class MultiplePlayground extends HookConsumerWidget {
-  const MultiplePlayground({Key? key}) : super(key: key);
+class OnlinePlayground extends HookConsumerWidget {
+  const OnlinePlayground({Key? key}) : super(key: key);
 
   int axisLength(int playerCount) =>
       playerCount ~/ 2 + (playerCount % 2 == 1 ? 1 : 0);
@@ -119,40 +120,14 @@ class MultiplePlayground extends HookConsumerWidget {
     );
   }
 
-  void _showWinningDialog(
-    BuildContext context,
-    String whoWin,
-    StateNotifier<PlayboardState> controller,
-  ) {
-    if (controller is MultipleModeController) {
-      showDialog(
-        context: context,
-        builder: (context) => MultipleModeWinDialog(
-          whoWin: whoWin,
-          controller: controller,
-        ),
-        barrierDismissible: false,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as MultipleModeController;
+    final controller =
+        ref.watch(playboardControllerProvider.notifier) as OnlineModeController;
     final playerCount = ref.watch(
-      playboardControllerProvider
-          .select((value) => (value as MultiplePlayboardState).playerCount),
-    );
-    ref.listen<String?>(
-      playboardControllerProvider.select(
-        (value) => (value as MultiplePlayboardState).whoWin,
-      ),
-      (_, who) {
-        if (who != null) {
-          _showWinningDialog(context, who, controller);
-        }
-      },
+      playboardControllerProvider.select((value) =>
+          (value as OnlinePlayboardState).multiplePlayboardState?.playerCount ??
+          0),
     );
     final focusNode = useFocusNode();
 
@@ -204,15 +179,30 @@ class _PlayerPlayboardView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-    final playerId = index.toString();
+    final playerId = ref.watch(
+      playboardControllerProvider.select(
+        (value) {
+          value as OnlinePlayboardState;
+          if (value.serverState is! RoomData) {
+            return (index).toString();
+          }
+          return (value.serverState as RoomData).players.keys.elementAt(index);
+        },
+      ),
+    );
     final playerCount = ref.watch(playboardControllerProvider.select(
-      (value) => (value as MultiplePlayboardState).playerCount,
+      (value) {
+        value as OnlinePlayboardState;
+        if (value.multiplePlayboardState == null) return 0;
+        return value.multiplePlayboardState!.playerCount;
+      },
     ));
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as MultipleModeController;
-    final keyboard =
-        useMemoized(() => controller.playerControl(playerId), [playerId]);
-    final color = useMemoized(() => ButtonColors.values[index], [index]);
+    final controller =
+        ref.watch(playboardControllerProvider.notifier) as OnlineModeController;
+    final keyboard = controller.defaultControl;
+    final isMyPlayerId =
+        useMemoized(() => controller.isMyPlayerId(playerId), [playerId]);
+    final color = useMemoized(() => controller.getColor(playerId), [playerId]);
 
     final view = Theme(
       data: themeData.colorScheme.brightness == Brightness.light
@@ -230,35 +220,38 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                 body: Stack(
                   children: [
                     if (_isLargeScreen(constraints)) ...[
-                      Align(
-                        alignment: constraints.biggest.aspectRatio > 1
-                            ? Alignment.centerLeft
-                            : Alignment.topCenter,
-                        child: SizedBox.square(
-                          dimension: (constraints.biggest.longestSide -
-                                  _playboardSize(constraints)) /
-                              2,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                left: _textPadding(constraints),
-                              ),
-                              child: Text(
-                                'P.' + playerId,
-                                style: themeData.textTheme.headline1!.copyWith(
-                                  fontSize: (constraints.biggest.longestSide -
-                                          _playboardSize(constraints)) /
-                                      6,
-                                  color: themeData.colorScheme.surface,
+                      if (isMyPlayerId)
+                        Align(
+                          alignment: constraints.biggest.aspectRatio > 1
+                              ? Alignment.centerLeft
+                              : Alignment.topCenter,
+                          child: SizedBox.square(
+                            dimension: (constraints.biggest.longestSide -
+                                    _playboardSize(constraints)) /
+                                2,
+                            child: Center(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  left: _textPadding(constraints),
+                                ),
+                                child: Text(
+                                  isMyPlayerId ? 'YOU' : 'P.' + playerId,
+                                  style:
+                                      themeData.textTheme.headline1!.copyWith(
+                                    fontSize: (constraints.biggest.longestSide -
+                                            _playboardSize(constraints)) /
+                                        6,
+                                    color: themeData.colorScheme.surface,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
                       if ((AppInfos.screenType == ScreenTypes.mouse ||
-                          AppInfos.screenType ==
-                              ScreenTypes.touchscreenAndMouse))
+                              AppInfos.screenType ==
+                                  ScreenTypes.touchscreenAndMouse) &&
+                          isMyPlayerId)
                         Align(
                           alignment: constraints.biggest.aspectRatio > 1
                               ? Alignment.centerRight
@@ -270,33 +263,39 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
-                                child: Consumer(builder: (context, ref, _) {
-                                  final otherPlayersIds = ref.watch(
-                                    playboardControllerProvider.select(
-                                      (state) {
-                                        if (state is MultiplePlayboardState) {
-                                          return state.getPlayerIds(playerId);
-                                        }
-                                      },
-                                    ),
-                                  );
-
-                                  return SkillKeyboard(
-                                    keyboard,
-                                    playerId: playerId,
-                                    playerCount: playerCount,
-                                    size: min(
-                                        60,
-                                        min(
-                                          (constraints.biggest.longestSide -
-                                                  _playboardSize(constraints) -
-                                                  32) /
-                                              8,
-                                          constraints.biggest.shortestSide / 6,
-                                        )),
-                                    otherPlayersIds: otherPlayersIds,
-                                  );
-                                }),
+                                child: Consumer(
+                                  builder: (context, ref, _) {
+                                    final otherPlayersColors = ref.watch(
+                                      playboardControllerProvider.select(
+                                        (state) {
+                                          if (state is OnlinePlayboardState) {
+                                            if (state.multiplePlayboardState ==
+                                                null) return null;
+                                            return state.multiplePlayboardState!
+                                                .getPlayerColors(playerId);
+                                          }
+                                        },
+                                      ),
+                                    );
+                                    return SkillKeyboard(
+                                      keyboard,
+                                      playerId: playerId,
+                                      playerCount: playerCount,
+                                      size: min(
+                                          60,
+                                          min(
+                                            (constraints.biggest.longestSide -
+                                                    _playboardSize(
+                                                        constraints) -
+                                                    32) /
+                                                8,
+                                            constraints.biggest.shortestSide /
+                                                6,
+                                          )),
+                                      otherPlayersColors: otherPlayersColors,
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                           ),
@@ -325,16 +324,16 @@ class _PlayerPlayboardView extends HookConsumerWidget {
         AppInfos.screenType == ScreenTypes.touchscreenAndMouse) {
       return SwipeDetector(
         onSwipeLeft: () {
-          controller.moveByGesture(playerId, PlayboardDirection.left);
+          controller.moveByGesture(PlayboardDirection.left);
         },
         onSwipeRight: () {
-          controller.moveByGesture(playerId, PlayboardDirection.right);
+          controller.moveByGesture(PlayboardDirection.right);
         },
         onSwipeUp: () {
-          controller.moveByGesture(playerId, PlayboardDirection.up);
+          controller.moveByGesture(PlayboardDirection.up);
         },
         onSwipeDown: () {
-          controller.moveByGesture(playerId, PlayboardDirection.down);
+          controller.moveByGesture(PlayboardDirection.down);
         },
         child: view,
       );
@@ -346,9 +345,11 @@ class _PlayerPlayboardView extends HookConsumerWidget {
 class HoleMenu extends StatelessWidget {
   const HoleMenu({
     Key? key,
+    required this.isOnlineMode,
     required this.playerId,
   }) : super(key: key);
 
+  final bool isOnlineMode;
   final String playerId;
 
   @override
@@ -375,7 +376,7 @@ class HoleMenu extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'P.$playerId',
+                isOnlineMode ? 'You' : 'P.$playerId',
                 style: Theme.of(context).textTheme.bodyText2!.copyWith(
                       fontSize: cs.maxHeight / 10,
                     ),
@@ -403,24 +404,29 @@ class _MultipleMainPlayground extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as MultipleModeController;
+    final controller =
+        ref.watch(playboardControllerProvider.notifier) as OnlineModeController;
     final boardSize = ref.watch(
       playboardControllerProvider.select(
         (value) {
-          value as MultiplePlayboardState;
-          return value.boardSize;
+          value as OnlinePlayboardState;
+          if (value.multiplePlayboardState == null) return 2;
+          return value.multiplePlayboardState!.boardSize;
         },
       ),
     );
     final affectedActions = ref.watch<List<SlidepartyActions>?>(
       playboardControllerProvider.select(
         (value) {
-          value as MultiplePlayboardState;
-          return value.currentAction(playerId);
+          value as OnlinePlayboardState;
+          if (value.affectedAction?[playerId] == null) return [];
+          return value.affectedAction![playerId]!.values.flatten().toList();
         },
       ),
     )!;
+    final isMyPlayerId = useMemoized(() {
+      return controller.isMyPlayerId(playerId);
+    }, [playerId]);
     bool isPause = affectedActions.contains(SlidepartyActions.pause);
 
     return RepaintBoundary(
@@ -432,14 +438,17 @@ class _MultipleMainPlayground extends HookConsumerWidget {
               size: size,
               playerId: playerId,
               holeWidget: (!isLargeScreen ||
-                      AppInfos.screenType == ScreenTypes.touchscreen)
+                          AppInfos.screenType == ScreenTypes.touchscreen) &&
+                      isMyPlayerId
                   ? HoleMenu(
                       key: ValueKey('HoleMenu: $playerId'),
                       playerId: playerId,
+                      isOnlineMode: true,
                     )
                   : null,
               onPressed: (number) {
-                return controller.move(playerId, number);
+                if (isMyPlayerId == false) return;
+                return controller.move(number);
               },
               clipBehavior: Clip.none,
             ),
@@ -453,17 +462,32 @@ class _MultipleMainPlayground extends HookConsumerWidget {
                     (value) => value.show,
                   ),
                 );
-                final otherPlayersIds = ref.watch(
+                final otherPlayersColors = ref.watch(
                   playboardControllerProvider.select(
                     (state) {
-                      if (state is MultiplePlayboardState) {
-                        return state.getPlayerIds(playerId);
-                      }
+                      state as OnlinePlayboardState;
+                      if (state.multiplePlayboardState == null) return null;
+                      return state.multiplePlayboardState!
+                          .getPlayerColors(playerId);
                     },
                   ),
                 );
-                final color = ref.watch(playboardControllerProvider.select(
-                    (state) => ButtonColors.values[int.parse(playerId)]));
+                final color =
+                    ref.watch(playboardControllerProvider.select((state) {
+                  state as OnlinePlayboardState;
+                  if (state.multiplePlayboardState == null) {
+                    return ButtonColors.blue;
+                  }
+                  return (state.multiplePlayboardState!.config
+                          as MultiplePlayboardConfig)
+                      .configs[playerId]!
+                      .mapOrNull(
+                        blind: (value) => value.color,
+                        number: (value) => value.color,
+                      )!;
+                }));
+
+                if (otherPlayersColors == null) return const SizedBox();
 
                 return Center(
                   child: IgnorePointer(
@@ -476,7 +500,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
                         size: size + 32,
                         playerId: playerId,
                         color: color,
-                        otherPlayersIds: otherPlayersIds,
+                        otherPlayerColors: otherPlayersColors,
                       ),
                     ),
                   ),
@@ -536,16 +560,14 @@ class SmallSkillMenu extends HookConsumerWidget {
     Key? key,
     required this.size,
     required this.playerId,
-    required this.otherPlayersIds,
     required this.color,
-    this.otherPlayerColors,
+    required this.otherPlayerColors,
   }) : super(key: key);
 
   final double size;
   final String playerId;
   final ButtonColors color;
-  final List<String>? otherPlayersIds;
-  final List<ButtonColors>? otherPlayerColors;
+  final List<ButtonColors> otherPlayerColors;
 
   Widget _actionIcon(
     BuildContext context,
@@ -564,8 +586,8 @@ class SmallSkillMenu extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as MultipleModeController;
+    final controller =
+        ref.watch(playboardControllerProvider.notifier) as OnlineModeController;
     final openSkill = ref.watch(multipleSkillStateProvider(playerId));
     final openSkillNotifier =
         ref.watch(multipleSkillStateProvider(playerId).notifier);
@@ -611,7 +633,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                             Navigator.pop(context);
                             return;
                           }
-                          controller.pickAction(playerId, action);
+                          controller.pickAction(action);
                         },
                         size: ButtonSize.square,
                         child: _actionIcon(context, action),
@@ -623,41 +645,21 @@ class SmallSkillMenu extends HookConsumerWidget {
                 separatorBuilder: () => const SizedBox(width: 8),
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (otherPlayersIds != null)
-                    for (final otherPlayerIndex in otherPlayersIds!)
-                      AnimatedScale(
-                        duration: const Duration(milliseconds: 200),
-                        scale: pickedPlayer.value == otherPlayerIndex ? 1.1 : 1,
-                        child: SlidepartyButton(
-                          key: ValueKey(
-                              'Owner $playerId - Target $otherPlayerIndex'),
-                          color: color,
-                          onPressed: () =>
-                              pickedPlayer.value = otherPlayerIndex,
-                          size: ButtonSize.square,
-                          style: pickedPlayer.value == otherPlayerIndex ||
-                                  pickedPlayer.value == null
-                              ? SlidepartyButtonStyle.normal
-                              : SlidepartyButtonStyle.invert,
-                          child: Text('P.$otherPlayerIndex'),
-                        ),
+                  for (final otherColor in otherPlayerColors)
+                    AnimatedScale(
+                      duration: const Duration(milliseconds: 200),
+                      scale: pickedColor.value == otherColor ? 1.1 : 1,
+                      child: SlidepartyButton(
+                        color: otherColor,
+                        onPressed: () => pickedColor.value = otherColor,
+                        size: ButtonSize.square,
+                        style: pickedColor.value == otherColor ||
+                                pickedColor.value == null
+                            ? SlidepartyButtonStyle.normal
+                            : SlidepartyButtonStyle.invert,
+                        child: Text(otherColor.name[0].toUpperCase()),
                       ),
-                  if (otherPlayerColors != null)
-                    for (final otherColor in otherPlayerColors!)
-                      AnimatedScale(
-                        duration: const Duration(milliseconds: 200),
-                        scale: pickedColor.value == otherColor ? 1.1 : 1,
-                        child: SlidepartyButton(
-                          color: otherColor,
-                          onPressed: () => pickedColor.value = otherColor,
-                          size: ButtonSize.square,
-                          style: pickedColor.value == otherColor ||
-                                  pickedColor.value == null
-                              ? SlidepartyButtonStyle.normal
-                              : SlidepartyButtonStyle.invert,
-                          child: Text(otherColor.name[0].toUpperCase()),
-                        ),
-                      ),
+                    ),
                 ],
               ),
               SlidepartyButton(
@@ -670,7 +672,7 @@ class SmallSkillMenu extends HookConsumerWidget {
                     : SlidepartyButtonStyle.invert,
                 customSize: const Size(49 * 3 + 16, 49),
                 onPressed: () {
-                  controller.doAction(playerId, pickedPlayer.value!);
+                  controller.doAction(pickedColor.value!);
                   pickedPlayer.value = null;
                   pickedColor.value = null;
                 },
