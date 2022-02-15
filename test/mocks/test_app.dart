@@ -29,6 +29,7 @@ Future<Tuple2<Widget, MockLocals>> testApp(
 ) async {
   final locals = MockLocals();
   when(() => locals.appSettingLocal.isDarkTheme).thenReturn(true);
+  when(() => locals.appSettingLocal.reduceMotion).thenReturn(true);
   when(() => locals.audioLocal.isMuted).thenReturn(true);
   when(() => locals.playboardLocal.boardSize).thenReturn(3);
   when(() => locals.playboardLocal.buttonColor).thenReturn(ButtonColors.yellow);
