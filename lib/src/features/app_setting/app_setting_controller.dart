@@ -9,6 +9,7 @@ final appSettingControllerProvider =
 class AppSettingController extends ChangeNotifier {
   AppSettingController(this._read) {
     _isDarkTheme = _read(appSettingLocalProvider).isDarkTheme;
+    _reduceMotion = _read(appSettingLocalProvider).reduceMotion;
   }
 
   final Reader _read;
