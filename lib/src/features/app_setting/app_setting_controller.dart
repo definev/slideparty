@@ -20,4 +20,12 @@ class AppSettingController extends ChangeNotifier {
     _read(appSettingLocalProvider).isDarkTheme = value;
     notifyListeners();
   }
+
+  bool _reduceMotion = false;
+  bool get reduceMotion => _reduceMotion;
+  set reduceMotion(bool value) {
+    _reduceMotion = value;
+    _read(appSettingLocalProvider).reduceMotion = value;
+    notifyListeners();
+  }
 }
