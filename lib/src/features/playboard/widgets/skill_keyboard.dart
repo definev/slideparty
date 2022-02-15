@@ -221,134 +221,136 @@ class SkillKeyboard extends HookConsumerWidget {
       ),
     );
 
-    return SizedBox.square(
-      dimension: size * 3,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: Row(
-              children: List.generate(
-                3,
-                (index) => index == 1
-                    ? _buildKey(context, keyboard.control.up)
-                    : const Expanded(child: SizedBox()),
+    return RepaintBoundary(
+      child: SizedBox.square(
+        dimension: size * 3,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Row(
+                children: List.generate(
+                  3,
+                  (index) => index == 1
+                      ? _buildKey(context, keyboard.control.up)
+                      : const Expanded(child: SizedBox()),
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                _buildKey(context, keyboard.control.left),
-                _buildKey(context, keyboard.control.down),
-                _buildKey(context, keyboard.control.right),
-              ],
+            Expanded(
+              child: Row(
+                children: [
+                  _buildKey(context, keyboard.control.left),
+                  _buildKey(context, keyboard.control.down),
+                  _buildKey(context, keyboard.control.right),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                reduceMotion
-                    ? Positioned(
-                        left: 0,
-                        top: -(openSkill.show ? 1 : 0) * size,
-                        child: skillBar,
-                      )
-                    : TweenAnimationBuilder<double>(
-                        tween: Tween<double>(
-                            begin: 0, end: openSkill.show ? 1 : 0),
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.decelerate,
-                        child: skillBar,
-                        builder: (context, value, child) {
-                          return Positioned(
-                            left: 0,
-                            top: -value * size,
-                            child: child!,
-                          );
-                        },
-                      ),
-                Card(
-                  margin: EdgeInsets.all(size < 30 ? 2 : 4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: size < 30
-                        ? BorderRadius.zero
-                        : BorderRadius.circular(5),
-                  ),
-                  elevation: 10,
-                  color: Theme.of(context).colorScheme.primary,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Center(
-                                child: Text(
-                              'Skills',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .caption!
-                                  .copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onBackground
-                                          .withOpacity(0.6)),
-                            )),
-                            Center(
-                              child: Text(
-                                skillButtonText,
+            Expanded(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  reduceMotion
+                      ? Positioned(
+                          left: 0,
+                          top: -(openSkill.show ? 1 : 0) * size,
+                          child: skillBar,
+                        )
+                      : TweenAnimationBuilder<double>(
+                          tween: Tween<double>(
+                              begin: 0, end: openSkill.show ? 1 : 0),
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.decelerate,
+                          child: skillBar,
+                          builder: (context, value, child) {
+                            return Positioned(
+                              left: 0,
+                              top: -value * size,
+                              child: child!,
+                            );
+                          },
+                        ),
+                  Card(
+                    margin: EdgeInsets.all(size < 30 ? 2 : 4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: size < 30
+                          ? BorderRadius.zero
+                          : BorderRadius.circular(5),
+                    ),
+                    elevation: 10,
+                    color: Theme.of(context).colorScheme.primary,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Center(
+                                  child: Text(
+                                'Skills',
                                 style: Theme.of(context)
                                     .textTheme
-                                    .bodyText2!
+                                    .caption!
                                     .copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onBackground,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      reduceMotion
-                          ? (openSkill.queuedAction != null
-                              ? SizedBox(
-                                  height: size - 8,
-                                  width: size - 8,
-                                  child: Center(
-                                    child: _actionIcon(
-                                      context,
-                                      openSkill.queuedAction!,
-                                      false,
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox())
-                          : AnimatedSize(
-                              duration: const Duration(milliseconds: 300),
-                              child: openSkill.queuedAction != null
-                                  ? SizedBox(
-                                      height: size - 8,
-                                      width: size - 8,
-                                      child: Center(
-                                        child: _actionIcon(
-                                          context,
-                                          openSkill.queuedAction!,
-                                          false,
-                                        ),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onBackground
+                                            .withOpacity(0.6)),
+                              )),
+                              Center(
+                                child: Text(
+                                  skillButtonText,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2!
+                                      .copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onBackground,
                                       ),
-                                    )
-                                  : const SizedBox(),
-                            ),
-                    ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        reduceMotion
+                            ? (openSkill.queuedAction != null
+                                ? SizedBox(
+                                    height: size - 8,
+                                    width: size - 8,
+                                    child: Center(
+                                      child: _actionIcon(
+                                        context,
+                                        openSkill.queuedAction!,
+                                        false,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox())
+                            : AnimatedSize(
+                                duration: const Duration(milliseconds: 300),
+                                child: openSkill.queuedAction != null
+                                    ? SizedBox(
+                                        height: size - 8,
+                                        width: size - 8,
+                                        child: Center(
+                                          child: _actionIcon(
+                                            context,
+                                            openSkill.queuedAction!,
+                                            false,
+                                          ),
+                                        ),
+                                      )
+                                    : const SizedBox(),
+                              ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

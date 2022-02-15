@@ -49,7 +49,7 @@ class PlayboardView extends HookConsumerWidget {
 
     return IgnorePointer(
       ignoring: animationTypes != null,
-      child: _animatedPlayboard(animationTypes),
+      child: RepaintBoundary(child: _animatedPlayboard(animationTypes)),
     );
   }
 

@@ -216,11 +216,11 @@ class _PlayerPlayboardView extends HookConsumerWidget {
         useMemoized(() => controller.playerControl(playerId), [playerId]);
     final color = useMemoized(() => ButtonColors.values[index], [index]);
 
-    final view = Theme(
-      data: themeData.colorScheme.brightness == Brightness.light
-          ? color.lightTheme
-          : color.darkTheme,
-      child: RepaintBoundary(
+    final view = RepaintBoundary(
+      child: Theme(
+        data: themeData.colorScheme.brightness == Brightness.light
+            ? color.lightTheme
+            : color.darkTheme,
         child: Center(
           child: LayoutBuilder(
             builder: (context, constraints) {
