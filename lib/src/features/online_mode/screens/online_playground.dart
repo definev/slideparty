@@ -204,118 +204,123 @@ class _PlayerPlayboardView extends HookConsumerWidget {
         useMemoized(() => controller.isMyPlayerId(playerId), [playerId]);
     final color = useMemoized(() => controller.getColor(playerId), [playerId]);
 
-    final view = Theme(
-      data: themeData.colorScheme.brightness == Brightness.light
-          ? color.lightTheme
-          : color.darkTheme,
-      child: Center(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final themeData = Theme.of(context);
-            return TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 500),
-              tween: Tween<double>(begin: 0, end: 1),
-              curve: Curves.easeInOutCubicEmphasized,
-              child: Scaffold(
-                body: Stack(
-                  children: [
-                    if (_isLargeScreen(constraints)) ...[
-                      if (isMyPlayerId)
-                        Align(
-                          alignment: constraints.biggest.aspectRatio > 1
-                              ? Alignment.centerLeft
-                              : Alignment.topCenter,
-                          child: SizedBox.square(
-                            dimension: (constraints.biggest.longestSide -
-                                    _playboardSize(constraints)) /
-                                2,
-                            child: Center(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  left: _textPadding(constraints),
-                                ),
-                                child: Text(
-                                  isMyPlayerId ? 'YOU' : 'P.' + playerId,
-                                  style:
-                                      themeData.textTheme.headline1!.copyWith(
-                                    fontSize: (constraints.biggest.longestSide -
-                                            _playboardSize(constraints)) /
-                                        6,
-                                    color: themeData.colorScheme.surface,
+    final view = RepaintBoundary(
+      child: Theme(
+        data: themeData.colorScheme.brightness == Brightness.light
+            ? color.lightTheme
+            : color.darkTheme,
+        child: Center(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final themeData = Theme.of(context);
+              return TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 500),
+                tween: Tween<double>(begin: 0, end: 1),
+                curve: Curves.easeInOutCubicEmphasized,
+                child: Scaffold(
+                  body: Stack(
+                    children: [
+                      if (_isLargeScreen(constraints)) ...[
+                        if (isMyPlayerId)
+                          Align(
+                            alignment: constraints.biggest.aspectRatio > 1
+                                ? Alignment.centerLeft
+                                : Alignment.topCenter,
+                            child: SizedBox.square(
+                              dimension: (constraints.biggest.longestSide -
+                                      _playboardSize(constraints)) /
+                                  2,
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    left: _textPadding(constraints),
+                                  ),
+                                  child: Text(
+                                    isMyPlayerId ? 'YOU' : 'P.' + playerId,
+                                    style:
+                                        themeData.textTheme.headline1!.copyWith(
+                                      fontSize:
+                                          (constraints.biggest.longestSide -
+                                                  _playboardSize(constraints)) /
+                                              6,
+                                      color: themeData.colorScheme.surface,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      if ((AppInfos.screenType == ScreenTypes.mouse ||
-                              AppInfos.screenType ==
-                                  ScreenTypes.touchscreenAndMouse) &&
-                          isMyPlayerId)
-                        Align(
-                          alignment: constraints.biggest.aspectRatio > 1
-                              ? Alignment.centerRight
-                              : Alignment.bottomCenter,
-                          child: SizedBox.square(
-                            dimension: (constraints.biggest.longestSide -
-                                    _playboardSize(constraints)) /
-                                2,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Consumer(
-                                  builder: (context, ref, _) {
-                                    final otherPlayersColors = ref.watch(
-                                      playboardControllerProvider.select(
-                                        (state) {
-                                          if (state is OnlinePlayboardState) {
-                                            if (state.multiplePlayboardState ==
-                                                null) return null;
-                                            return state.multiplePlayboardState!
-                                                .getPlayerColors(playerId);
-                                          }
-                                        },
-                                      ),
-                                    );
-                                    return SkillKeyboard(
-                                      keyboard,
-                                      playerId: playerId,
-                                      playerCount: playerCount,
-                                      size: min(
-                                          60,
-                                          min(
-                                            (constraints.biggest.longestSide -
-                                                    _playboardSize(
-                                                        constraints) -
-                                                    32) /
-                                                8,
-                                            constraints.biggest.shortestSide /
-                                                6,
-                                          )),
-                                      otherPlayersColors: otherPlayersColors,
-                                    );
-                                  },
+                        if ((AppInfos.screenType == ScreenTypes.mouse ||
+                                AppInfos.screenType ==
+                                    ScreenTypes.touchscreenAndMouse) &&
+                            isMyPlayerId)
+                          Align(
+                            alignment: constraints.biggest.aspectRatio > 1
+                                ? Alignment.centerRight
+                                : Alignment.bottomCenter,
+                            child: SizedBox.square(
+                              dimension: (constraints.biggest.longestSide -
+                                      _playboardSize(constraints)) /
+                                  2,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Consumer(
+                                    builder: (context, ref, _) {
+                                      final otherPlayersColors = ref.watch(
+                                        playboardControllerProvider.select(
+                                          (state) {
+                                            if (state is OnlinePlayboardState) {
+                                              if (state
+                                                      .multiplePlayboardState ==
+                                                  null) return null;
+                                              return state
+                                                  .multiplePlayboardState!
+                                                  .getPlayerColors(playerId);
+                                            }
+                                          },
+                                        ),
+                                      );
+                                      return SkillKeyboard(
+                                        keyboard,
+                                        playerId: playerId,
+                                        playerCount: playerCount,
+                                        size: min(
+                                            60,
+                                            min(
+                                              (constraints.biggest.longestSide -
+                                                      _playboardSize(
+                                                          constraints) -
+                                                      32) /
+                                                  8,
+                                              constraints.biggest.shortestSide /
+                                                  6,
+                                            )),
+                                        otherPlayersColors: otherPlayersColors,
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                      ],
+                      _MultipleMainPlayground(
+                        playerId: playerId,
+                        size: _playboardSize(constraints),
+                        isLargeScreen: _isLargeScreen(constraints),
+                      ),
                     ],
-                    _MultipleMainPlayground(
-                      playerId: playerId,
-                      size: _playboardSize(constraints),
-                      isLargeScreen: _isLargeScreen(constraints),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              builder: (context, value, child) => SizedBox(
-                height: constraints.biggest.height * value,
-                width: constraints.biggest.width * value,
-                child: child,
-              ),
-            );
-          },
+                builder: (context, value, child) => SizedBox(
+                  height: constraints.biggest.height * value,
+                  width: constraints.biggest.width * value,
+                  child: child,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

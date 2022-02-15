@@ -140,10 +140,12 @@ class MultiplePlayground extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(playboardControllerProvider.notifier)
         as MultipleModeController;
-    final playerCount = ref.watch(
-      playboardControllerProvider
-          .select((value) => (value as MultiplePlayboardState).playerCount),
-    );
+    final playerCount = useMemoized(() {
+      return ref.watch(
+        playboardControllerProvider
+            .select((value) => (value as MultiplePlayboardState).playerCount),
+      );
+    }, []);
     ref.listen<String?>(
       playboardControllerProvider.select(
         (value) => (value as MultiplePlayboardState).whoWin,
@@ -218,105 +220,110 @@ class _PlayerPlayboardView extends HookConsumerWidget {
       data: themeData.colorScheme.brightness == Brightness.light
           ? color.lightTheme
           : color.darkTheme,
-      child: Center(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final themeData = Theme.of(context);
-            return TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 500),
-              tween: Tween<double>(begin: 0, end: 1),
-              curve: Curves.easeInOutCubicEmphasized,
-              child: Scaffold(
-                body: Stack(
-                  children: [
-                    if (_isLargeScreen(constraints)) ...[
-                      Align(
-                        alignment: constraints.biggest.aspectRatio > 1
-                            ? Alignment.centerLeft
-                            : Alignment.topCenter,
-                        child: SizedBox.square(
-                          dimension: (constraints.biggest.longestSide -
-                                  _playboardSize(constraints)) /
-                              2,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                left: _textPadding(constraints),
-                              ),
-                              child: Text(
-                                'P.' + playerId,
-                                style: themeData.textTheme.headline1!.copyWith(
-                                  fontSize: (constraints.biggest.longestSide -
-                                          _playboardSize(constraints)) /
-                                      6,
-                                  color: themeData.colorScheme.surface,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if ((AppInfos.screenType == ScreenTypes.mouse ||
-                          AppInfos.screenType ==
-                              ScreenTypes.touchscreenAndMouse))
+      child: RepaintBoundary(
+        child: Center(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final themeData = Theme.of(context);
+              return TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 500),
+                tween: Tween<double>(begin: 0, end: 1),
+                curve: Curves.easeInOutCubicEmphasized,
+                child: Scaffold(
+                  body: Stack(
+                    children: [
+                      if (_isLargeScreen(constraints)) ...[
                         Align(
                           alignment: constraints.biggest.aspectRatio > 1
-                              ? Alignment.centerRight
-                              : Alignment.bottomCenter,
+                              ? Alignment.centerLeft
+                              : Alignment.topCenter,
                           child: SizedBox.square(
                             dimension: (constraints.biggest.longestSide -
                                     _playboardSize(constraints)) /
                                 2,
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Consumer(builder: (context, ref, _) {
-                                  final otherPlayersIds = ref.watch(
-                                    playboardControllerProvider.select(
-                                      (state) {
-                                        if (state is MultiplePlayboardState) {
-                                          return state.getPlayerIds(playerId);
-                                        }
-                                      },
-                                    ),
-                                  );
-
-                                  return SkillKeyboard(
-                                    keyboard,
-                                    playerId: playerId,
-                                    playerCount: playerCount,
-                                    size: min(
-                                        60,
-                                        min(
-                                          (constraints.biggest.longestSide -
-                                                  _playboardSize(constraints) -
-                                                  32) /
-                                              8,
-                                          constraints.biggest.shortestSide / 6,
-                                        )),
-                                    otherPlayersIds: otherPlayersIds,
-                                  );
-                                }),
+                                padding: EdgeInsets.only(
+                                  left: _textPadding(constraints),
+                                ),
+                                child: Text(
+                                  'P.' + playerId,
+                                  style:
+                                      themeData.textTheme.headline1!.copyWith(
+                                    fontSize: (constraints.biggest.longestSide -
+                                            _playboardSize(constraints)) /
+                                        6,
+                                    color: themeData.colorScheme.surface,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
+                        if ((AppInfos.screenType == ScreenTypes.mouse ||
+                            AppInfos.screenType ==
+                                ScreenTypes.touchscreenAndMouse))
+                          Align(
+                            alignment: constraints.biggest.aspectRatio > 1
+                                ? Alignment.centerRight
+                                : Alignment.bottomCenter,
+                            child: SizedBox.square(
+                              dimension: (constraints.biggest.longestSide -
+                                      _playboardSize(constraints)) /
+                                  2,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Consumer(builder: (context, ref, _) {
+                                    final otherPlayersIds = ref.watch(
+                                      playboardControllerProvider.select(
+                                        (state) {
+                                          if (state is MultiplePlayboardState) {
+                                            return state.getPlayerIds(playerId);
+                                          }
+                                        },
+                                      ),
+                                    );
+
+                                    return SkillKeyboard(
+                                      keyboard,
+                                      playerId: playerId,
+                                      playerCount: playerCount,
+                                      size: min(
+                                          60,
+                                          min(
+                                            (constraints.biggest.longestSide -
+                                                    _playboardSize(
+                                                        constraints) -
+                                                    32) /
+                                                8,
+                                            constraints.biggest.shortestSide /
+                                                6,
+                                          )),
+                                      otherPlayersIds: otherPlayersIds,
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                      _MultipleMainPlayground(
+                        playerId: playerId,
+                        size: _playboardSize(constraints),
+                        isLargeScreen: _isLargeScreen(constraints),
+                      ),
                     ],
-                    _MultipleMainPlayground(
-                      playerId: playerId,
-                      size: _playboardSize(constraints),
-                      isLargeScreen: _isLargeScreen(constraints),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              builder: (context, value, child) => SizedBox(
-                height: constraints.biggest.height * value,
-                width: constraints.biggest.width * value,
-                child: child,
-              ),
-            );
-          },
+                builder: (context, value, child) => SizedBox(
+                  height: constraints.biggest.height * value,
+                  width: constraints.biggest.width * value,
+                  child: child,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
