@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
 
 import 'package:slideparty/src/features/playboard/models/playboard_animation_types.dart';
 import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
@@ -22,7 +23,6 @@ class PlayboardView extends HookConsumerWidget {
     required this.onPressed,
     required this.clipBehavior,
     this.holeWidget,
-    this.reduceMotion = false,
     this.duration = const Duration(milliseconds: 500),
   }) : super(key: key);
 
@@ -33,7 +33,6 @@ class PlayboardView extends HookConsumerWidget {
   final Clip clipBehavior;
   final Duration duration;
   final Widget? holeWidget;
-  final bool reduceMotion;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -181,6 +180,8 @@ class PlayboardView extends HookConsumerWidget {
           animationType: animationType,
           animateValue: animateValue,
         );
+        final reduceMotion = ref.watch(
+            appSettingControllerProvider.select((value) => value.reduceMotion));
 
         if (reduceMotion) {
           return Positioned(
