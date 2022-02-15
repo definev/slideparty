@@ -68,18 +68,16 @@ class HomePage extends StatelessWidget {
                   child: Text.rich(
                     TextSpan(
                       text: 'Reduce motion: ',
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      style: Theme.of(context).textTheme.bodyText2!.copyWith(
                           color: Theme.of(context).colorScheme.onBackground),
                       children: [
                         TextSpan(
                           text: reduceMotion ? 'ON' : 'OFF',
                           style: Theme.of(context)
                               .textTheme
-                              .bodyMedium!
+                              .bodyText2!
                               .copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer),
+                                  color: Theme.of(context).colorScheme.primary),
                         )
                       ],
                     ),

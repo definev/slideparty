@@ -79,29 +79,27 @@ class SlidepartyButton extends HookConsumerWidget {
               style == SlidepartyButtonStyle.invert ? 1 - value : value,
             );
 
-            return RepaintBoundary(
-              child: CustomPaint(
-                  painter: BorderSlidepartyPainter(
-                    color: _color,
-                    borderColor: _borderColor,
-                    edge: 5,
-                    brightness: Theme.of(context).brightness,
-                    thickness: 2 + value * 1,
-                    elevation: 5 + value * 5,
+            return CustomPaint(
+                painter: BorderSlidepartyPainter(
+                  color: _color,
+                  borderColor: _borderColor,
+                  edge: 5,
+                  brightness: Theme.of(context).brightness,
+                  thickness: 2 + value * 1,
+                  elevation: 5 + value * 5,
+                ),
+                child: IconTheme(
+                  data: IconThemeData(
+                    color: _surfaceColor(color, value),
                   ),
-                  child: IconTheme(
-                    data: IconThemeData(
-                      color: _surfaceColor(color, value),
-                    ),
-                    child: DefaultTextStyle(
-                      style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                            fontSize: fontSize * scale,
-                            color: _surfaceColor(color, value),
-                          ),
-                      child: child!,
-                    ),
-                  )),
-            );
+                  child: DefaultTextStyle(
+                    style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                          fontSize: fontSize * scale,
+                          color: _surfaceColor(color, value),
+                        ),
+                    child: child!,
+                  ),
+                ));
           },
           child: SizedBox(
             height: customSize != null ? customSize!.height : 49 * scale,
