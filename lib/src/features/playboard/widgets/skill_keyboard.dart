@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:line_icons/line_icon.dart';
+import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
 
 import 'package:slideparty/src/features/playboard/models/playboard_skill_keyboard_control.dart';
 import 'package:slideparty/src/features/playboard/models/skill_keyboard_state.dart';
@@ -201,7 +202,35 @@ class SkillKeyboard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final openSkill = ref.watch(multipleSkillStateProvider(playerId));
+    final reduceMotion = ref.watch(
+        appSettingControllerProvider.select((value) => value.reduceMotion));
 
+    final skillBar = SizedBox(
+      height: size,
+      width: size * 3,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCirc,
+        opacity: openSkill.show ? 1 : 0,
+        child: Row(
+          children: [
+            for (int cardIndex = 0; cardIndex < 3; cardIndex++)
+              _buildPeopleSelect(context, cardIndex, openSkill),
+          ],
+        ),
+      ),
+    );
+    var pickedSkill = SizedBox(
+      height: size - 8,
+      width: size - 8,
+      child: Center(
+        child: _actionIcon(
+          context,
+          openSkill.queuedAction!,
+          false,
+        ),
+      ),
+    );
     return SizedBox.square(
       dimension: size * 3,
       child: Column(
@@ -230,33 +259,26 @@ class SkillKeyboard extends HookConsumerWidget {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: openSkill.show ? 1 : 0),
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.decelerate,
-                  child: SizedBox(
-                    height: size,
-                    width: size * 3,
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCirc,
-                      opacity: openSkill.show ? 1 : 0,
-                      child: Row(
-                        children: [
-                          for (int cardIndex = 0; cardIndex < 3; cardIndex++)
-                            _buildPeopleSelect(context, cardIndex, openSkill),
-                        ],
+                reduceMotion
+                    ? Positioned(
+                        left: 0,
+                        top: -(openSkill.show ? 1 : 0) * size,
+                        child: skillBar,
+                      )
+                    : TweenAnimationBuilder<double>(
+                        tween: Tween<double>(
+                            begin: 0, end: openSkill.show ? 1 : 0),
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.decelerate,
+                        child: skillBar,
+                        builder: (context, value, child) {
+                          return Positioned(
+                            left: 0,
+                            top: -value * size,
+                            child: child!,
+                          );
+                        },
                       ),
-                    ),
-                  ),
-                  builder: (context, value, child) {
-                    return Positioned(
-                      left: 0,
-                      top: -value * size,
-                      child: child!,
-                    );
-                  },
-                ),
                 Card(
                   margin: EdgeInsets.all(size < 30 ? 2 : 4),
                   shape: RoundedRectangleBorder(
@@ -300,22 +322,16 @@ class SkillKeyboard extends HookConsumerWidget {
                           ],
                         ),
                       ),
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 300),
-                        child: openSkill.queuedAction != null
-                            ? SizedBox(
-                                height: size - 8,
-                                width: size - 8,
-                                child: Center(
-                                  child: _actionIcon(
-                                    context,
-                                    openSkill.queuedAction!,
-                                    false,
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(),
-                      ),
+                      reduceMotion
+                          ? (openSkill.queuedAction != null
+                              ? pickedSkill
+                              : const SizedBox())
+                          : AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              child: openSkill.queuedAction != null
+                                  ? pickedSkill
+                                  : const SizedBox(),
+                            ),
                     ],
                   ),
                 ),
