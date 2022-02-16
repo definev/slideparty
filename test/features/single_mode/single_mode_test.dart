@@ -365,7 +365,7 @@ void main() {
         await tester.tap(find.text('4 x 4'));
         await tester.pumpAndSettle();
         await tester.tap(find.byIcon(LineIcons.times));
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
         expect(find.byKey(const ValueKey('number-tile-15')), findsOneWidget);
         expect(find.byKey(const ValueKey('number-tile-24')), findsNothing);
 
@@ -374,7 +374,7 @@ void main() {
         await tester.tap(find.text('5 x 5'));
         await tester.pumpAndSettle();
         await tester.tap(find.byIcon(LineIcons.times));
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
         expect(find.byType(PlayboardView), findsOneWidget);
         expect(find.byKey(const ValueKey('number-tile-15')), findsOneWidget);
         expect(find.byKey(const ValueKey('number-tile-24')), findsOneWidget);
