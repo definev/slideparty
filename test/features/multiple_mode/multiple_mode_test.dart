@@ -95,6 +95,15 @@ void main() {
         async.elapse(const Duration(milliseconds: 300));
         tester.pumpAndSettle(const Duration(milliseconds: 500));
         async.elapse(const Duration(milliseconds: 300));
+        simulateKeyDownEvent(LogicalKeyboardKey.keyX);
+        async.elapse(const Duration(milliseconds: 300));
+        tester.pumpAndSettle(const Duration(milliseconds: 500));
+        async.elapse(const Duration(milliseconds: 300));
+        
+        simulateKeyDownEvent(LogicalKeyboardKey.keyX);
+        async.elapse(const Duration(milliseconds: 300));
+        tester.pumpAndSettle(const Duration(milliseconds: 500));
+        async.elapse(const Duration(milliseconds: 300));
         simulateKeyDownEvent(LogicalKeyboardKey.keyS);
         async.elapse(const Duration(milliseconds: 300));
         tester.pumpAndSettle(const Duration(milliseconds: 500));
