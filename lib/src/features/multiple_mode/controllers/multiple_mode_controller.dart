@@ -153,7 +153,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
         queuedAction: true,
       },
     );
-  
+
     if (queuedAction == SlidepartyActions.blind) {
       state = state.setConfig(
         target,
@@ -218,46 +218,9 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
       if (openSkillState.queuedAction == null) {
         control.control.onKeyDown(
           pressedKey,
-          onLeft: () {
-            if (openSkillState.usedActions[SlidepartyActions.blind] == true) {
-              return;
-            }
-            openSkillNotifier.state = openSkillState.copyWith(
-              queuedAction: SlidepartyActions.blind,
-            );
-          },
-          onDown: () {
-            if (openSkillState.usedActions[SlidepartyActions.pause] == true) {
-              return;
-            }
-            openSkillNotifier.state = openSkillState.copyWith(
-              queuedAction: SlidepartyActions.pause,
-            );
-          },
-          onRight: () {
-            if (openSkillState.usedActions[SlidepartyActions.clear] == true) {
-              return;
-            }
-            if (state.currentAction(index).isNotEmpty) {
-              final configs = state.config as MultiplePlayboardConfig;
-              state = state.setActions(
-                index,
-                [],
-                configs.changeConfig(
-                  index.toString(),
-                  NumberPlayboardConfig(ButtonColors.values[int.parse(index)]),
-                ),
-              );
-              openSkillNotifier.state = openSkillState.copyWith(
-                show: false,
-                usedActions: {
-                  ...openSkillState.usedActions,
-                  SlidepartyActions.clear: true,
-                },
-              );
-              return;
-            }
-          },
+          onLeft: () => pickAction(index, SlidepartyActions.blind),
+          onDown: () => pickAction(index, SlidepartyActions.pause),
+          onRight: () => pickAction(index, SlidepartyActions.clear),
         );
       } else {
         control.control.onKeyDown(

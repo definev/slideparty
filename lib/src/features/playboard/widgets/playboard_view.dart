@@ -282,7 +282,10 @@ class PlayboardView extends HookConsumerWidget {
       final tileConfig = config.configs[playerId]!;
 
       return NumberTile(
-        key: ValueKey('number-tile-${loc.index(boardSize)}'),
+        key: ValueKey('${tileConfig.mapOrNull<String>(
+          number: (c) => '',
+          blind: (c) => 'blind-',
+        )!}number-tile-${loc.index(boardSize)}'),
         index: index,
         boardSize: boardSize,
         playboardSize: size,

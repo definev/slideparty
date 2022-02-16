@@ -1,3 +1,4 @@
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,15 +90,25 @@ void main() {
       await _multipleModeSetUp(tester);
       await _selectBoardSizeAndPlayer(tester, 3, 2);
 
-      await tester.runAsync(() async {
-        await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
-        await tester.pumpAndSettle(const Duration(milliseconds: 500));
-        await simulateKeyDownEvent(LogicalKeyboardKey.keyS);
-        await tester.pumpAndSettle(const Duration(milliseconds: 500));
-        await simulateKeyDownEvent(LogicalKeyboardKey.keyA);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
+      fakeAsync((async) {
+        simulateKeyDownEvent(LogicalKeyboardKey.keyX);
+        async.elapse(const Duration(milliseconds: 300));
+        tester.pumpAndSettle(const Duration(milliseconds: 500));
+        async.elapse(const Duration(milliseconds: 300));
+        simulateKeyDownEvent(LogicalKeyboardKey.keyS);
+        async.elapse(const Duration(milliseconds: 300));
+        tester.pumpAndSettle(const Duration(milliseconds: 500));
+        async.elapse(const Duration(milliseconds: 300));
+        simulateKeyDownEvent(LogicalKeyboardKey.keyA);
+        async.elapse(const Duration(milliseconds: 300));
+        tester.pumpAndSettle(const Duration(seconds: 1));
+        async.elapse(const Duration(seconds: 1));
 
         expect(find.byType(PauseAction), findsOneWidget);
+        async.elapse(const Duration(seconds: 10));
+        tester.pump();
+        async.elapse(const Duration(milliseconds: 500));
+        expect(find.byType(PauseAction), findsNothing);
       });
     });
 
@@ -107,17 +118,27 @@ void main() {
       addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
       await _multipleModeSetUp(tester);
-      await _selectBoardSizeAndPlayer(tester, 3, 2);
+      await _selectBoardSizeAndPlayer(tester, 4, 2);
 
-      await tester.runAsync(() async {
-        await simulateKeyDownEvent(LogicalKeyboardKey.keyX);
-        await tester.pumpAndSettle(const Duration(milliseconds: 500));
-        await simulateKeyDownEvent(LogicalKeyboardKey.keyS);
-        await tester.pumpAndSettle(const Duration(milliseconds: 500));
-        await simulateKeyDownEvent(LogicalKeyboardKey.keyA);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
-
-        expect(find.byType(PauseAction), findsOneWidget);
+      fakeAsync((async) async {
+        simulateKeyDownEvent(LogicalKeyboardKey.keyX);
+        async.elapse(const Duration(milliseconds: 300));
+        tester.pumpAndSettle(const Duration(milliseconds: 500));
+        async.elapse(const Duration(seconds: 1));
+        simulateKeyDownEvent(LogicalKeyboardKey.keyA);
+        async.elapse(const Duration(milliseconds: 300));
+        tester.pumpAndSettle(const Duration(milliseconds: 500));
+        async.elapse(const Duration(seconds: 1));
+        simulateKeyDownEvent(LogicalKeyboardKey.keyA);
+        async.elapse(const Duration(milliseconds: 300));
+        tester.pumpAndSettle(const Duration(seconds: 1));
+        async.elapse(const Duration(seconds: 1));
+        expect(
+            find.byKey(const ValueKey('blind-number-tile-0')), findsOneWidget);
+        async.elapse(const Duration(seconds: 10));
+        tester.pump();
+        async.elapse(const Duration(milliseconds: 300));
+        expect(find.byKey(const ValueKey('blind-number-tile-0')), findsNothing);
       });
     });
   });
