@@ -1,6 +1,9 @@
 # slideparty
 
 [![codecov](https://codecov.io/gh/definev/slideparty/branch/main/graph/badge.svg?token=J26MGZC9XN)](https://codecov.io/gh/definev/slideparty)
+
+[![Slideparty - game intro](https://img.youtube.com/vi/2pusZqdpOdw/0.jpg)](https://www.youtube.com/watch?v=2pusZqdpOdw)
+
 ## Inspiration
 I want to make a puzzle game that runs on **all platforms**:  Android, iOS, Linux, Windows and MacOS. You can play with your friends regardless of what operating system you are using, you just need to have a room number to be able to play online and compete with your friends or you can directly compete with your friends. locally by various types of controls for different types of screens.
 
