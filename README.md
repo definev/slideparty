@@ -5,7 +5,7 @@
 [![Slideparty - game intro](https://img.youtube.com/vi/2pusZqdpOdw/0.jpg)](https://www.youtube.com/watch?v=2pusZqdpOdw)
 
 ## Inspiration
-I want to make a puzzle game that runs on **all platforms**:  Android, iOS, Linux, Windows and MacOS. You can play with your friends regardless of what operating system you are using, you just need to have a room number to be able to play online and compete with your friends or you can directly compete with your friends. locally by various types of controls for different types of screens.
+I want to make a puzzle game that runs on **all platforms**: Web, Android, iOS, Linux, Windows and MacOS. You can play with your friends regardless of what operating system you are using, you just need to have a room number to be able to play online and compete with your friends or you can directly compete with your friends. locally by various types of controls for different types of screens.
 
 ## What it does
 Just a casual and fun puzzle game!
@@ -18,16 +18,16 @@ The game has two part:
 ### Client
 Slideparty has three game-mode
 - Single mode: Play and try to solve as fast as you can a 3x3, 4x4 or 5x5 puzzle board.
-        - Features:
+- Features:
     1. Auto solving
     2. Multiple ways to control game base on current devices
 - Multiple mode: Play with friends in local, you can play upto 4 players.
-       - Features:
+- Features:
     1. Responsive layout
     2. Multiple ways to control game base on current devices
     3. Some sort of skills to prevent or annoying your friends for fun
 - Online mode: Enter a room code and you can play like multiple mode but on different devices.
-      - Features:
+- Features:
     1. Real-time communication
     2. All features in multiple mode
 
