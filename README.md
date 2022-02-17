@@ -48,6 +48,8 @@ Auto-solver is pretty hard, first i'm trying to use A* algorithms to find the be
 
 After that I trying to find a pattern of the game then i found that if we solve the first row and first column of a N x N playboard and you remain exact (N - 1) x (N - 1) playboard and you can keep solving until N = 1 you solve the puzzle! This solution isn't return the shortest step to solve but it's run pretty fast and it's can solve any N x N board so i'm accept that is not the best solution but it is the fast enough to run smooth solution.
 
+You can find my auto-solver algorithm in [slideparty_playboard_utils](https://github.com/definev/slideparty_playboard_utils) repository.
+
 ## What we learned
 
 Have fun with flutter
