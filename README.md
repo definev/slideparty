@@ -7,6 +7,8 @@
 ## Inspiration
 I want to make a puzzle game that runs on **all platforms**: Web, Android, iOS, Linux, Windows and MacOS. You can play with your friends regardless of what operating system you are using, you just need to have a room number to be able to play online and compete with your friends or you can directly compete with your friends. locally by various types of controls for different types of screens.
 
+Like and comment my [submissions](https://devpost.com/software/slideparty) in devpost.
+
 ## What it does
 Just a casual and fun puzzle game!
 
