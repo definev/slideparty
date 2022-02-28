@@ -81,8 +81,9 @@ class SingleModePlayboardController
 
   @override
   void dispose() {
-    super.dispose();
+    _read(backgroundAudioControllerProvider.notifier).stop();
     timer?.cancel();
+    super.dispose();
   }
 
   void changeDimension(int size) {

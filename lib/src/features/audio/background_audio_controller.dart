@@ -20,4 +20,6 @@ class BackgroundAudioController extends StateNotifier<bool> {
       _player.play();
     } catch (_) {}
   }
+
+  void stop() => _player.stop();
 }
