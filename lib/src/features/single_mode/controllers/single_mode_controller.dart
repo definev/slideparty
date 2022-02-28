@@ -81,7 +81,6 @@ class SingleModePlayboardController
 
   @override
   void dispose() {
-    _read(backgroundAudioControllerProvider.notifier).stop();
     timer?.cancel();
     super.dispose();
   }
