@@ -134,13 +134,18 @@ class SingleModePlayboardController
       config: state.config,
       bestStep: -1,
     );
-    Future.delayed(const Duration(milliseconds: 500), () {
-      state = SinglePlayboardState(
-        playboard: state.playboard,
-        bestStep: solve(state.playboard)?.length ?? -1,
-        config: state.config,
-      );
-    });
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      () {
+        if (mounted) {
+          state = SinglePlayboardState(
+            playboard: state.playboard,
+            bestStep: solve(state.playboard)?.length ?? -1,
+            config: state.config,
+          );
+        }
+      },
+    );
     _read(counterProvider.notifier).state = const Duration(seconds: 0);
   }
 
@@ -228,6 +233,7 @@ class SingleModePlayboardController
       }
       updatePlayboardState(newBoard);
       await Future.delayed(const Duration(milliseconds: 600));
+      if (mounted == false) return;
       if (_steps == null) {
         isSolving = false;
         break;

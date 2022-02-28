@@ -27,6 +27,19 @@ Future<void> _selectBoardSizeAndPlayer(
   expect(find.byType(MultiplePlayground), findsOneWidget);
 }
 
+void _pressKey(
+  WidgetTester tester,
+  FakeAsync async,
+  List<LogicalKeyboardKey> keys,
+) {
+  for (final key in keys) {
+    simulateKeyDownEvent(key);
+    async.elapse(const Duration(milliseconds: 300));
+    tester.pumpAndSettle(const Duration(milliseconds: 500));
+    async.elapse(const Duration(milliseconds: 300));
+  }
+}
+
 void main() {
   testWidgets('Multiple mode page', (tester) async {
     await testRouterApp(tester, initialRoute: '/m_mode');
@@ -91,27 +104,17 @@ void main() {
       await _selectBoardSizeAndPlayer(tester, 3, 2);
 
       fakeAsync((async) {
-        simulateKeyDownEvent(LogicalKeyboardKey.keyX);
-        async.elapse(const Duration(milliseconds: 300));
-        tester.pumpAndSettle(const Duration(milliseconds: 500));
-        async.elapse(const Duration(milliseconds: 300));
-        simulateKeyDownEvent(LogicalKeyboardKey.keyX);
-        async.elapse(const Duration(milliseconds: 300));
-        tester.pumpAndSettle(const Duration(milliseconds: 500));
-        async.elapse(const Duration(milliseconds: 300));
-        
-        simulateKeyDownEvent(LogicalKeyboardKey.keyX);
-        async.elapse(const Duration(milliseconds: 300));
-        tester.pumpAndSettle(const Duration(milliseconds: 500));
-        async.elapse(const Duration(milliseconds: 300));
-        simulateKeyDownEvent(LogicalKeyboardKey.keyS);
-        async.elapse(const Duration(milliseconds: 300));
-        tester.pumpAndSettle(const Duration(milliseconds: 500));
-        async.elapse(const Duration(milliseconds: 300));
-        simulateKeyDownEvent(LogicalKeyboardKey.keyA);
-        async.elapse(const Duration(milliseconds: 300));
-        tester.pumpAndSettle(const Duration(seconds: 1));
-        async.elapse(const Duration(seconds: 1));
+        _pressKey(
+          tester,
+          async,
+          [
+            LogicalKeyboardKey.keyX,
+            LogicalKeyboardKey.keyX,
+            LogicalKeyboardKey.keyX,
+            LogicalKeyboardKey.keyS,
+            LogicalKeyboardKey.keyA,
+          ],
+        );
 
         expect(find.byType(PauseAction), findsOneWidget);
         async.elapse(const Duration(seconds: 10));
@@ -130,17 +133,15 @@ void main() {
       await _selectBoardSizeAndPlayer(tester, 4, 2);
 
       fakeAsync((async) async {
-        simulateKeyDownEvent(LogicalKeyboardKey.keyX);
-        async.elapse(const Duration(milliseconds: 300));
-        tester.pumpAndSettle(const Duration(milliseconds: 500));
-        async.elapse(const Duration(seconds: 1));
-        simulateKeyDownEvent(LogicalKeyboardKey.keyA);
-        async.elapse(const Duration(milliseconds: 300));
-        tester.pumpAndSettle(const Duration(milliseconds: 500));
-        async.elapse(const Duration(seconds: 1));
-        simulateKeyDownEvent(LogicalKeyboardKey.keyA);
-        async.elapse(const Duration(milliseconds: 300));
-        tester.pumpAndSettle(const Duration(seconds: 1));
+        _pressKey(
+          tester,
+          async,
+          [
+            LogicalKeyboardKey.keyX,
+            LogicalKeyboardKey.keyA,
+            LogicalKeyboardKey.keyA,
+          ],
+        );
         async.elapse(const Duration(seconds: 1));
         expect(
             find.byKey(const ValueKey('blind-number-tile-0')), findsOneWidget);
