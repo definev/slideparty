@@ -69,12 +69,14 @@ extension ThemeBaseOnColor on ButtonColors {
         primary: primaryColor,
         blendLevel: 20,
         surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
+        onPrimary: Colors.white,
       ).toTheme;
   ThemeData get darkTheme => FlexColorScheme.dark(
         fontFamily: 'kenvector_future',
         primary: primaryColor,
         blendLevel: 20,
         surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
+        onPrimary: Colors.white,
       ).toTheme;
 }
 

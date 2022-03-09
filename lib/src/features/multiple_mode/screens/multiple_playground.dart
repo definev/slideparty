@@ -289,17 +289,8 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                       keyboard,
                                       playerId: playerId,
                                       playerCount: playerCount,
-                                      size: min(
-                                          60,
-                                          min(
-                                            (constraints.biggest.longestSide -
-                                                    _playboardSize(
-                                                        constraints) -
-                                                    32) /
-                                                8,
-                                            constraints.biggest.shortestSide /
-                                                6,
-                                          )),
+                                      size: _calculateSkillKeyboardSize(
+                                          constraints),
                                       otherPlayersIds: otherPlayersIds,
                                     );
                                   }),
@@ -347,6 +338,17 @@ class _PlayerPlayboardView extends HookConsumerWidget {
       );
     }
     return view;
+  }
+
+  double _calculateSkillKeyboardSize(BoxConstraints constraints) {
+    return min(
+      80,
+      min(
+        (constraints.biggest.longestSide - _playboardSize(constraints) - 32) /
+            7,
+        constraints.biggest.shortestSide / 6,
+      ),
+    );
   }
 }
 
