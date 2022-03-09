@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:slideparty_playboard_utils/slideparty_playboard_utils.dart';
 
 void main() {
+  group('Playboard view test', () {});
   group('Playboard test', () {
     group('Auto solving', () {
       test('Already solved state', () {

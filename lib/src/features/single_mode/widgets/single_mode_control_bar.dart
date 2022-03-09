@@ -45,19 +45,20 @@ class SingleModeControlBar extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
-            if (controller.isSolving == false)
+            if (controller.isSolving == false) ...[
               TextButton(
                 onPressed: () => controller.autoSolve(context),
                 child: const Text('SOLVE'),
               ),
-            IconButton(
-              onPressed: () =>
-                  settingController.state = !settingController.state,
-              icon: Icon(
-                LineIcons.cog,
-                color: Theme.of(context).colorScheme.primary,
+              IconButton(
+                onPressed: () =>
+                    settingController.state = !settingController.state,
+                icon: Icon(
+                  LineIcons.cog,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
