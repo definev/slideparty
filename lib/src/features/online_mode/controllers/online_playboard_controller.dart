@@ -14,19 +14,24 @@ import 'package:slideparty_socket/slideparty_socket_fe.dart';
 
 final onlinePlayboardControlllerProvider = StateNotifierProvider //
     .autoDispose
-    .family<PlayboardController, PlayboardState, RoomInfo>(
-  (ref, info) => OnlineModeController(ref.read, info),
+    .family<PlayboardController, PlayboardState, SlidepartySocket>(
+  (ref, socket) => OnlineModeController(
+    ref.read,
+    socket: socket,
+  ),
 );
 
 final isDisconnectWebSocketProvider = StateProvider<bool>((ref) => false);
 
 class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     with PlayboardGestureControlHelper, PlayboardKeyboardControlHelper {
-  OnlineModeController(this._read, this.info)
-      : _ssk = SlidepartySocket(info),
+  OnlineModeController(
+    this._read, {
+    required SlidepartySocket socket,
+  })  : _ssk = socket,
         super(
           OnlinePlayboardState(
-            info,
+            socket.info,
             playerId: '',
             serverState: const ServerState.waiting(),
             currentUsedAction: const [],
@@ -42,11 +47,11 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     );
   }
 
-  final RoomInfo info;
   final Reader _read;
   final SlidepartySocket _ssk;
   late final StreamSubscription _sub;
 
+  RoomInfo get info => _ssk.info;
   final Stopwatch _stopwatch = Stopwatch();
 
   final defaultControl = PlayboardSkillKeyboardControl(
@@ -76,19 +81,19 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
 
   void stopTimer() => _stopwatch.stop();
 
-  void initController() {
-    Future(() {
-      _stopwatch.start();
-      state = state.initPlayerId(_ssk.userId);
-      _ssk.send(
-        ClientEvent.sendBoard(
-          state //
-              .currentState!
-              .playboard
-              .currentBoard,
-        ),
-      );
-    });
+  void initController() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    debugPrint('INIT CONTROLLER');
+    _stopwatch.start();
+    state = state.initPlayerId(_ssk.userId);
+    _ssk.send(
+      ClientEvent.sendBoard(
+        state //
+            .currentState!
+            .playboard
+            .currentBoard,
+      ),
+    );
   }
 
   void restartGame() {

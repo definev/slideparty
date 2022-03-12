@@ -25,51 +25,43 @@ class App extends ConsumerStatefulWidget {
     routes: [
       GoRoute(
         path: '/',
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           AppInfos.setAppTitle('Slide Party - Home');
-          return const NoTransitionPage(
-            child: HomePage(),
-          );
+          return const HomePage();
         },
       ),
       GoRoute(
         path: '/_refresh',
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           AppInfos.setAppTitle('Loading ...');
-          return const NoTransitionPage(
-            child: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
           );
         },
       ),
       GoRoute(
         path: '/s_mode',
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           AppInfos.setAppTitle('Slide Party - Single Mode');
-          return NoTransitionPage(
-            child: ProviderScope(
-              overrides: [
-                playboardControllerProvider
-                    .overrideWithProvider(singleModeControllerProvider),
-              ],
-              child: const SingleModePage(),
-            ),
+          return ProviderScope(
+            overrides: [
+              playboardControllerProvider
+                  .overrideWithProvider(singleModeControllerProvider),
+            ],
+            child: const SingleModePage(),
           );
         },
       ),
       GoRoute(
         path: '/o_mode',
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           AppInfos.setAppTitle('Slide Party - Online Mode');
-          return const NoTransitionPage(
-            child: OnlineModePage(),
-          );
+          return const OnlineModePage();
         },
       ),
       GoRoute(
         path: '/o_mode/:boardSize/:roomCode',
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           final info = RoomInfo(
             int.parse(state.params['boardSize']!),
             state.params['roomCode']!,
@@ -78,29 +70,27 @@ class App extends ConsumerStatefulWidget {
             'Online room: ${info.boardSize} x ${info.boardSize} - ${info.roomCode}',
           );
 
-          return NoTransitionPage(
-            child: ProviderScope(
-              overrides: [
-                playboardControllerProvider.overrideWithProvider(
-                    onlinePlayboardControlllerProvider(info)),
-              ],
-              child: OnlinePlayboardPage(info: info),
-            ),
+          return ProviderScope(
+            overrides: [
+              playboardControllerProvider.overrideWithProvider(
+                onlinePlayboardControlllerProvider(
+                    ClientSlidepartySocket(info)),
+              ),
+            ],
+            child: OnlinePlayboardPage(info: info),
           );
         },
       ),
       GoRoute(
         path: '/m_mode',
-        pageBuilder: (context, state) {
+        builder: (context, state) {
           AppInfos.setAppTitle('Slide Party - Multiple Mode');
-          return NoTransitionPage(
-            child: ProviderScope(
-              overrides: [
-                playboardControllerProvider
-                    .overrideWithProvider(multipleModeControllerProvider),
-              ],
-              child: const MultipleModePage(),
-            ),
+          return ProviderScope(
+            overrides: [
+              playboardControllerProvider
+                  .overrideWithProvider(multipleModeControllerProvider),
+            ],
+            child: const MultipleModePage(),
           );
         },
       ),
@@ -127,8 +117,6 @@ class _AppState extends ConsumerState<App> {
       theme: playboardDefaultColor.lightTheme,
       darkTheme: playboardDefaultColor.darkTheme,
       onGenerateTitle: (context) => 'Not Found',
-      // builder: (_, child) =>
-      // Material(child: FPSWidget(child: child ?? const SizedBox())),
     );
   }
 }

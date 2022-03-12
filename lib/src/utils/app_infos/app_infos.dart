@@ -32,6 +32,7 @@ class AppInfos {
   }
 
   static void setAppTitle(String label) {
+    if (!kIsWeb) return;
     SystemChrome.setApplicationSwitcherDescription(
       ApplicationSwitcherDescription(label: label),
     );

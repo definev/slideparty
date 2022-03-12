@@ -8,7 +8,7 @@ import 'package:slideparty/src/features/multiple_mode/screens/multiple_playgroun
 import '../../mocks/test_app.dart';
 
 Future<void> _multipleModeSetUp(WidgetTester tester) async {
-  await testRouterApp(tester, initialRoute: '/m_mode');
+  await testMultipleModeApp(tester, initialRoute: '/m_mode');
   expect(find.byType(MultipleModePage), findsOneWidget);
 }
 
@@ -42,7 +42,7 @@ void _pressKey(
 
 void main() {
   testWidgets('Multiple mode page', (tester) async {
-    await testRouterApp(tester, initialRoute: '/m_mode');
+    await testMultipleModeApp(tester, initialRoute: '/m_mode');
 
     expect(find.byType(MultipleModePage), findsOneWidget);
 
@@ -132,7 +132,7 @@ void main() {
       await _multipleModeSetUp(tester);
       await _selectBoardSizeAndPlayer(tester, 4, 2);
 
-      fakeAsync((async) async {
+      fakeAsync((async) {
         _pressKey(
           tester,
           async,

@@ -40,6 +40,7 @@ class OnlineModePage extends HookConsumerWidget {
                   final controller = useTextEditingController();
 
                   return TextField(
+                    key: const ValueKey('room-code-text-field'),
                     controller: controller,
                     decoration: InputDecoration(
                       labelText: 'Enter room code',
@@ -100,7 +101,7 @@ class OnlineModePage extends HookConsumerWidget {
                             '/o_mode/${isSelected.value.indexOf(true) + 3}/${roomCode.value}');
                       }
                     },
-                    child: const Text('Join room'),
+                    child: const Text('JOIN ROOM'),
                   ),
                 ),
               ],

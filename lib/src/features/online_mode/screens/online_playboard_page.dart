@@ -41,6 +41,8 @@ class OnlinePlayboardPage extends ConsumerWidget {
       },
     );
 
+    debugPrint(state.runtimeType.toString());
+
     return WillPopScope(
       onWillPop: () async {
         context.go('/');
