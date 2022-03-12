@@ -77,7 +77,7 @@ class SingleModePlayboardController
 
   bool get isSolved => state.playboard.isSolved;
 
-  List<PlayboardDirection>? _steps;
+  List<PlayboardDirection>? _directions;
 
   @override
   void dispose() {
@@ -122,7 +122,7 @@ class SingleModePlayboardController
   void reset() {
     if (_read(singleModeSettingProvider)) return;
 
-    _steps = null;
+    _directions = null;
     stopwatch
       ..stop()
       ..reset();
@@ -217,16 +217,31 @@ class SingleModePlayboardController
     if (_read(singleModeSettingProvider)) return;
     if (state.playboard.isSolved) return;
     if (isSolving) return;
-    _steps = solve(state.playboard);
-    if (_steps == null || _steps!.isEmpty) return;
+    _directions = solve(state.playboard);
+    if (_directions == null || _directions!.isEmpty) return;
     isSolving = true;
     final buttonAudioController = _read(buttonAudioControllerProvider);
 
-    for (final direction in _steps!) {
+    for (int index = 0; index < _directions!.length; index++) {
+      final direction = _directions![index];
+      Playboard? newBoard = state.playboard.moveHoleExact(direction);
+      if (newBoard == null) {
+        isSolving = false;
+        break;
+      }
+
+      while (index + 1 < _directions!.length &&
+          _directions![index + 1] == direction) {
+        index = index + 1;
+        newBoard = newBoard!.moveHoleExact(direction);
+        if (newBoard == null) {
+          isSolving = false;
+          break;
+        }
+      }
       try {
         buttonAudioController.clickSound();
       } catch (_) {}
-      final newBoard = state.playboard.moveHoleExact(direction);
       if (newBoard == null) {
         isSolving = false;
         break;
@@ -234,7 +249,7 @@ class SingleModePlayboardController
       updatePlayboardState(newBoard);
       await Future.delayed(const Duration(milliseconds: 600));
       if (mounted == false) return;
-      if (_steps == null) {
+      if (_directions == null) {
         isSolving = false;
         break;
       }
