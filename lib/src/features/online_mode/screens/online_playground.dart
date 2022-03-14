@@ -168,7 +168,7 @@ class _PlayerPlayboardView extends HookConsumerWidget {
   final double ratio;
 
   double _playboardSize(BoxConstraints constraints) =>
-      min(constraints.biggest.shortestSide - 32, 425);
+      min(constraints.biggest.shortestSide - 32, 375);
 
   double _textPadding(BoxConstraints constraints) =>
       3 * (constraints.biggest.longestSide - _playboardSize(constraints)) / 64;
