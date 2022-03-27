@@ -116,7 +116,7 @@ class SingleModeHeader extends ConsumerWidget {
 
                         return Text.rich(
                           TextSpan(
-                            text: 'BEST: ',
+                            text: 'AUTO: ',
                             children: [
                               TextSpan(
                                 text:
