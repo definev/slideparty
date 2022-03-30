@@ -279,7 +279,7 @@ void main() {
         );
         final widget = t.first;
         await tester.pumpWidget(widget);
-        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle(const Duration(milliseconds: 700));
         expect(find.byType(PlayboardView), findsOneWidget);
         final preState = state!.clone();
         final boardSize = preState.playboard.size;
@@ -296,7 +296,7 @@ void main() {
             buttons: kTouchContact,
             warnIfMissed: false,
           );
-          await tester.pumpAndSettle(const Duration(milliseconds: 500));
+          await tester.pumpAndSettle(const Duration(milliseconds: 700));
 
           final newHoleLoc = holeLoc.move(boardSize, direction);
 

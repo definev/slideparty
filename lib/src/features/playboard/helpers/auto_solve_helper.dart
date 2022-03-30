@@ -15,4 +15,29 @@ mixin AutoSolveHelper {
       isSolving = false;
     }
   }
+
+  int? solveStep(
+    Playboard initialBoard, [
+    List<int>? finalBoard,
+  ]) {
+    try {
+      if (isSolving) return null;
+      isSolving = true;
+      final steps = initialBoard.autoSolve(finalBoard);
+      if (steps == null) return null;
+      int res = 0;
+      if (steps.isEmpty) return 0;
+      var lastStep = steps[0];
+      for (final step in steps.skip(1)) {
+        if (step != lastStep) {
+          res++;
+          lastStep = step;
+        }
+      }
+
+      return res;
+    } finally {
+      isSolving = false;
+    }
+  }
 }

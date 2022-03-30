@@ -63,7 +63,7 @@ class SingleModePlayboardController
       () => state = SinglePlayboardState(
         playboard: state.playboard,
         step: state.step,
-        bestStep: solve(state.playboard)?.length ?? 1,
+        bestStep: solveStep(state.playboard) ?? 1,
         config: state.config,
       ),
     );
@@ -140,7 +140,7 @@ class SingleModePlayboardController
         if (mounted) {
           state = SinglePlayboardState(
             playboard: state.playboard,
-            bestStep: solve(state.playboard)?.length ?? -1,
+            bestStep: solveStep(state.playboard) ?? -1,
             config: state.config,
           );
         }
