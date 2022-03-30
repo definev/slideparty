@@ -25,7 +25,7 @@ mixin AutoSolveHelper {
       isSolving = true;
       final steps = initialBoard.autoSolve(finalBoard);
       if (steps == null) return null;
-      int res = 0;
+      int res = 1;
       if (steps.isEmpty) return 0;
       var lastStep = steps[0];
       for (final step in steps.skip(1)) {
