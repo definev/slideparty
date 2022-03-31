@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:line_icons/line_icon.dart';
 import 'package:slideparty/src/features/multiple_mode/controllers/multiple_mode_controller.dart';
+import 'package:slideparty/src/features/online_mode/controllers/online_playboard_controller.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
@@ -42,8 +43,7 @@ class SkillMenu extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-    final controller = ref.watch(playboardControllerProvider.notifier)
-        as MultipleModeController;
+    final controller = ref.watch(playboardControllerProvider.notifier);
     final openSkill = ref.watch(multipleSkillStateProvider(playerId));
     final openSkillNotifier =
         ref.watch(multipleSkillStateProvider(playerId).notifier);
@@ -89,7 +89,12 @@ class SkillMenu extends HookConsumerWidget {
                             Navigator.pop(context);
                             return;
                           }
-                          controller.pickAction(playerId, action);
+                          if (controller is MultipleModeController) {
+                            controller.pickAction(playerId, action);
+                          }
+                          if (controller is OnlineModeController) {
+                            controller.pickAction(action);
+                          }
                         },
                         size: ButtonSize.square,
                         child: _actionIcon(context, action),
@@ -148,7 +153,12 @@ class SkillMenu extends HookConsumerWidget {
                     : SlidepartyButtonStyle.invert,
                 customSize: const Size(49 * 3 + 16, 49),
                 onPressed: () {
-                  controller.doAction(playerId, pickedPlayer.value!);
+                  if (controller is MultipleModeController) {
+                    controller.doAction(playerId, pickedPlayer.value!);
+                  }
+                  if (controller is OnlineModeController) {
+                    controller.doAction(pickedColor.value!);
+                  }
                   pickedPlayer.value = null;
                   pickedColor.value = null;
                 },
