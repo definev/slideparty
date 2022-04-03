@@ -176,7 +176,10 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
 
     switch (queueAction) {
       case SlidepartyActions.clear:
-        if (state.affectedAction!.isNotEmpty) {
+        var affectedActions = state.affectedAction!.values
+            .expand((actionsList) => actionsList.values)
+            .expand((actions) => actions);
+        if (affectedActions.isNotEmpty) {
           _ssk.send(ClientEvent.sendAction(state.playerId, queueAction));
           openSkillNotifier.state = openSkillState.copyWith(
             show: false,

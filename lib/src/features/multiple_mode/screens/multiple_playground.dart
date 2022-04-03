@@ -462,11 +462,14 @@ class _MultipleMainPlayground extends HookConsumerWidget {
                     (value) => value.show,
                   ),
                 );
-                final otherPlayersIds = ref.watch(
+                final otherPlayersColors = ref.watch(
                   playboardControllerProvider.select(
                     (state) {
                       if (state is MultiplePlayboardState) {
-                        return state.getPlayerIds(playerId);
+                        return state
+                            .getPlayerIds(playerId)
+                            .map((id) => ButtonColors.values[int.parse(id)])
+                            .toList();
                       }
                     },
                   ),
@@ -485,7 +488,7 @@ class _MultipleMainPlayground extends HookConsumerWidget {
                         size: size + 32,
                         playerId: playerId,
                         color: color,
-                        otherPlayersIds: otherPlayersIds,
+                        otherPlayerColors: otherPlayersColors,
                       ),
                     ),
                   ),

@@ -15,7 +15,6 @@ class SkillMenu extends HookConsumerWidget {
     Key? key,
     required this.size,
     required this.playerId,
-    this.otherPlayersIds,
     required this.color,
     this.otherPlayerColors,
   }) : super(key: key);
@@ -23,7 +22,6 @@ class SkillMenu extends HookConsumerWidget {
   final double size;
   final String playerId;
   final ButtonColors color;
-  final List<String>? otherPlayersIds;
   final List<ButtonColors>? otherPlayerColors;
 
   Widget _actionIcon(
@@ -47,14 +45,12 @@ class SkillMenu extends HookConsumerWidget {
     final openSkill = ref.watch(multipleSkillStateProvider(playerId));
     final openSkillNotifier =
         ref.watch(multipleSkillStateProvider(playerId).notifier);
-    final pickedPlayer = useState<String?>(null);
     final pickedColor = useState<ButtonColors?>(null);
 
     return GestureDetector(
       onTap: () {
         openSkillNotifier.state =
             openSkill.copyWith(show: false, queuedAction: null);
-        pickedPlayer.value = null;
         pickedColor.value = null;
       },
       child: ColoredBox(
@@ -106,60 +102,41 @@ class SkillMenu extends HookConsumerWidget {
                 separatorBuilder: () => const SizedBox(width: 8),
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (otherPlayersIds != null)
-                    for (final otherPlayerIndex in otherPlayersIds!)
-                      AnimatedScale(
-                        duration: const Duration(milliseconds: 200),
-                        scale: pickedPlayer.value == otherPlayerIndex ? 1.1 : 1,
-                        child: SlidepartyButton(
-                          key: ValueKey(
-                              'Owner $playerId - Target $otherPlayerIndex'),
-                          color: color,
-                          onPressed: () =>
-                              pickedPlayer.value = otherPlayerIndex,
-                          size: ButtonSize.square,
-                          style: pickedPlayer.value == otherPlayerIndex ||
-                                  pickedPlayer.value == null
-                              ? SlidepartyButtonStyle.normal
-                              : SlidepartyButtonStyle.invert,
-                          child: Text('P.$otherPlayerIndex'),
-                        ),
+                  for (final otherColor in otherPlayerColors!)
+                    AnimatedScale(
+                      duration: const Duration(milliseconds: 200),
+                      scale: pickedColor.value == otherColor ? 1.1 : 1,
+                      child: SlidepartyButton(
+                        color: otherColor,
+                        onPressed: () => pickedColor.value = otherColor,
+                        size: ButtonSize.square,
+                        style: pickedColor.value == otherColor ||
+                                pickedColor.value == null
+                            ? SlidepartyButtonStyle.normal
+                            : SlidepartyButtonStyle.invert,
+                        child: Text(otherColor.name[0].toUpperCase()),
                       ),
-                  if (otherPlayerColors != null)
-                    for (final otherColor in otherPlayerColors!)
-                      AnimatedScale(
-                        duration: const Duration(milliseconds: 200),
-                        scale: pickedColor.value == otherColor ? 1.1 : 1,
-                        child: SlidepartyButton(
-                          color: otherColor,
-                          onPressed: () => pickedColor.value = otherColor,
-                          size: ButtonSize.square,
-                          style: pickedColor.value == otherColor ||
-                                  pickedColor.value == null
-                              ? SlidepartyButtonStyle.normal
-                              : SlidepartyButtonStyle.invert,
-                          child: Text(otherColor.name[0].toUpperCase()),
-                        ),
-                      ),
+                    ),
                 ],
               ),
               SlidepartyButton(
                 key: ValueKey('Owner $playerId - Apply skill'),
                 color: color,
                 style: (openSkill.queuedAction != null &&
-                        (pickedColor.value != null ||
-                            pickedPlayer.value != null))
+                        pickedColor.value != null)
                     ? SlidepartyButtonStyle.normal
                     : SlidepartyButtonStyle.invert,
                 customSize: const Size(49 * 3 + 16, 49),
                 onPressed: () {
                   if (controller is MultipleModeController) {
-                    controller.doAction(playerId, pickedPlayer.value!);
+                    controller.doAction(
+                      playerId,
+                      pickedColor.value!.index.toString(),
+                    );
                   }
                   if (controller is OnlineModeController) {
                     controller.doAction(pickedColor.value!);
                   }
-                  pickedPlayer.value = null;
                   pickedColor.value = null;
                 },
                 child: const Text('Apply skill'),
