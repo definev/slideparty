@@ -211,12 +211,12 @@ void main() {
     });
 
     test('Quick solve solution: Need to solve pos 3x3, 4x4, 5x5', () {
-      final _pos3x3 = SolvingMachine.needToSolvePos(3);
-      expect(_pos3x3, equals([0, 1, 2, 3, 6]));
-      final _pos4x4 = SolvingMachine.needToSolvePos(4);
-      expect(_pos4x4, equals([0, 1, 2, 3, 4, 8, 12]));
-      final _pos5x5 = SolvingMachine.needToSolvePos(5);
-      expect(_pos5x5, equals([0, 1, 2, 3, 4, 5, 10, 15, 20]));
+      final pos3x3 = SolvingMachine.needToSolvePos(3);
+      expect(pos3x3, equals([0, 1, 2, 3, 6]));
+      final pos4x4 = SolvingMachine.needToSolvePos(4);
+      expect(pos4x4, equals([0, 1, 2, 3, 4, 8, 12]));
+      final pos5x5 = SolvingMachine.needToSolvePos(5);
+      expect(pos5x5, equals([0, 1, 2, 3, 4, 5, 10, 15, 20]));
     });
   });
 }

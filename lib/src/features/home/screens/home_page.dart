@@ -24,12 +24,12 @@ class HomePage extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: 'party',
-                      style: Theme.of(context).textTheme.headline6!.copyWith(
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                           ),
                     ),
                   ],
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
             ),
@@ -68,14 +68,14 @@ class HomePage extends StatelessWidget {
                   child: Text.rich(
                     TextSpan(
                       text: 'Reduce motion: ',
-                      style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: Theme.of(context).colorScheme.onBackground),
                       children: [
                         TextSpan(
                           text: reduceMotion ? 'ON' : 'OFF',
                           style: Theme.of(context)
                               .textTheme
-                              .bodyText2!
+                              .bodyMedium!
                               .copyWith(
                                   color: Theme.of(context).colorScheme.primary),
                         )

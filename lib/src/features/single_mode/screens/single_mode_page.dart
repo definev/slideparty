@@ -100,7 +100,7 @@ class SingleModePage extends StatelessWidget {
                         color: playboardDefaultColor,
                         size: ButtonSize.square,
                         style: SlidepartyButtonStyle.invert,
-                        child: LineIcon.syncIcon(),
+                        child: const LineIcon.syncIcon(),
                         onPressed: () {
                           showWinDialog.value = false;
                           controller.reset();

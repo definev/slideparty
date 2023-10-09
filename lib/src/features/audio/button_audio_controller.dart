@@ -3,16 +3,16 @@ import 'package:just_audio/just_audio.dart';
 import 'package:slideparty/src/features/audio/general_audio_controller.dart';
 
 final buttonAudioControllerProvider =
-    Provider((ref) => ButtonAudioController(ref.read));
+    Provider((ref) => ButtonAudioController(ref));
 
 class ButtonAudioController {
-  ButtonAudioController(this._read);
+  ButtonAudioController(this.ref);
 
-  final Reader _read;
+  final Ref ref;
   final _player = AudioPlayer();
 
   void clickSound() async {
-    if (_read(generalAudioControllerProvider).isMuted) return;
+    if (ref.read(generalAudioControllerProvider).isMuted) return;
     try {
       await _player.setAsset('assets/sounds/click1.wav');
       _player.play();

@@ -30,11 +30,11 @@ class SkillMenu extends HookConsumerWidget {
   ) {
     switch (actions) {
       case SlidepartyActions.blind:
-        return LineIcon.lowVision();
+        return const LineIcon.lowVision();
       case SlidepartyActions.pause:
-        return LineIcon.userSlash();
+        return const LineIcon.userSlash();
       case SlidepartyActions.clear:
-        return LineIcon.userShield();
+        return const LineIcon.userShield();
     }
   }
 

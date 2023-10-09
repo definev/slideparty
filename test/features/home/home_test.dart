@@ -10,7 +10,7 @@ void main() {
     testWidgets('Change dark-theme', (tester) async {
       final t = await testApp(const HomePage());
 
-      await tester.pumpWidget(t.first);
+      await tester.pumpWidget(t.$1);
       await tester.pumpAndSettle();
 
       final BuildContext context = tester.element(find.byType(HomePage));
@@ -28,7 +28,7 @@ void main() {
     testWidgets('Change app color', (tester) async {
       final t = await testApp(const HomePage());
 
-      await tester.pumpWidget(t.first);
+      await tester.pumpWidget(t.$1);
       await tester.pumpAndSettle();
 
       expect(find.byKey(const ValueKey('color-picker')), findsNothing);

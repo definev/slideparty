@@ -31,7 +31,7 @@ class OnlineModePage extends HookConsumerWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     'ONLINE MODE',
-                    style: Theme.of(context).textTheme.headline6!.copyWith(
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                         ),
                   ),
@@ -51,7 +51,7 @@ class OnlineModePage extends HookConsumerWidget {
                               .join();
                           roomCode.value = controller.text;
                         },
-                        icon: LineIcon.autoprefixer(),
+                        icon: const LineIcon.autoprefixer(),
                       ),
                     ),
                     onChanged: (value) => roomCode.value = value,
@@ -63,16 +63,16 @@ class OnlineModePage extends HookConsumerWidget {
                     const Expanded(child: Text('Board size')),
                     const SizedBox.square(dimension: 8),
                     ToggleButtons(
+                      onPressed: (index) {
+                        isSelected.value = List.generate(3, (i) => i == index);
+                      },
+                      isSelected: isSelected.value,
                       children: List.generate(
                         3,
                         (index) => Center(
                           child: Text('${index + 3}'),
                         ),
                       ),
-                      onPressed: (index) {
-                        isSelected.value = List.generate(3, (i) => i == index);
-                      },
-                      isSelected: isSelected.value,
                     ),
                   ],
                 ),

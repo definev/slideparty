@@ -10,13 +10,10 @@ import 'package:slideparty/src/widgets/widgets.dart';
 import 'package:slideparty_playboard_utils/slideparty_playboard_utils.dart';
 import 'package:slideparty_socket/slideparty_socket.dart';
 
-final multipleModeControllerProvider =
-    StateNotifierProvider.autoDispose<PlayboardController, PlayboardState>(
-        (ref) => MultipleModeController(ref.read));
+MultipleModeController multipleModeControllerProvider(Ref ref) => MultipleModeController(ref);
 
-class MultipleModeController extends PlayboardController<MultiplePlayboardState>
-    with PlayboardKeyboardControlHelper {
-  MultipleModeController(this._read)
+class MultipleModeController extends PlayboardController<MultiplePlayboardState> with PlayboardKeyboardControlHelper {
+  MultipleModeController(this.ref)
       : super(
           MultiplePlayboardState(
             playerCount: 0,
@@ -25,12 +22,11 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
           ),
         );
 
-  final Reader _read;
+  final Ref ref;
 
   Map<String, PlayboardSkillKeyboardControl> _keyboardControls = {};
 
-  PlayboardSkillKeyboardControl playerControl(String index) =>
-      _keyboardControls[index]!;
+  PlayboardSkillKeyboardControl playerControl(String index) => _keyboardControls[index]!;
 
   void restart() {
     state = MultiplePlayboardState(
@@ -99,8 +95,8 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
   }
 
   void pickAction(String index, SlidepartyActions action) {
-    final openSkillState = _read(multipleSkillStateProvider(index));
-    final openSkillNotifier = _read(multipleSkillStateProvider(index).notifier);
+    final openSkillState = ref.read(multipleSkillStateProvider(index));
+    final openSkillNotifier = ref.read(multipleSkillStateProvider(index).notifier);
     if (openSkillState.usedActions[action] == true) return;
 
     switch (action) {
@@ -136,8 +132,8 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
   }
 
   void _removeQueuedAction(String index, String target) async {
-    final openSkillState = _read(multipleSkillStateProvider(index));
-    final openSkillNotifier = _read(multipleSkillStateProvider(index).notifier);
+    final openSkillState = ref.read(multipleSkillStateProvider(index));
+    final openSkillNotifier = ref.read(multipleSkillStateProvider(index).notifier);
     final queuedAction = openSkillState.queuedAction!;
 
     state = state.setActions(
@@ -158,9 +154,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
       state = state.setConfig(
         target,
         BlindPlayboardConfig(
-          (state.config as MultiplePlayboardConfig)
-              .configs[target.toString()]!
-              .mapOrNull(
+          (state.config as MultiplePlayboardConfig).configs[target.toString()]!.mapOrNull(
                 blind: (c) => c.color,
                 number: (c) => c.color,
               )!,
@@ -171,9 +165,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
         () => state = state.setConfig(
           target,
           NumberPlayboardConfig(
-            (state.config as MultiplePlayboardConfig)
-                .configs[target.toString()]!
-                .mapOrNull(
+            (state.config as MultiplePlayboardConfig).configs[target.toString()]!.mapOrNull(
                   blind: (c) => c.color,
                   number: (c) => c.color,
                 )!,
@@ -184,7 +176,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
   }
 
   void _flushAction(String index, String target) async {
-    final openSkillState = _read(multipleSkillStateProvider(index));
+    final openSkillState = ref.read(multipleSkillStateProvider(index));
     final queuedAction = openSkillState.queuedAction!;
 
     await Future.delayed(
@@ -203,8 +195,8 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     String index,
     LogicalKeyboardKey pressedKey,
   ) {
-    final openSkillState = _read(multipleSkillStateProvider(index));
-    final openSkillNotifier = _read(multipleSkillStateProvider(index).notifier);
+    final openSkillState = ref.read(multipleSkillStateProvider(index));
+    final openSkillNotifier = ref.read(multipleSkillStateProvider(index).notifier);
     final otherPlayersIndex = state.getPlayerIds(index.toString());
 
     if (openSkillState.show) {
@@ -245,8 +237,7 @@ class MultipleModeController extends PlayboardController<MultiplePlayboardState>
     }
 
     if (pressedKey == control.activeSkillKey) {
-      openSkillNotifier.state =
-          openSkillState.copyWith(show: !openSkillState.show);
+      openSkillNotifier.state = openSkillState.copyWith(show: !openSkillState.show);
       return true;
     }
     return false;

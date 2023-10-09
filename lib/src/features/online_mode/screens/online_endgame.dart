@@ -36,7 +36,7 @@ class OnlineEndgame extends ConsumerWidget {
               children: [
                 Text(
                   'Winner',
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const Gap(16),
                 SlidepartyButton(
@@ -53,7 +53,7 @@ class OnlineEndgame extends ConsumerWidget {
           ),
           const Gap(16),
           Text(
-              '${time.inHours % 24 <= 9 ? '0' + (time.inHours % 24).toString() : time.inHours % 24} : ${time.inMinutes % 60 <= 9 ? '0' + (time.inMinutes % 60).toString() : time.inMinutes % 60} : ${time.inSeconds % 60 <= 9 ? '0' + (time.inSeconds % 60).toString() : time.inSeconds % 60}'),
+              '${time.inHours % 24 <= 9 ? '0${time.inHours % 24}' : time.inHours % 24} : ${time.inMinutes % 60 <= 9 ? '0${time.inMinutes % 60}' : time.inMinutes % 60} : ${time.inSeconds % 60 <= 9 ? '0${time.inSeconds % 60}' : time.inSeconds % 60}'),
           const Gap(16),
           for (final stat in value.stats)
             if (stat.playerColor != value.winnerPlayerState.color)

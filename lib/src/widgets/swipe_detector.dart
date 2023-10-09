@@ -73,7 +73,6 @@ class SwipeDetector extends StatelessWidget {
     DragUpdateDetails? updateHorizontalDragDetails;
 
     return GestureDetector(
-      child: child,
       behavior: HitTestBehavior.translucent,
       onVerticalDragStart: (dragDetails) {
         startVerticalDragDetails = dragDetails;
@@ -139,6 +138,7 @@ class SwipeDetector extends StatelessWidget {
           }
         }
       },
+      child: child,
     );
   }
 }

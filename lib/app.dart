@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:go_router/go_router.dart';
 import 'package:slideparty/src/features/app_setting/app_setting_controller.dart';
 import 'package:slideparty/src/features/home/home.dart';
@@ -21,7 +20,6 @@ class App extends ConsumerStatefulWidget {
 
   static final router = GoRouter(
     initialLocation: '/',
-    urlPathStrategy: UrlPathStrategy.hash,
     routes: [
       GoRoute(
         path: '/',
@@ -46,7 +44,7 @@ class App extends ConsumerStatefulWidget {
           return ProviderScope(
             overrides: [
               playboardControllerProvider
-                  .overrideWithProvider(singleModeControllerProvider),
+                  .overrideWith(singleModeControllerProvider),
             ],
             child: const SingleModePage(),
           );
@@ -63,8 +61,8 @@ class App extends ConsumerStatefulWidget {
         path: '/o_mode/:boardSize/:roomCode',
         builder: (context, state) {
           final info = RoomInfo(
-            int.parse(state.params['boardSize']!),
-            state.params['roomCode']!,
+            int.parse(state.pathParameters['boardSize']!),
+            state.pathParameters['roomCode']!,
           );
           AppInfos.setAppTitle(
             'Online room: ${info.boardSize} x ${info.boardSize} - ${info.roomCode}',
@@ -72,8 +70,9 @@ class App extends ConsumerStatefulWidget {
 
           return ProviderScope(
             overrides: [
-              playboardControllerProvider.overrideWithProvider(
-                onlinePlayboardControlllerProvider(
+              playboardControllerProvider.overrideWith(
+                (ref) =>
+                onlinePlayboardControlllerProvider(ref,
                     ClientSlidepartySocket(info)),
               ),
             ],
@@ -88,7 +87,7 @@ class App extends ConsumerStatefulWidget {
           return ProviderScope(
             overrides: [
               playboardControllerProvider
-                  .overrideWithProvider(multipleModeControllerProvider),
+                  .overrideWith(multipleModeControllerProvider),
             ],
             child: const MultipleModePage(),
           );
@@ -98,7 +97,7 @@ class App extends ConsumerStatefulWidget {
   );
 
   @override
-  _AppState createState() => _AppState();
+  ConsumerState<App> createState() => _AppState();
 }
 
 class _AppState extends ConsumerState<App> {
@@ -110,8 +109,7 @@ class _AppState extends ConsumerState<App> {
         appSettingControllerProvider.select((value) => value.isDarkTheme));
 
     return MaterialApp.router(
-      routeInformationParser: App.router.routeInformationParser,
-      routerDelegate: App.router.routerDelegate,
+      routerConfig: App.router,
       debugShowCheckedModeBanner: false,
       themeMode: isDarkTheme ? ThemeMode.dark : ThemeMode.light,
       theme: playboardDefaultColor.lightTheme,

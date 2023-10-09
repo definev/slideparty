@@ -39,7 +39,7 @@ class OnlinePlayboardState extends PlayboardState {
         usedActions = roomData.players.map(
           (key, value) => MapEntry(key, value.usedActions),
         )..removeWhere(
-            (key, value) => key == playerId && currentUsedAction != null);
+            (key, value) => key == playerId && this.currentUsedAction != null);
 
         playerStates = roomData.players.map(
           (key, value) => MapEntry(
@@ -74,20 +74,20 @@ class OnlinePlayboardState extends PlayboardState {
         playerCount == null ||
         stateConfig == null) return null;
 
-    final _currentPlayerState = MapEntry(playerId, currentState);
-    final _currentUsedAction = MapEntry(playerId, currentUsedAction);
+    final currentPlayerState = MapEntry(playerId, currentState);
+    final currentUsedAction = MapEntry(playerId, this.currentUsedAction);
 
     return MultiplePlayboardState(
       boardSize: boardSize,
       playerCount: playerCount!,
       playerStates: {
-        if (_currentPlayerState.value != null)
-          _currentPlayerState.key: _currentPlayerState.value!,
+        if (currentPlayerState.value != null)
+          currentPlayerState.key: currentPlayerState.value!,
         if (playerStates != null) ...playerStates!,
       },
       usedActions: {
-        if (_currentUsedAction.value != null)
-          _currentUsedAction.key: _currentUsedAction.value!,
+        if (currentUsedAction.value != null)
+          currentUsedAction.key: currentUsedAction.value!,
         if (usedActions != null) ...usedActions!,
       },
       stateConfig: stateConfig!,

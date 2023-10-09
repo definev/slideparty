@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:slideparty/app.dart';
@@ -30,7 +29,7 @@ class MockLocals {
   final appSettingLocal = MockAppSettingLocal();
 }
 
-Future<Tuple2<Widget, MockLocals>> testApp(
+Future<(Widget, MockLocals)> testApp(
   Widget child,
 ) async {
   final locals = MockLocals();
@@ -49,10 +48,8 @@ Future<Tuple2<Widget, MockLocals>> testApp(
     child: Portal(
       child: Consumer(
         builder: (context, ref, child) {
-          final playboardDefaultColor = ref.watch(
-              playboardInfoControllerProvider.select((value) => value.color));
-          final isDarkTheme = ref.watch(appSettingControllerProvider
-              .select((value) => value.isDarkTheme));
+          final playboardDefaultColor = ref.watch(playboardInfoControllerProvider.select((value) => value.color));
+          final isDarkTheme = ref.watch(appSettingControllerProvider.select((value) => value.isDarkTheme));
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -77,7 +74,7 @@ Future<Tuple2<Widget, MockLocals>> testApp(
     ),
   );
 
-  return Tuple2(widget, locals);
+  return (widget, locals);
 }
 
 Future<MockLocals> testOnlineModeApp(
@@ -97,8 +94,8 @@ Future<MockLocals> testOnlineModeApp(
         path: '/o_mode/:boardSize/:roomCode',
         builder: (context, state) {
           final info = RoomInfo(
-            int.parse(state.params['boardSize']!),
-            state.params['roomCode']!,
+            int.parse(state.pathParameters['boardSize']!),
+            state.pathParameters['roomCode']!,
           );
           AppInfos.setAppTitle(
             'Online room: ${info.boardSize} x ${info.boardSize} - ${info.roomCode}',
@@ -106,8 +103,9 @@ Future<MockLocals> testOnlineModeApp(
 
           return ProviderScope(
             overrides: [
-              playboardControllerProvider.overrideWithProvider(
-                onlinePlayboardControlllerProvider(
+              playboardControllerProvider.overrideWith(
+                (ref) => onlinePlayboardControlllerProvider(
+                  ref,
                   MockSlidepartySocket(
                     userId: '0',
                     info: info,
@@ -139,10 +137,8 @@ Future<MockLocals> testOnlineModeApp(
     ],
     child: Consumer(
       builder: (context, ref, child) {
-        final playboardDefaultColor = ref.watch(
-            playboardInfoControllerProvider.select((value) => value.color));
-        final isDarkTheme = ref.watch(
-            appSettingControllerProvider.select((value) => value.isDarkTheme));
+        final playboardDefaultColor = ref.watch(playboardInfoControllerProvider.select((value) => value.color));
+        final isDarkTheme = ref.watch(appSettingControllerProvider.select((value) => value.isDarkTheme));
 
         return MaterialApp.router(
           routerDelegate: router.routerDelegate,
@@ -195,10 +191,8 @@ Future<MockLocals> testMultipleModeApp(
     child: Portal(
       child: Consumer(
         builder: (context, ref, child) {
-          final playboardDefaultColor = ref.watch(
-              playboardInfoControllerProvider.select((value) => value.color));
-          final isDarkTheme = ref.watch(appSettingControllerProvider
-              .select((value) => value.isDarkTheme));
+          final playboardDefaultColor = ref.watch(playboardInfoControllerProvider.select((value) => value.color));
+          final isDarkTheme = ref.watch(appSettingControllerProvider.select((value) => value.isDarkTheme));
 
           return MaterialApp.router(
             routerDelegate: App.router.routerDelegate,

@@ -12,21 +12,17 @@ import 'package:slideparty/src/features/playboard/widgets/skill_keyboard.dart';
 import 'package:slideparty/src/widgets/buttons/buttons.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
 
-final onlinePlayboardControlllerProvider = StateNotifierProvider //
-    .autoDispose
-    .family<PlayboardController, PlayboardState, SlidepartySocket>(
-  (ref, socket) => OnlineModeController(
-    ref.read,
+OnlineModeController onlinePlayboardControlllerProvider(Ref ref, SlidepartySocket socket) => OnlineModeController(
+    ref,
     socket: socket,
-  ),
-);
+  );
 
 final isDisconnectWebSocketProvider = StateProvider<bool>((ref) => false);
 
 class OnlineModeController extends PlayboardController<OnlinePlayboardState>
     with PlayboardGestureControlHelper, PlayboardKeyboardControlHelper {
   OnlineModeController(
-    this._read, {
+    this.ref, {
     required SlidepartySocket socket,
   })  : _ssk = socket,
         super(
@@ -41,13 +37,13 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
       (serverState) => state = state.copyWith(serverState: serverState),
       onError: (e, stack) => debugPrint('$e\n$stack'),
       onDone: () {
-        _read(isDisconnectWebSocketProvider.notifier).state = true;
+        ref.read(isDisconnectWebSocketProvider.notifier).state = true;
         debugPrint('socket done');
       },
     );
   }
 
-  final Reader _read;
+  final Ref ref;
   final SlidepartySocket _ssk;
   late final StreamSubscription _sub;
 
@@ -154,9 +150,9 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   void _clearQueuedAction() {
-    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final openSkillState = ref.read(multipleSkillStateProvider(state.playerId));
     final openSkillNotifier =
-        _read(multipleSkillStateProvider(state.playerId).notifier);
+        ref.read(multipleSkillStateProvider(state.playerId).notifier);
     if (openSkillState.queuedAction == null) return;
     openSkillNotifier.state = openSkillState.copyWith(
       queuedAction: null,
@@ -169,9 +165,9 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   void pickAction(SlidepartyActions queueAction) {
-    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final openSkillState = ref.read(multipleSkillStateProvider(state.playerId));
     final openSkillNotifier =
-        _read(multipleSkillStateProvider(state.playerId).notifier);
+        ref.read(multipleSkillStateProvider(state.playerId).notifier);
     if (state.currentUsedAction?.contains(queueAction) == true) return;
 
     switch (queueAction) {
@@ -198,7 +194,7 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
   }
 
   void doAction(ButtonColors otherColor) {
-    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final openSkillState = ref.read(multipleSkillStateProvider(state.playerId));
     final queuedAction = openSkillState.queuedAction;
     final targetId = state.getIdByColor(otherColor);
     if (queuedAction == null || targetId == null) return;
@@ -210,9 +206,9 @@ class OnlineModeController extends PlayboardController<OnlinePlayboardState>
 
   bool handleSkillKey(LogicalKeyboardKey pressedKey) {
     final control = defaultControl;
-    final openSkillState = _read(multipleSkillStateProvider(state.playerId));
+    final openSkillState = ref.read(multipleSkillStateProvider(state.playerId));
     final openSkillNotifier =
-        _read(multipleSkillStateProvider(state.playerId).notifier);
+        ref.read(multipleSkillStateProvider(state.playerId).notifier);
     final otherPlayerColors =
         state.multiplePlayboardState!.getPlayerColors(state.playerId);
 

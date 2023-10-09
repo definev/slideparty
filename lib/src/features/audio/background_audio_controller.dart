@@ -4,16 +4,16 @@ import 'package:slideparty/src/features/audio/general_audio_controller.dart';
 
 final backgroundAudioControllerProvider =
     StateNotifierProvider<BackgroundAudioController, bool>(
-        (ref) => BackgroundAudioController(ref.read));
+        (ref) => BackgroundAudioController(ref));
 
 class BackgroundAudioController extends StateNotifier<bool> {
-  BackgroundAudioController(this._read) : super(false);
+  BackgroundAudioController(this.ref) : super(false);
 
-  final Reader _read;
+  final Ref ref;
   final _player = AudioPlayer();
 
   void playWinSound() async {
-    if (_read(generalAudioControllerProvider).isMuted) return;
+    if (ref.read(generalAudioControllerProvider).isMuted) return;
 
     try {
       await _player.setAsset('assets/sounds/win.mp3');

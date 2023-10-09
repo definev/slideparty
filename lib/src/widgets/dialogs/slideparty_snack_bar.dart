@@ -21,7 +21,7 @@ void showSlidepartyToast(
       child: Center(
         child: Text(
           text,
-          style: Theme.of(context).textTheme.bodyText2,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),
     ),

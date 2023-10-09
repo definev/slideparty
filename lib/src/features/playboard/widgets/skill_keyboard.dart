@@ -51,7 +51,7 @@ class SkillKeyboard extends HookConsumerWidget {
       default:
         label = Text(
           key.keyLabel,
-          style: Theme.of(context).textTheme.bodyText2!.copyWith(
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: size < 30 ? 8 : 12,
                 color: Theme.of(context).colorScheme.onBackground,
               ),
@@ -72,7 +72,7 @@ class SkillKeyboard extends HookConsumerWidget {
 
   String get skillButtonText => keyboard.activeSkillKey.keyLabel == ' '
       ? 'Space Key'
-      : keyboard.activeSkillKey.keyLabel + ' Key';
+      : '${keyboard.activeSkillKey.keyLabel} Key';
 
   Widget _actionIcon(
     BuildContext context,
@@ -152,7 +152,7 @@ class SkillKeyboard extends HookConsumerWidget {
                 otherPlayersIds!.length > cardIndex
                     ? otherPlayersIds![cardIndex]
                     : '',
-                style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,
                     ),
                 key: otherPlayersIds!.length > cardIndex
@@ -312,7 +312,7 @@ class SkillKeyboard extends HookConsumerWidget {
                 Center(
                     child: Text(
                   'Skills',
-                  style: Theme.of(context).textTheme.caption!.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: Theme.of(context)
                           .colorScheme
                           .onPrimary
@@ -321,7 +321,7 @@ class SkillKeyboard extends HookConsumerWidget {
                 Center(
                   child: Text(
                     skillButtonText,
-                    style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: Theme.of(context).colorScheme.onPrimary,
                         ),
                   ),

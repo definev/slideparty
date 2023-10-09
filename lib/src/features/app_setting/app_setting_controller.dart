@@ -4,21 +4,21 @@ import 'package:slideparty/src/features/app_setting/app_setting_local.dart';
 
 final appSettingControllerProvider =
     ChangeNotifierProvider<AppSettingController>(
-        (ref) => AppSettingController(ref.read));
+        (ref) => AppSettingController(ref));
 
 class AppSettingController extends ChangeNotifier {
-  AppSettingController(this._read) {
-    _isDarkTheme = _read(appSettingLocalProvider).isDarkTheme;
-    _reduceMotion = _read(appSettingLocalProvider).reduceMotion;
+  AppSettingController(this.ref) {
+    _isDarkTheme = ref.read(appSettingLocalProvider).isDarkTheme;
+    _reduceMotion = ref.read(appSettingLocalProvider).reduceMotion;
   }
 
-  final Reader _read;
+  final Ref ref;
 
   bool _isDarkTheme = false;
   bool get isDarkTheme => _isDarkTheme;
   set isDarkTheme(bool value) {
     _isDarkTheme = value;
-    _read(appSettingLocalProvider).isDarkTheme = value;
+    ref.read(appSettingLocalProvider).isDarkTheme = value;
     notifyListeners();
   }
 
@@ -26,7 +26,7 @@ class AppSettingController extends ChangeNotifier {
   bool get reduceMotion => _reduceMotion;
   set reduceMotion(bool value) {
     _reduceMotion = value;
-    _read(appSettingLocalProvider).reduceMotion = value;
+    ref.read(appSettingLocalProvider).reduceMotion = value;
     notifyListeners();
   }
 }

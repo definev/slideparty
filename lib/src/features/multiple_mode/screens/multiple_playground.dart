@@ -247,9 +247,9 @@ class _PlayerPlayboardView extends HookConsumerWidget {
                                   left: _textPadding(constraints),
                                 ),
                                 child: Text(
-                                  'P.' + playerId,
+                                  'P.$playerId',
                                   style:
-                                      themeData.textTheme.headline1!.copyWith(
+                                      themeData.textTheme.displayLarge!.copyWith(
                                     fontSize: (constraints.biggest.longestSide -
                                             _playboardSize(constraints)) /
                                         6,
@@ -385,7 +385,7 @@ class HoleMenu extends StatelessWidget {
             child: Center(
               child: Text(
                 'P.$playerId',
-                style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: cs.maxHeight / 10,
                     ),
               ),
@@ -527,7 +527,7 @@ class PauseAction extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: const [BoxShadow()],
                 ),
-                child: SizedBox(
+                child: const SizedBox(
                   height: 64,
                   width: 64,
                   child: Center(

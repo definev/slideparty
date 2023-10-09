@@ -40,7 +40,7 @@ class SingleModeHeader extends ConsumerWidget {
         padding: const EdgeInsets.only(top: 16.0),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final textStyle = Theme.of(context).textTheme.subtitle1!.copyWith(
+            final textStyle = Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontSize: bp.responsiveValue(
                     constraints.biggest,
                     watch: 10,

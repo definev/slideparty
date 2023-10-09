@@ -60,7 +60,7 @@ class OnlinePlayboardPage extends ConsumerWidget {
               return Center(
                 child: Text(
                   'Wrong board size',
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               );
             },
@@ -79,10 +79,10 @@ class OnlinePlayboardPage extends ConsumerWidget {
             },
             restarting: (_) {
               controller.restartGame();
-              return Center(
+              return const Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Text('Restarting...'),
                     Gap(16),
                     CircularProgressIndicator(),

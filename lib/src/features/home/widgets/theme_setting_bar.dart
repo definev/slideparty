@@ -11,24 +11,19 @@ class ThemeSettingBar extends HookConsumerWidget {
   const ThemeSettingBar({Key? key}) : super(key: key);
 
   double delayedProgress(int length, double animationValue, int i) =>
-      ((animationValue * length.toDouble()) - (i / length))
-          .clamp(0, 1)
-          .toDouble();
+      ((animationValue * length.toDouble()) - (i / length)).clamp(0, 1).toDouble();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isMuted = ref
-        .watch(generalAudioControllerProvider.select((value) => value.isMuted));
+    final isMuted = ref.watch(generalAudioControllerProvider.select((value) => value.isMuted));
     final audioController = ref.watch(generalAudioControllerProvider.notifier);
 
     final isDarkMode = ref.watch(
       appSettingControllerProvider.select((value) => value.isDarkTheme),
     );
     final appSettingController = ref.watch(appSettingControllerProvider);
-    final playboardInfoController =
-        ref.watch(playboardInfoControllerProvider.notifier);
-    final playboardDefaultColor = ref
-        .watch(playboardInfoControllerProvider.select((value) => value.color));
+    final playboardInfoController = ref.watch(playboardInfoControllerProvider.notifier);
+    final playboardDefaultColor = ref.watch(playboardInfoControllerProvider.select((value) => value.color));
     final isColorPickerExpand = useState(false);
     final isPreCloseColorPicker = useState(false);
 
@@ -40,11 +35,13 @@ class ThemeSettingBar extends HookConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              PortalEntry(
+              PortalTarget(
                 visible: isColorPickerExpand.value,
-                childAnchor: Alignment.bottomRight,
-                portalAnchor: Alignment.bottomLeft,
-                portal: Column(
+                anchor: const Aligned(
+                  follower: Alignment.bottomRight,
+                  target: Alignment.bottomLeft,
+                ),
+                portalFollower: Column(
                   key: const ValueKey('color-picker'),
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -59,9 +56,7 @@ class ThemeSettingBar extends HookConsumerWidget {
                             milliseconds: 200 +
                                 200 *
                                     (isPreCloseColorPicker.value == false
-                                        ? (ButtonColors.values.length -
-                                            color.index -
-                                            1)
+                                        ? (ButtonColors.values.length - color.index - 1)
                                         : color.index),
                           ),
                           curve: Curves.decelerate,
@@ -75,10 +70,7 @@ class ThemeSettingBar extends HookConsumerWidget {
                           ),
                           child: Padding(
                             padding: EdgeInsets.only(
-                              bottom:
-                                  color.index == ButtonColors.values.length - 1
-                                      ? 0.0
-                                      : 8.0,
+                              bottom: color.index == ButtonColors.values.length - 1 ? 0.0 : 8.0,
                               left: (190 - 49 * 3) / 2,
                             ),
                             child: IgnorePointer(
@@ -87,8 +79,7 @@ class ThemeSettingBar extends HookConsumerWidget {
                                 key: ValueKey('color-${color.index}'),
                                 color: color,
                                 size: ButtonSize.square,
-                                onPressed: () =>
-                                    playboardInfoController.color = color,
+                                onPressed: () => playboardInfoController.color = color,
                                 child: Text(color.name[0].toUpperCase()),
                               ),
                             ),
@@ -108,8 +99,7 @@ class ThemeSettingBar extends HookConsumerWidget {
                     } else {
                       isPreCloseColorPicker.value = true;
                       Future.delayed(
-                        Duration(
-                            milliseconds: 200 * ButtonColors.values.length),
+                        Duration(milliseconds: 200 * ButtonColors.values.length),
                         () {
                           isPreCloseColorPicker.value = false;
                           isColorPickerExpand.value = false;
@@ -126,24 +116,18 @@ class ThemeSettingBar extends HookConsumerWidget {
                 height: 49,
                 width: 49,
                 child: IconButton(
-                    onPressed: () =>
-                        appSettingController.isDarkTheme = !isDarkMode,
+                    onPressed: () => appSettingController.isDarkTheme = !isDarkMode,
                     icon: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 3000),
-                      transitionBuilder: (child, animation) =>
-                          FadeTransition(opacity: animation, child: child),
-                      child: isDarkMode
-                          ? const Icon(Icons.light_mode)
-                          : const Icon(Icons.dark_mode),
+                      transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                      child: isDarkMode ? const Icon(Icons.light_mode) : const Icon(Icons.dark_mode),
                     )),
               ),
               SlidepartyButton(
                 color: playboardDefaultColor,
                 size: ButtonSize.square,
                 onPressed: () => audioController.isMuted = !isMuted,
-                child: isMuted
-                    ? const Icon(Icons.music_off)
-                    : const Icon(Icons.music_note),
+                child: isMuted ? const Icon(Icons.music_off) : const Icon(Icons.music_note),
               ),
             ],
           ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
 import 'package:slideparty/src/features/audio/button_audio_controller.dart';
 
 import 'models/slideparty_button_params.dart';
@@ -64,25 +63,25 @@ class SlidepartyButton extends HookConsumerWidget {
               end: buttonState.value == SlidepartyButtonState.hover ? 1 : 0),
           builder: (context, value, child) {
             final brightness = Theme.of(context).brightness;
-            final _color = Color.lerp(
-              color.primaryColor,
+            final color = Color.lerp(
+              this.color.primaryColor,
               Theme.of(context).colorScheme.background,
               style == SlidepartyButtonStyle.invert ? 1 - value : value,
             )!;
-            final _borderColor = Color.lerp(
+            final borderColor = Color.lerp(
               Color.lerp(
-                _color,
+                color,
                 brightness == Brightness.light ? Colors.black : Colors.white,
                 0.3,
               )!,
-              color.primaryColor,
+              this.color.primaryColor,
               style == SlidepartyButtonStyle.invert ? 1 - value : value,
             );
 
             return CustomPaint(
                 painter: BorderSlidepartyPainter(
-                  color: _color,
-                  borderColor: _borderColor,
+                  color: color,
+                  borderColor: borderColor,
                   edge: 5,
                   brightness: Theme.of(context).brightness,
                   thickness: 2 + value * 1,
@@ -90,12 +89,12 @@ class SlidepartyButton extends HookConsumerWidget {
                 ),
                 child: IconTheme(
                   data: IconThemeData(
-                    color: _surfaceColor(color, value),
+                    color: _surfaceColor(this.color, value),
                   ),
                   child: DefaultTextStyle(
-                    style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontSize: fontSize * scale,
-                          color: _surfaceColor(color, value),
+                          color: _surfaceColor(this.color, value),
                         ),
                     child: child!,
                   ),

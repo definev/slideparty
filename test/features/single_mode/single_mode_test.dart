@@ -144,23 +144,23 @@ void main() {
           ProviderScope(
             overrides: [
               playboardControllerProvider
-                  .overrideWithProvider(singleModeControllerProvider),
+                  .overrideWith(singleModeControllerProvider),
             ],
             child: HookConsumer(
               builder: (context, ref, child) {
-                final _state = ref.watch(playboardControllerProvider);
-                final _memo = useMemoized(() {
-                  state = _state as SinglePlayboardState;
+                final state0 = ref.watch(playboardControllerProvider);
+                final memo = useMemoized(() {
+                  state = state0 as SinglePlayboardState;
                   return null;
-                }, [_state]);
-                _memo;
+                }, [state0]);
+                memo;
                 return child!;
               },
               child: const SingleModePage(),
             ),
           ),
         );
-        final widget = t.first;
+        final (widget, _) = t;
         await tester.pumpWidget(widget);
         await tester.pumpAndSettle();
         expect(find.byType(PlayboardView), findsOneWidget);
@@ -201,23 +201,23 @@ void main() {
           ProviderScope(
             overrides: [
               playboardControllerProvider
-                  .overrideWithProvider(singleModeControllerProvider),
+                  .overrideWith(singleModeControllerProvider),
             ],
             child: HookConsumer(
               builder: (context, ref, child) {
-                final _state = ref.watch(playboardControllerProvider);
-                final _memo = useMemoized(() {
-                  state = _state as SinglePlayboardState;
+                final state0 = ref.watch(playboardControllerProvider);
+                final memo = useMemoized(() {
+                  state = state0 as SinglePlayboardState;
                   return null;
-                }, [_state]);
-                _memo;
+                }, [state0]);
+                memo;
                 return child!;
               },
               child: const SingleModePage(),
             ),
           ),
         );
-        final widget = t.first;
+        final (widget, _) = t;
         await tester.pumpWidget(widget);
         await tester.pumpAndSettle();
         expect(find.byType(PlayboardView), findsOneWidget);
@@ -261,23 +261,23 @@ void main() {
           ProviderScope(
             overrides: [
               playboardControllerProvider
-                  .overrideWithProvider(singleModeControllerProvider),
+                  .overrideWith(singleModeControllerProvider),
             ],
             child: HookConsumer(
               builder: (context, ref, child) {
-                final _state = ref.watch(playboardControllerProvider);
-                final _memo = useMemoized(() {
-                  state = _state as SinglePlayboardState;
+                final state0 = ref.watch(playboardControllerProvider);
+                final memo = useMemoized(() {
+                  state = state0 as SinglePlayboardState;
                   return null;
-                }, [_state]);
-                _memo;
+                }, [state0]);
+                memo;
                 return child!;
               },
               child: const SingleModePage(),
             ),
           ),
         );
-        final widget = t.first;
+        final (widget, _) = t;
         await tester.pumpWidget(widget);
         await tester.pumpAndSettle(const Duration(milliseconds: 700));
         expect(find.byType(PlayboardView), findsOneWidget);
@@ -312,12 +312,12 @@ void main() {
           ProviderScope(
             overrides: [
               playboardControllerProvider
-                  .overrideWithProvider(singleModeControllerProvider),
+                  .overrideWith(singleModeControllerProvider),
             ],
             child: const SingleModePage(),
           ),
         );
-        final widget = t.first;
+        final (widget, _) = t;
         await tester.pumpWidget(widget);
         await tester.pump(const Duration(milliseconds: 500));
 
@@ -346,12 +346,12 @@ void main() {
           ProviderScope(
             overrides: [
               playboardControllerProvider
-                  .overrideWithProvider(singleModeControllerProvider),
+                  .overrideWith(singleModeControllerProvider),
             ],
             child: const SingleModePage(),
           ),
         );
-        final widget = t.first;
+        final (widget, _) = t;
         await tester.pumpWidget(widget);
         await tester.pump();
 
@@ -388,23 +388,23 @@ void main() {
         ProviderScope(
           overrides: [
             playboardControllerProvider
-                .overrideWithProvider(singleModeControllerProvider),
+                .overrideWith(singleModeControllerProvider),
           ],
           child: HookConsumer(
             builder: (context, ref, child) {
-              final _state = ref.watch(playboardControllerProvider);
-              final _memo = useMemoized(() {
-                state = _state as SinglePlayboardState;
+              final state0 = ref.watch(playboardControllerProvider);
+              final memo = useMemoized(() {
+                state = state0 as SinglePlayboardState;
                 return null;
-              }, [_state]);
-              _memo;
+              }, [state0]);
+              memo;
               return child!;
             },
             child: const SingleModePage(),
           ),
         ),
       );
-      final widget = t.first;
+      final (widget, _) = t;
       await tester.pumpWidget(widget);
       await tester.pumpAndSettle();
       expect(find.byType(PlayboardView), findsOneWidget);
@@ -422,12 +422,12 @@ void main() {
         ProviderScope(
           overrides: [
             playboardControllerProvider
-                .overrideWithProvider(singleModeControllerProvider),
+                .overrideWith(singleModeControllerProvider),
           ],
           child: const SingleModePage(),
         ),
       );
-      final widget = t.first;
+      final (widget, _) = t;
       await tester.pumpWidget(widget);
       await tester.pump(const Duration(milliseconds: 500));
 
@@ -454,12 +454,12 @@ void main() {
         ProviderScope(
           overrides: [
             playboardControllerProvider
-                .overrideWithProvider(singleModeControllerProvider),
+                .overrideWith(singleModeControllerProvider),
           ],
           child: const SingleModePage(),
         ),
       );
-      final widget = t.first;
+      final (widget, _) = t;
       await tester.pumpWidget(widget);
       await tester.pump(const Duration(milliseconds: 500));
 

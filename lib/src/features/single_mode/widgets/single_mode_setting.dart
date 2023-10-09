@@ -35,17 +35,17 @@ class SingleModeSetting extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    child: LineIcon.home(),
+                    child: const LineIcon.home(),
                     onTap: () => context.go('/'),
                   ),
                   Text(
                     'Setting',
-                    style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                         ),
                   ),
                   GestureDetector(
-                    child: LineIcon.times(),
+                    child: const LineIcon.times(),
                     onTap: () => openSettingController.state = false,
                   ),
                 ],
@@ -74,7 +74,7 @@ class SingleModeSetting extends ConsumerWidget {
                           audioController.isMuted ? 'Un-mute' : 'Mute',
                           style: Theme.of(context)
                               .textTheme
-                              .subtitle2!
+                              .titleSmall!
                               .copyWith(color: color),
                         ),
                       );
@@ -92,7 +92,7 @@ class SingleModeSetting extends ConsumerWidget {
                   'Layout',
                   style: Theme.of(context)
                       .textTheme
-                      .subtitle2!
+                      .titleSmall!
                       .copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
               ),
@@ -125,7 +125,7 @@ class SingleModeSetting extends ConsumerWidget {
                             '3 x 3',
                             style: Theme.of(context)
                                 .textTheme
-                                .subtitle1!
+                                .titleMedium!
                                 .copyWith(
                                   color: size == 3
                                       ? Theme.of(context).colorScheme.primary
@@ -153,7 +153,7 @@ class SingleModeSetting extends ConsumerWidget {
                             '4 x 4',
                             style: Theme.of(context)
                                 .textTheme
-                                .subtitle1!
+                                .titleMedium!
                                 .copyWith(
                                   color: size == 4
                                       ? Theme.of(context).colorScheme.primary
@@ -181,7 +181,7 @@ class SingleModeSetting extends ConsumerWidget {
                             '5 x 5',
                             style: Theme.of(context)
                                 .textTheme
-                                .subtitle1!
+                                .titleMedium!
                                 .copyWith(
                                   color: size == 5
                                       ? Theme.of(context).colorScheme.primary

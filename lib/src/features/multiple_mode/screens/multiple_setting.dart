@@ -32,7 +32,7 @@ class MultipleSetting extends HookConsumerWidget {
                 children: [
                   Text(
                     'Multiple Mode',
-                    style: themeData.textTheme.headline5!.copyWith(
+                    style: themeData.textTheme.headlineSmall!.copyWith(
                       color: color.primaryColor,
                     ),
                   ),
@@ -41,7 +41,7 @@ class MultipleSetting extends HookConsumerWidget {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Number of players',
-                      style: themeData.textTheme.subtitle1,
+                      style: themeData.textTheme.titleMedium,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -56,11 +56,11 @@ class MultipleSetting extends HookConsumerWidget {
                           playerChosen.value.length,
                           (i) => i == index,
                         ),
-                        child: Text('${index + 2}'),
                         style: playerChosen.value[index]
                             ? SlidepartyButtonStyle.normal
                             : SlidepartyButtonStyle.invert,
                         customSize: Size((constraints.maxWidth - 20) / 3, 49),
+                        child: Text('${index + 2}'),
                       ),
                     ),
                   ),
@@ -69,7 +69,7 @@ class MultipleSetting extends HookConsumerWidget {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Board size',
-                      style: themeData.textTheme.subtitle1,
+                      style: themeData.textTheme.titleMedium,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -84,11 +84,11 @@ class MultipleSetting extends HookConsumerWidget {
                           playerChosen.value.length,
                           (i) => i == index,
                         ),
-                        child: Text('${index + 3} x ${index + 3}'),
                         style: boardChosen.value[index]
                             ? SlidepartyButtonStyle.normal
                             : SlidepartyButtonStyle.invert,
                         customSize: Size((constraints.maxWidth - 20) / 3, 49),
+                        child: Text('${index + 3} x ${index + 3}'),
                       ),
                     ),
                   ),
@@ -108,8 +108,8 @@ class MultipleSetting extends HookConsumerWidget {
                         );
                       }
                     },
-                    child: const Text('Start'),
                     customSize: Size(constraints.maxWidth, 49),
+                    child: const Text('Start'),
                   ),
                 ],
               );

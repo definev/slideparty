@@ -1,5 +1,5 @@
-import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:dartx/dartx.dart';
+import 'package:slideparty/src/features/playboard/models/playboard_config.dart';
 import 'package:slideparty/src/features/playboard/playboard.dart';
 import 'package:slideparty/src/widgets/buttons/models/slideparty_button_params.dart';
 import 'package:slideparty_socket/slideparty_socket_fe.dart';
@@ -47,11 +47,11 @@ class MultiplePlayboardState extends PlayboardState {
       _playerStates.keys.toList()..remove(playerId);
 
   List<ButtonColors> getPlayerColors(String playerId) {
-    final _config = config as MultiplePlayboardConfig;
-    return _config.configs.values
+    final config = this.config as MultiplePlayboardConfig;
+    return config.configs.values
         .whereIndexed(
           (value, index) {
-            if (_config.configs.keys.elementAt(index) == playerId) return false;
+            if (config.configs.keys.elementAt(index) == playerId) return false;
             return true;
           },
         )
@@ -97,14 +97,14 @@ class MultiplePlayboardState extends PlayboardState {
     );
   }
 
-  MultiplePlayboardState setConfig(String index, PlayboardConfig _config) =>
+  MultiplePlayboardState setConfig(String index, PlayboardConfig config) =>
       MultiplePlayboardState(
         boardSize: boardSize,
         playerCount: playerCount,
         usedActions: _usedActions,
         playerStates: _playerStates,
         stateConfig:
-            (config as MultiplePlayboardConfig).changeConfig(index, _config),
+            (config as MultiplePlayboardConfig).changeConfig(index, config),
       );
 
   @override
